@@ -15,3 +15,7 @@
 *.exe
 *.out
 *.app
+
+# Python stuff
+*.py[cod]
+__pycache__
