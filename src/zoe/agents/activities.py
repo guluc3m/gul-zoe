@@ -21,9 +21,12 @@ class ActivitiesAgent:
         #self._listener.sendbus(response)
 
     def updateUsers(self, parser):
-        presi = parser.get("presi")
-        vice = parser.get("vice")
-        self._users = {"presi":presi, "vice":vice}
+        presi = parser.get(parser.get("group-junta-presi") + "-name")
+        vice = parser.get(parser.get("group-junta-vice") + "-name")
+        coord = parser.get(parser.get("group-junta-coord") + "-name")
+        tesorero = parser.get(parser.get("group-junta-tesorero") + "-name")
+        vocal = parser.get(parser.get("group-junta-vocal") + "-name")
+        self._users = {"presi":presi, "vice":vice, "tesorero":tesorero, "coord":coord, "vocal":vocal}
 
     def requestUsers(self):
         msg = MessageBuilder({"dst":"users","tag":"notify"}).msg()
@@ -47,6 +50,9 @@ class ActivitiesAgent:
         print ("  -------------------")
         print ()
         print ("  People at GUL:")
-        print ("  - Our president is " + self._users["presi"])
-        print ("  - Our vicepresident is " + self._users["vice"])
-        print ("  Here goes some other stuff...")
+        print (self._users["presi"])
+        print (self._users["vice"])
+        print (self._users["coord"])
+        print (self._users["tesorero"])
+        print (self._users["vocal"])
+
