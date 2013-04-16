@@ -37,7 +37,7 @@ class Listener:
             if not data: break
             message = message + data.decode("utf-8")
         conn.close()
-        print (YELLOW + "RECV " + host + ":" + str(port) + " " + message + RESET)
+        print (YELLOW + "RECV " + host + ":" + str(port) + " " + str(message.encode("utf-8", 'replace')) + RESET)
         parser = MessageParser(message)
         tags = parser.tags()
         if "exit!" in tags:
@@ -54,9 +54,9 @@ class Listener:
         try:
             s.connect((host, port))
             s.sendall(message.encode("utf-8"))
-            print (GREEN + "SENT " + host + ":" + str(port) + " " + message + RESET)
+            print (GREEN + "SENT " + host + ":" + str(port) + " " + str(message.encode("utf-8", 'replace')) + RESET)
         except Exception as e:
-            print (RED + "ERR  " + host + ":" + str(port) + " " + message + RESET)
+            print (RED + "ERR  " + host + ":" + str(port) + " " + str(message.encode("utf-8", 'replace')) + RESET)
             raise e
         finally:
             s.close()

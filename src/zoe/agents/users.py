@@ -8,7 +8,7 @@ class UsersAgent:
         self._listener = Listener(host, port, self, serverhost, serverport)
         self._interval = interval
         self._config = configparser.ConfigParser()
-        self._config.read(conf)
+        self._config.read(conf, encoding = "utf8")
         self.update()
 
     def update(self):
