@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import datetime
 
 from zoe.zs import *
 
@@ -7,6 +8,7 @@ class BankingAgent:
     def __init__(self, host, port, serverhost, serverport, db = "/tmp/zoe-banking.sqlite3"):
         self._listener = Listener(host, port, self, serverhost, serverport)
         self._db = db
+        self.notify(str(datetime.datetime.now().year))
 
     def start(self):
         self._listener.start()
@@ -16,10 +18,10 @@ class BankingAgent:
 
     def receive(self, parser):
         tags = parser.tags()
-        if "incoming" in tags:
-            self.incoming(parser)
+        if "entry" in tags:
+            self.entry(parser)
         if "notify" in tags:
-            self.notify(parser)
+            self.notify(parser.get("year"), parser)
 
     def opendb(self):
         conn = sqlite3.connect(self._db)
@@ -28,23 +30,22 @@ class BankingAgent:
         conn.commit()
         return (conn, c)
 
-    def incoming(self, parser):
+    def entry(self, parser):
         ts = parser.get("date")
         amount = parser.get("amount")
         what = parser.get("what")
-        self.incoming0(ts, amount, what)
+        self.entry0(ts, amount, what)
 
-    def incoming0(self, ts, amount, what):
+    def entry0(self, ts, amount, what):
         conn, c = self.opendb()
         params = (str(uuid.uuid4()), ts, amount, what)
         c.execute("insert into m values(?, ?, ?, ?)", params)
         conn.commit()
         c.close()
 
-    def notify(self, parser):
-        year = parser.get("year")
+    def notify(self, year, original = None):
         movements = self.movements(year)
-        aMap = {"src":"banking", "topic":"banking", "tag":["banking", "notification"]}
+        aMap = {"src":"banking", "topic":"banking", "tag":["banking", "notification"], "year":str(year)}
         balance = 0
         for movement in movements:
             (uuid, ts, amount, what) = movement
@@ -53,7 +54,7 @@ class BankingAgent:
             aMap[uuid + "-what"] = what
             balance = balance + amount
         aMap["balance"] = str(balance)
-        self._listener.sendbus(MessageBuilder(aMap, parser).msg())
+        self._listener.sendbus(MessageBuilder(aMap, original).msg())
 
     def movements(self, year):
         conn, c = self.opendb()
