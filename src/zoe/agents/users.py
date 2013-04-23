@@ -43,12 +43,12 @@ class UsersAgent:
     def receive(self, parser):
         tags = parser.tags()
         if "notify" in tags:
-            self.notify()
+            self.notify(parser)
 
-    def notify(self):
+    def notify(self, original = None):
         tags = ["users", "notification"]
         aMap = {"src": "users", "topic": "users", "tag": tags}
-        msg = MessageBuilder(dict(aMap, **self._users)).msg()
+        msg = MessageBuilder(dict(aMap, **self._users), original).msg()
         self._listener.sendbus(msg)
         
     def loop(self):

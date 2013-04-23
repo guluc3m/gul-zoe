@@ -34,9 +34,10 @@ class BroadcastAgent:
         for nick in nicks:
             preferred = self._parser.get(nick + "-preferred")
             if preferred == "twitter":
-                self.tweet(nick, msg)
+                self.tweet(nick, msg, parser)
 
-    def tweet(self, nick, msg):
+    def tweet(self, nick, msg, original = None):
         account = self._parser.get(nick + "-twitter")
         tags = {"dst":"twitter", "to":account, "msg":msg}
-        self._listener.sendbus(MessageBuilder(tags).msg())
+        self._listener.sendbus(MessageBuilder(tags, original).msg())
+

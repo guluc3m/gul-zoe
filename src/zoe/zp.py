@@ -1,8 +1,10 @@
+import uuid
 
 class MessageParser:
-    def __init__(self, msg):
+    def __init__(self, msg, origin = None):
         self._msg = msg.strip()
         self._map = {}
+        self._origin = origin
         pairs = msg.split("&")
         for pair in pairs:
             if pair == "":
@@ -38,8 +40,12 @@ class MessageParser:
 
 class MessageBuilder:
 
-    def __init__(self, aMap):
+    def __init__(self, aMap, original = None):
         aStr=""
+        if original:
+            aMap["_cid"] = original.get("_cid")
+        else:
+            aMap["_cid"] = str(uuid.uuid4())
         for key in aMap.keys():
             value = aMap[key]
             if value.__class__ is str:

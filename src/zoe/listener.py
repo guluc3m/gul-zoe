@@ -41,7 +41,7 @@ class Listener:
             message = message + data.decode("utf-8")
         conn.close()
         self.log (YELLOW, "RECV", host, port, message)
-        parser = MessageParser(message)
+        parser = MessageParser(message, addr)
         tags = parser.tags()
         if "exit!" in tags:
             self.stop()
