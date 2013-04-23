@@ -42,7 +42,7 @@ class MessageBuilder:
 
     def __init__(self, aMap, original = None):
         aStr=""
-        if original:
+        if original and original.get("_cid"):
             aMap["_cid"] = original.get("_cid")
         else:
             aMap["_cid"] = str(uuid.uuid4())

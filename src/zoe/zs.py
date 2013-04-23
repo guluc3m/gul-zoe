@@ -66,6 +66,8 @@ class Server:
 
     def dispatch(self, parser):
         agents = self.agentFor(parser)
+        if not agents:
+            return
         for agent in agents:
             host, port = agent
             if self._debug:

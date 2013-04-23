@@ -1,3 +1,4 @@
+import uuid
 import socket
 import threading
 from zoe.zp import *
@@ -42,6 +43,9 @@ class Listener:
         conn.close()
         self.log (YELLOW, "RECV", host, port, message)
         parser = MessageParser(message, addr)
+        cid = parser.get("_cid")
+        if not cid:
+            parser._map["_cid"] = str(uuid.uuid4())
         tags = parser.tags()
         if "exit!" in tags:
             self.stop()
@@ -60,7 +64,7 @@ class Listener:
             self.log (GREEN, "SENT", host, port, message)
         except Exception as e:
             self.log (RED, "ERR ", host, port, message)
-            raise e
+            #raise e
         finally:
             s.close()
 
