@@ -9,17 +9,21 @@ GREEN = '\033[32m'
 YELLOW = '\033[33m'
 
 class Listener:
-    def __init__(self, host, port, delegate, serverhost, serverport):
+    def __init__(self, host, port, delegate, serverhost, serverport, debugmode = False):
         self._host, self._port = host, port
         self._srvhost, self._srvport = serverhost, serverport
         self._delegate = delegate
         self._running = False
+        self._debugmode = debugmode
 
-    def start(self):
+    def start(self, sockethook = None):
         self._running = True
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._socket.bind((self._host, self._port))
+        (self._host, self._port) = self._socket.getsockname()
+        if sockethook:
+            sockethook()
         self._socket.listen(10)
         while self._running:
             try:
@@ -31,7 +35,8 @@ class Listener:
                 pass
 
     def log(self, colour, header, host, port, message):
-        print (colour + header + " " + host + ":" + str(port) + " " + message + RESET)
+        if self._debugmode:
+            print (colour + header + " " + host + ":" + str(port) + " " + message + RESET)
 
     def connection(self, conn, addr):
         message = ""
