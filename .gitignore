@@ -19,3 +19,6 @@
 # Python stuff
 *.py[cod]
 __pycache__
+
+# Logs
+*.log
