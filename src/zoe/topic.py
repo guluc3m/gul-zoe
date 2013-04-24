@@ -21,12 +21,19 @@ class TopicDispatcher:
         for name in names:
             self._topics[topic].append(name)
 
+    def remove(self, topic, *names):
+        if not topic in self._topics:
+            return
+        for name in names:
+            if name in self._topics[topic]:
+                self._topics[topic].remove(name)
+
     def dispatch(self, parser):
         tname = parser.get("topic")
         if not tname: return None
         if not tname in self._topics: return None
         agents = list(self._topics[tname])
         src = parser.get("src")
-        if src:
+        if src and src in agents:
             agents.remove(src)
         return agents

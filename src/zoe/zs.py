@@ -23,8 +23,10 @@ class Server:
         if configstr:
             self._config.read_string(configstr)
         self.registerAgents()
-        self.registerDispatcher(PTPDispatcher(self._config))
-        self.registerDispatcher(TopicDispatcher(self._config))
+        self._ptpdispatcher = PTPDispatcher(self._config)
+        self._topicdispatcher = TopicDispatcher(self._config)
+        self.registerDispatcher(self._ptpdispatcher)
+        self.registerDispatcher(self._topicdispatcher)
         self._debug = debug
 
     def start(self):
@@ -45,8 +47,11 @@ class Server:
         self._dispatchers.append(dispatcher)
 
     def registerAgent(self, name, host, port):
-        self._agents[name] = (host, port)
+        self._agents[name] = (host, int(port))
         self._agentslookup[host + ":" + str(port)] = name
+
+    def unregisterAgent(self, name):
+        self._agents[name] = None
 
     def destinationFor (self, parser):
         for dispatcher in self._dispatchers:
@@ -77,7 +82,10 @@ class Server:
     def receive(self, parser):
         if self._debug:
             self.debugFrom(parser)
-        self.dispatch(parser)
+        if parser.get("dst") == "server":
+            self.serve(parser)
+        else:
+            self.dispatch(parser)
 
     def sendto(self, host, port, message, delay = True):
         try:
@@ -85,6 +93,22 @@ class Server:
             return True
         except Exception as e:
             return False
+
+    def serve(self, parser):
+        if "register" in parser.tags():
+            name = parser.get("name")
+            host = parser.get("host")
+            port = parser.get("port")
+            topic = parser.get("topic")
+            self.registerAgent(name, host, port)
+            if topic:
+                self._topicdispatcher.add(topic, name)
+        if "unregister" in parser.tags():
+            name = parser.get("name")
+            topic = parser.get("topic")
+            self.unregisterAgent(name)
+            if topic:
+                self._topicdispatcher.remove(topic, name)
 
     def debug(self, parser):
         cid = parser.get("_cid")
