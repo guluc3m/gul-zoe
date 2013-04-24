@@ -10,14 +10,14 @@ USER=`sanitize "$USER"`
 CID="CID_USERS_QUERY"
 
 # stalk the "users" topic, and wait for a message from agent "users"
-TEMPFILE="/tmp/zoe-stalk.tmp"
 SRC="users"
 TOPIC="users"
+TEMPFILE="/tmp/zoe-stalk.tmp"
 stalk "$SRC" "$TOPIC" "$CID" > $TEMPFILE &
 PID=$!
 sleep 1
 
-# inyect a query message
+# inject a query message
 M="dst=users&tag=notify&_cid=$CID"
 send "$M"
 
