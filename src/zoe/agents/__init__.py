@@ -4,3 +4,4 @@ from zoe.agents.activities import *
 from zoe.agents.broadcast import *
 from zoe.agents.twitter import *
 from zoe.agents.banking import *
+from zoe.agents.stalker import *
