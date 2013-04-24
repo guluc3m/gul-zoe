@@ -7,7 +7,7 @@ USER="$1"
 USER=`sanitize "$USER"`
 
 # choose a random CID
-CID="CID_USERS_QUERY"
+CID=`uuidgen`
 
 # stalk the "users" topic, and wait for a message from agent "users"
 SRC="users"
