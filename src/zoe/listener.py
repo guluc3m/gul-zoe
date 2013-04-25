@@ -22,9 +22,9 @@ class Listener:
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._socket.bind((self._host, self._port))
         (self._host, self._port) = self._socket.getsockname()
+        self._socket.listen(10)
         if sockethook:
             sockethook()
-        self._socket.listen(10)
         while self._running:
             try:
                 conn, addr = self._socket.accept()

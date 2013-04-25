@@ -5,8 +5,9 @@ import sys
 class StalkerAgent:
     def __init__(self, host, port, serverhost, serverport, msgparams):
         self._listener = Listener(host, port, self, serverhost, serverport)
-        self._source, self._cid, self._topic = msgparams
+        self._source, self._topic, self._original = msgparams
         self._name = "stalker-" + str(uuid.uuid4())
+        self._parser = MessageParser(self._original)
 
     def start(self):
         self._listener.start(self.register)
@@ -15,13 +16,16 @@ class StalkerAgent:
         self._listener.stop()
 
     def receive(self, parser):
+        tags = parser.tags()
         source = parser.get("src")
         cid = parser.get("_cid")
-        if source == self._source and cid == self._cid:
+        if source == self._source and cid == self._parser.get("_cid"):
             self.unregister()
             self.show(parser)
             self.stop()
             sys.exit(0)
+        if "register" in tags and "success" in tags:
+            self._listener.sendbus(self._original)
 
     def register(self):
         self._host = self._listener._host

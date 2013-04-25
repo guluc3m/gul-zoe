@@ -1,6 +1,7 @@
 import socket
 import threading
 import configparser
+import time
 from zoe.zp import *
 from zoe.listener import *
 from zoe.ptp import *
@@ -94,15 +95,24 @@ class Server:
         except Exception as e:
             return False
 
+    def registerAgentDyn(self, parser):
+        name = parser.get("name")
+        host = parser.get("host")
+        port = parser.get("port")
+        topic = parser.get("topic")
+        self.registerAgent(name, host, port)
+        aMap = {"src":"server", "dst":name, "tag":["register", "success"]}
+        if topic:
+            self._topicdispatcher.add(topic, name)
+            aMap["topic"] = topic
+        message = MessageBuilder(aMap).msg()
+        parser = MessageParser(message)
+        self.debugTo(parser, (host, port))
+        self.sendto(host, int(port), message)
+
     def serve(self, parser):
         if "register" in parser.tags():
-            name = parser.get("name")
-            host = parser.get("host")
-            port = parser.get("port")
-            topic = parser.get("topic")
-            self.registerAgent(name, host, port)
-            if topic:
-                self._topicdispatcher.add(topic, name)
+            self.registerAgentDyn(parser)
         if "unregister" in parser.tags():
             name = parser.get("name")
             topic = parser.get("topic")

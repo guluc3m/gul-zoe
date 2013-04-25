@@ -3,27 +3,18 @@
 . common.sh
 
 # The group we are looking for
-GROUP="$1"
-GROUP=`sanitize "$GROUP"`
+GRP="$1"
+GRP=`sanitize "$GRP"`
 
 # choose a random CID
 CID=`uuidgen`
 
-# stalk the "users" topic, and wait for a message from agent "users"
+# Query parameters
 SRC="users"
 TOPIC="users"
-TEMPFILE="/tmp/zoe-stalk.tmp"
-stalk "$SRC" "$TOPIC" "$CID" > $TEMPFILE &
-PID=$!
-sleep 1
-
-# inject a query message
 M="dst=users&tag=notify&_cid=$CID"
-send "$M"
 
-# wait for the stalker
-wait $PID
-
-# show the group info
-cat $TEMPFILE | grep "^group-$GROUP-"
-rm $TEMPFILE
+# Execute query
+pushd $ZOE_BASE >/dev/null
+$PYTHON32 stalker_agent.py -s "$SRC" -t "$TOPIC" -m "$M" | grep "^group-$GRP-"
+popd >/dev/null

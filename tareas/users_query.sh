@@ -9,21 +9,12 @@ USER=`sanitize "$USER"`
 # choose a random CID
 CID=`uuidgen`
 
-# stalk the "users" topic, and wait for a message from agent "users"
+# Query parameters
 SRC="users"
 TOPIC="users"
-TEMPFILE="/tmp/zoe-stalk.tmp"
-stalk "$SRC" "$TOPIC" "$CID" > $TEMPFILE &
-PID=$!
-sleep 1
-
-# inject a query message
 M="dst=users&tag=notify&_cid=$CID"
-send "$M"
 
-# wait for the stalker
-wait $PID
-
-# show the user info
-cat $TEMPFILE | grep "^$USER-"
-rm $TEMPFILE
+# Execute query
+pushd $ZOE_BASE >/dev/null
+$PYTHON32 stalker_agent.py -s "$SRC" -t "$TOPIC" -m "$M" | grep "^$USER-"
+popd >/dev/null
