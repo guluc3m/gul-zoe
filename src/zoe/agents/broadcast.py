@@ -29,6 +29,7 @@ class BroadcastAgent:
     def send(self, parser):
         if not self._parser:
             self.requestUsers()
+            return
         msg = parser.get("msg")
         nicks = self._parser.get("group-broadcast-members")
         for nick in nicks:

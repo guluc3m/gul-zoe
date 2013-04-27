@@ -81,6 +81,11 @@ class Server:
             self.sendto(host, port, parser.msg())
 
     def receive(self, parser):
+        if not parser.get("_cid"):
+            msg = parser.msg()
+            cid = str(uuid.uuid4())
+            newmsg = MessageBuilder.override(msg, {"_cid":cid}).msg()
+            parser = MessageParser(newmsg)
         if self._debug:
             self.debugFrom(parser)
         if parser.get("dst") == "server":
@@ -129,9 +134,7 @@ class Server:
 
     def debugFrom(self, parser):
         cid = parser.get("_cid")
-        host, port = parser._origin
-        addr = host + ":" + str(port)
-        print(cid + " Message received from " + addr + ":")
+        print(cid + " Message received:")
         self.debug(parser)
 
     def debugTo(self, parser, agent):

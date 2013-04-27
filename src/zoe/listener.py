@@ -47,10 +47,7 @@ class Listener:
             message = message + data.decode("utf-8")
         conn.close()
         self.log (YELLOW, "RECV", host, port, message)
-        parser = MessageParser(message, addr)
-        cid = parser.get("_cid")
-        if not cid:
-            parser._map["_cid"] = str(uuid.uuid4())
+        parser = MessageParser(message)
         tags = parser.tags()
         if "exit!" in tags:
             self.stop()
