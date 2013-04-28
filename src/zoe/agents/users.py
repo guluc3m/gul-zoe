@@ -1,34 +1,17 @@
 import time
 import threading
 import configparser
-from zoe.zs import *
+import zoe
 
 class UsersAgent:
     def __init__(self, host, port, serverhost, serverport, interval = 1, conf = "zoe-users.conf"):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+        self._model = zoe.Users(conf)
         self._interval = interval
-        self._conf = conf
         self.update()
 
     def update(self):
-        self._config = configparser.ConfigParser()
-        self._config.read(self._conf, encoding = "utf8")
-        users = {}
-        users["subject"] = []
-        for section in self._config.sections():
-            kind, name = section.split(" ")
-            if kind == "group":
-                for key in self._config[section]:
-                    key2 = "group-" + name + "-" + key
-                    value2 = self._config[section][key]
-                    if key == "members":
-                        value2 = value2.split()
-                    users[key2] = value2
-            else:
-                users["subject"].append(name)
-                for key in self._config[section]:
-                    users[name + "-" + key] = self._config[section][key]
-        self._users = users
+        self._model.update()
         self.notify()
 
     def start(self):
@@ -46,9 +29,10 @@ class UsersAgent:
             self.notify(parser)
 
     def notify(self, original = None):
+        users = self._model.asmap()
         tags = ["users", "notification"]
         aMap = {"src": "users", "topic": "users", "tag": tags}
-        msg = MessageBuilder(dict(aMap, **self._users), original).msg()
+        msg = zoe.MessageBuilder(dict(aMap, **users), original).msg()
         self._listener.sendbus(msg)
         
     def loop(self):
