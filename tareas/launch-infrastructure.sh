@@ -11,7 +11,7 @@ function launch() {
     echo "Starting $NAME"
     LOG=$ZOE_LOGS/$NAME.log
     ERR=$ZOE_LOGS/$NAME.error.log
-    $PYTHON32 $SCRIPT > $LOG 2>$ERR &
+    $PYTHON3 $SCRIPT > $LOG 2>$ERR &
     PID=$!
     echo $PID >> $ZOE_PIDS
     sleep 1
