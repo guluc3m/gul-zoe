@@ -16,5 +16,5 @@ M="dst=users&tag=notify&_cid=$CID"
 
 # Execute query
 pushd $ZOE_BASE >/dev/null
-$PYTHON32 stalker_agent.py -s "$SRC" -t "$TOPIC" -m "$M" | grep "^$USER-"
+$PYTHON3 stalker_agent.py -s "$SRC" -t "$TOPIC" -m "$M" | grep "^$USER-"
 popd >/dev/null
