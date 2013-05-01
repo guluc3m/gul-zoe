@@ -52,12 +52,18 @@ class Lexer:
 
     def analyze(self, original):
         print("Original command: " + original)
-        (users, cmd) = self.extractusers(original)
-        print("Found users: " + str(users))
-        (money, cmd) = self.extractmoney(cmd)
-        print("Found money: " + str(money))
+       
+        cmd = original
+
         (strings, cmd) = self.extractstrings(cmd)
         print("Found strings: " + str(strings))
+        
+        (users, cmd) = self.extractusers(cmd)
+        print("Found users: " + str(users))
+        
+        (money, cmd) = self.extractmoney(cmd)
+        print("Found money: " + str(money))
+        
         (dates, cmd) = self.extractdates(cmd)
         print("Found dates: " + str(dates))
         
