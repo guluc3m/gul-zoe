@@ -62,7 +62,14 @@ class Users:
         for section in self._config.sections():
             kind, name = section.split(" ")
             if kind == "subject":
+<<<<<<< HEAD
                 ids[name] = self._config[section]
+=======
+                aMap = {}
+                for key in self._config[section]:
+                    aMap[key] = self._config[section][key]
+                ids[name] = aMap
+>>>>>>> fuzzy
         return ids
 
     def subject(self, name):
