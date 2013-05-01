@@ -47,7 +47,7 @@ class Lexer:
     def __init__(self):
         self._users = zoe.Users()
         self._moneyre = re.compile("([0-9]*[\.,]?[0-9]+)\s*(leuros|euros|euro|eur)", re.IGNORECASE)
-        self._stringre = re.compile("'([^']+)'")
+        self._stringre = re.compile('\"([^\"]+)\"')
         self._datere = re.compile("(\d\d\d\d-\d\d-\d\d)")
 
     def analyze(self, original):
@@ -103,8 +103,8 @@ class Lexer:
 
     def extractstrings(self, cmd):
         foundstrings = []
-        trans = str.maketrans("\"", "'")
-        cmd = cmd.translate(trans)
+        #trans = str.maketrans("\"", "'")
+        #cmd = cmd.translate(trans)
         for match in self._stringre.finditer(cmd):
             s = match.group(1)
             foundstrings.append(s)
