@@ -26,7 +26,7 @@ do
     mindate=`cat $TEMP | grep "^$i-mindate" | sed -e "s/^.*=//"`
     maxdate=`cat $TEMP | grep "^$i-maxdate" | sed -e "s/^.*=//"`
     echo Courses from $mindate to $maxdate:
-    cat $TEMP | sort | grep "^$i-lecture" | sed -e "s/^.*=/    /"
+    cat $TEMP | sort | grep "^$i-lecture-" | sed -e "s/^.*=/    /"
     echo
 done
 

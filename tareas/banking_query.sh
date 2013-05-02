@@ -26,8 +26,8 @@ do
     amount=`cat $TEMP | grep "^$i-amount" | sed -e "s/^.*=//"`
     what=`cat $TEMP | grep "^$i-what" | sed -e "s/^.*=//"`
     echo $date $amount $what
-done
+done > $TEMP.2
 
+cat $TEMP.2 | sort
 cat $TEMP | grep "^balance"
-
 

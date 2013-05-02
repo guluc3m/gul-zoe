@@ -72,6 +72,7 @@ class BankingAgent:
     def notify(self, year, original = None):
         movements = self.movements(year)
         aMap = {"src":"banking", "topic":"banking", "tag":["banking", "notification"], "year":str(year)}
+        ids = []
         balance = 0
         for movement in movements:
             (uuid, ts, amount, what) = movement
@@ -79,7 +80,9 @@ class BankingAgent:
             aMap[uuid + "-amount"] = str(amount)
             aMap[uuid + "-what"] = what
             balance = balance + amount
+            ids.append(uuid)
         aMap["balance"] = str(balance)
+        aMap["ids"] = ids
         self._listener.sendbus(MessageBuilder(aMap, original).msg())
 
     def movements(self, year):

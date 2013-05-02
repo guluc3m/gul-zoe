@@ -73,11 +73,13 @@ class InventoryAgent:
     def notify(self, original = None):
         movements = self.movements()
         aMap = {"src":"inventory", "topic":"inventory", "tag":["inventory", "notification"]}
-        balance = 0
+        ids = []
         for movement in movements:
             (uuid, amount, what) = movement
             aMap[uuid + "-amount"] = str(amount)
             aMap[uuid + "-what"] = what
+            ids.append(uuid)
+        aMap["ids"] = ids
         self._listener.sendbus(MessageBuilder(aMap, original).msg())
 
     def movements(self):

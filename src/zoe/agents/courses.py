@@ -62,13 +62,19 @@ class CoursesAgent:
             year = datetime.date.today().year
         courses = self._model.foryear(year)
         aMap = {"src":"courses", "topic":"courses", "tag":["courses", "notification"], "year":str(year)}
+        courseids = []
         for course in courses:
             id = course["id"]
+            courseids.append(id)
             aMap["course-" + id + "-mindate"] = course["mindate"]
             aMap["course-" + id + "-maxdate"] = course["maxdate"]
+            lectureids = []
             for lecture in course["lectures"]:
                 lid = lecture["id"]
+                lectureids.append(lid)
                 aMap["course-" + id + "-lecture-" + lid] = lecture["title"]
+            aMap["course-" + id + "-lectureids"] = lectureids
+        aMap["courseids"] = courseids
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
         
