@@ -25,3 +25,4 @@
 # THE SOFTWARE.
 
 from zoe.models.users import *
+from zoe.models.courses import * 
