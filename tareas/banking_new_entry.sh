@@ -2,15 +2,17 @@
 
 . common.sh
 
-DATE=$1
-AMOUNT=$2
-WHAT=$3
+YEAR=$1
+DATE=$2
+AMOUNT=$3
+WHAT=$4
 
-DATE=`sanitize $DATE`
-AMOUNT=`sanitize $AMOUNT`
-WHAT=`sanitize $WHAT`
+YEAR=`sanitize "$YEAR"`
+DATE=`sanitize "$DATE"`
+AMOUNT=`sanitize "$AMOUNT"`
+WHAT=`sanitize "$WHAT"`
 
-MSG="dst=banking&tag=entry&date=$DATE&amount=$AMOUNT&what=$WHAT"
+MSG="dst=banking&tag=entry&year=$YEAR&date=$DATE&amount=$AMOUNT&what=$WHAT"
 
 send "$MSG"
 
