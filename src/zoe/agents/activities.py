@@ -24,13 +24,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe import *
+import zoe
 import threading
 import datetime
+import tenjin
+from tenjin.helpers import *
 
 class ActivitiesAgent:
     def __init__(self, host, port, serverhost, serverport):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
         self._users = None
         self._banking = None
         self._inventory = None
@@ -115,21 +117,21 @@ class ActivitiesAgent:
         self._courses = courses
 
     def requestUsers(self):
-        msg = MessageBuilder({"dst":"users","tag":"notify"}).msg()
+        msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}).msg()
         self._listener.sendbus(msg)
     
     def requestBanking(self):
-        year = datetime.date.today().year
-        msg = MessageBuilder({"dst":"banking","tag":"notify", "year":str(year)}).msg()
+        courseyear = zoe.Courses.courseyears()
+        msg = zoe.MessageBuilder({"dst":"banking","tag":"notify", "year":courseyear}).msg()
         self._listener.sendbus(msg)
     
     def requestInventory(self):
-        msg = MessageBuilder({"dst":"inventory","tag":"notify"}).msg()
+        msg = zoe.MessageBuilder({"dst":"inventory","tag":"notify"}).msg()
         self._listener.sendbus(msg)
     
     def requestCourses(self):
-        year = datetime.date.today().year
-        msg = MessageBuilder({"dst":"courses","tag":"notify", "year":str(year)}).msg()
+        courseyear = zoe.Courses.courseyears()
+        msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}).msg()
         self._listener.sendbus(msg)
 
     def memo(self):
@@ -137,21 +139,25 @@ class ActivitiesAgent:
         print ("  Checking user list")
         success = True
         if not self._users:
+            print ("    missing")
             self.requestUsers()
             success = False
 
         print ("  Checking accounting")
         if not self._banking:
+            print ("    missing")
             self.requestBanking()
             success = False
         
         print ("  Checking inventory")
         if not self._inventory:
+            print ("    missing")
             self.requestInventory()
             success = False
         
         print ("  Checking courses")
         if not self._courses:
+            print ("    missing")
             self.requestCourses()
             success = False
 
@@ -161,60 +167,25 @@ class ActivitiesAgent:
             return
 
         # Please use a template here.
-        print ("OK, I can generate the activity memo. Here it is:")
-        print ()
-        print ()
-        print ()
-        print ()
-        print ("  GUL activities memo")
-        print ("  -------------------")
-        print ()
-        print ("  People at GUL:")
-        print ("  --------------")
-        print ()
-        print (self._users["presi"])
-        print (self._users["vice"])
-        print (self._users["coord"])
-        print (self._users["tesorero"])
-        print (self._users["vocal"])
-        print ()
-        print ("  Bank movements:")
-        print ("  ---------------")
-        print ()
-        print ("  Incomings:")
+        courseyear = zoe.Courses.courseyears()
         (incomings, expenses, balance) = self._banking
-        if len(incomings) == 0:
-            print ("    No incomings")
-        else:
-            for i in incomings:
-                (date, amount, what) = i
-                print ("    " + date + " " + amount + " " + what)
-        print ("  Expenses:")
-        if len(expenses) == 0:
-            print ("    No expenses")
-        else:
-            for e in expenses:
-                (date, amount, what) = e
-                print ("    " + date + " " + amount + " " + what)
-        print ("  Balance:" + balance)
-        print ()
-        print ("  Inventory:")
-        print ("  ----------")
-        print ()
-        for i in self._inventory:
-            amount, what = i
-            print ("    " + amount + " " + what)
-        print ()
-        print ("  Courses:")
-        print ("  --------")
-        print ()
-        for i in self._courses:
-            mindate, maxdate, lectures = i
-            print ("    From " + mindate + " to " + maxdate + ":")
-            for l in lectures:
-                print ("      - " + l)
-        print ()
-        print ()
-        print ()
-
-
+        
+        data = {
+            "CURSO"         :courseyear,
+            "ALTAS_EN_LISTA":444, # TODO 
+            "ALTAS_EN_LIBRO":90,  # TODO
+            "PRESIDENTE"    :self._users["presi"],
+            "VICEPRESIDENTE":self._users["vice"], 
+            "COORDINADOR"   :self._users["coord"],
+            "TESORERO"      :self._users["tesorero"],
+            "VOCAL"         :self._users["vocal"], 
+            "INVENTARIO"    :self._inventory,
+            "CURSOS"        :self._courses,
+            "INGRESOS"      :incomings,
+            "GASTOS"        :expenses, 
+            "SALDO"         :balance,
+        }
+    
+        engine = tenjin.Engine()
+        out = engine.render('activities_memo.tex', data)
+        print(out)

@@ -14,7 +14,7 @@ function launch() {
     $PYTHON3 $SCRIPT > $LOG 2>$ERR &
     PID=$!
     echo $PID >> $ZOE_PIDS
-    sleep 1
+#    sleep 1
 }
 
 launch server server.py

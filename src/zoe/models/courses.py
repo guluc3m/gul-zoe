@@ -27,8 +27,11 @@
 import urllib.request
 import json
 import math
+import datetime
 
 class Courses:
+
+    FIRST_MONTH=10
 
     def __init__(self, url = "http://cursos.gul.es/index.php/courses/json"):
         self._url = url;
@@ -59,9 +62,23 @@ class Courses:
 
     def foryear(self, year):
         ret = []
-        year = str(year)
+        years = year.split("/")
+        year_a, year_b = years[0], years[1]
         for course in self._courses:
             cyear, cmonth, cday = self._courses[course]["mindate"].split("-")
-            if cyear == year:
+            cmonth = int(cmonth)
+            if (int(cmonth) < Courses.FIRST_MONTH and cyear == year_b) or (int(cmonth) > Courses.FIRST_MONTH-1 and cyear == year_a):
                 ret.append(self._courses[course])
         return ret
+
+    def courseyears(year = None, month = None):
+        if not year:
+            year = datetime.date.today().year
+        if not month:
+            month = datetime.date.today().month
+
+        if month < Courses.FIRST_MONTH:
+            return str(year-1) + "/" + str(year)
+        else:
+            return str(year) + "/" + str(year+1)
+

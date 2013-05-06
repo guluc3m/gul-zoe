@@ -58,8 +58,8 @@ class CoursesAgent:
     def notify(self, original = None):
         if original:
             year = original.get("year")
-        else:    
-            year = datetime.date.today().year
+        else:
+            year = zoe.Courses.courseyears()
         courses = self._model.foryear(year)
         aMap = {"src":"courses", "topic":"courses", "tag":["courses", "notification"], "year":str(year)}
         courseids = []
