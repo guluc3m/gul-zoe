@@ -24,6 +24,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.models.users import *
-from zoe.models.courses import * 
-from zoe.models.banking import * 
+import sqlite3
+import uuid
+import datetime
+
+class Banking:
+    def __init__(self, db = "/tmp/zoe-banking.sqlite3"):
+        self._db = db
+
+    def opendb(self):
+        conn = sqlite3.connect(self._db)
+        c = conn.cursor()
+        c.execute("create table if not exists m (id text, year text, ts text, amount real, what text)")
+        conn.commit()
+        return (conn, c)
+
+    def entry(self, year, ts, amount, what):
+        conn, c = self.opendb()
+        params = (str(uuid.uuid4()), year, ts, amount, what)
+        c.execute("insert into m values(?, ?, ?, ?, ?)", params)
+        conn.commit()
+        c.close()
+
+    def movements(self, year):
+        conn, c = self.opendb()
+        params = (year,)
+        c.execute("select * from m where year = ? order by ts", params)
+        movements = []
+        for row in c:
+            (uuid, year2, ts, amount, what) = row
+            movements.append((uuid, year, ts, amount, what))
+        c.close()
+        return movements
+
