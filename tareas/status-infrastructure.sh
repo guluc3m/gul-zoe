@@ -3,7 +3,6 @@
 . config.sh
 
 pushd $ZOE_BASE >/dev/null
-echo -n "" > $ZOE_PIDS
 
 RUNNING=""
 STOPPED=""
