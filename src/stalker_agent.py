@@ -62,6 +62,17 @@ if not source or not msg or not topic:
     usage()
     sys.exit(2)
 
-agent = zoe.StalkerAgent("localhost", 0, "localhost", 30000, (source, topic, msg))
+def show(parser):
+    keys = list(parser._map.keys())
+    keys.sort()
+    for key in keys:
+        print (key + "=" + str(parser.get(key)))
+
+def callback(parser):
+    agent.stop()
+    show(parser)
+    sys.exit(0)
+
+agent = zoe.StalkerAgent("localhost", 0, "localhost", 30000, (source, topic, msg), callback)
 agent.start()
 
