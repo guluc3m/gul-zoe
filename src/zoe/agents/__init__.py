@@ -33,3 +33,4 @@ from zoe.agents.banking import *
 from zoe.agents.inventory import *
 from zoe.agents.stalker import *
 from zoe.agents.courses import *
+from zoe.agents.jabber import *
