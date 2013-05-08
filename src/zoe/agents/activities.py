@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import os
 import zoe
 import threading
 import datetime
@@ -31,6 +32,7 @@ import tenjin
 import time
 import json
 import base64
+import uuid
 from tenjin.helpers import *
 
 class ActivitiesAgent:
@@ -208,8 +210,29 @@ class ActivitiesAgent:
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
 
-    def memo(self, original = None):
+    def memo(self, original):
         data = self.memodata()
         engine = tenjin.Engine()
         out = engine.render('activities_memo.tex', data)
-        print(out)
+        if original.get("_cid"):
+            cid = original.get("_cid")
+        else:
+            cid = uuid.uuid4()
+        filename = cid + ".tex"
+        here = os.getcwd()
+        os.chdir("/tmp")
+        f = open(filename, "w")
+        f.write(out)
+        f.close()
+        os.system("pdflatex " + filename)
+        os.system("pdflatex " + filename)
+        filename = cid + ".pdf"
+        f = open(filename, 'rb')
+        data = f.read()
+        f.close()
+        os.chdir(here)
+        code = base64.b64encode(data).decode('utf-8')
+        aMap = {"topic":"activities", "tag":["generated-memo", "pdf"], "memo":code}
+        msg = zoe.MessageBuilder(aMap, original).msg()
+        self._listener.sendbus(msg)
+        
