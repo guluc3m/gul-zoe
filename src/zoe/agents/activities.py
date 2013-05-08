@@ -28,6 +28,9 @@ import zoe
 import threading
 import datetime
 import tenjin
+import time
+import json
+import base64
 from tenjin.helpers import *
 
 class ActivitiesAgent:
@@ -47,7 +50,10 @@ class ActivitiesAgent:
     def receive(self, parser):
         tags = parser.tags()
         if "memo" in tags:
-            self.memo()
+            if "json" in tags:
+                self.json(parser)
+            else:
+                self.memo(parser)
         if "users" in tags and "notification" in tags:
             self.updateUsers(parser)
         if "banking" in tags and "notification" in tags:
@@ -134,7 +140,7 @@ class ActivitiesAgent:
         msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}).msg()
         self._listener.sendbus(msg)
 
-    def memo(self):
+    def prerequisites(self, retry = True):
         print ("Checking prerequisites")
         print ("  Checking user list")
         success = True
@@ -161,15 +167,22 @@ class ActivitiesAgent:
             self.requestCourses()
             success = False
 
-        # blah
-        if not success:
-            print ("Prerequisites not met. Please try again")
-            return
+        if success:
+            return True
 
-        # Please use a template here.
+        if retry:
+            print ("Prerequisites not met. Let me try again in a few seconds...")
+            time.sleep(3)
+            return self.prerequisites(False)
+        else:
+            print("Prerequisites not met, please check the logs and try again");
+            return False
+
+    def memodata(self):
+        if not self.prerequisites():
+            return
         courseyear = zoe.Courses.courseyears()
         (incomings, expenses, balance) = self._banking
-        
         data = {
             "CURSO"         :courseyear,
             "ALTAS_EN_LISTA":444, # TODO 
@@ -185,7 +198,18 @@ class ActivitiesAgent:
             "GASTOS"        :expenses, 
             "SALDO"         :balance,
         }
-    
+        return data
+  
+    def json(self, original):
+        data = self.memodata()
+        j = json.JSONEncoder().encode(data)
+        code = base64.b64encode(j.encode('utf-8')).decode('utf-8')
+        aMap = {"topic":"activities", "tag":["generated-memo", "json"], "memo":code}
+        msg = zoe.MessageBuilder(aMap, original).msg()
+        self._listener.sendbus(msg)
+
+    def memo(self, original = None):
+        data = self.memodata()
         engine = tenjin.Engine()
         out = engine.render('activities_memo.tex', data)
         print(out)

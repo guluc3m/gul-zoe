@@ -35,7 +35,6 @@ class CoursesAgent:
         self._listener = zoe.Listener(host, port, self, serverhost, serverport)
         self._model = zoe.Courses(url)
         self._interval = interval
-        self.update()
 
     def update(self):
         self._model.update()
@@ -45,7 +44,7 @@ class CoursesAgent:
         if (self._interval > 0):
             self._resendDaemonThread = threading.Thread (target = self.loop)
             self._resendDaemonThread.start()
-        self._listener.start()
+        self._listener.start(self.update())
 
     def stop(self):
         self._listener.stop()
