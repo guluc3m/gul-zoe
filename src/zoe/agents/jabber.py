@@ -56,7 +56,10 @@ class JabberAgent (sleekxmpp.ClientXMPP):
 
     def messagefromjabber(self, msg):
         if msg['type'] in ('chat', 'normal'):
-            msg.reply("Sorry, I can't understand your messages right now").send()   
+            text = msg["body"]
+            ret = zoe.Fuzzy().execute(text)
+            if ret and ret["feedback-string"]:
+                msg.reply(ret["feedback-string"]).send()   
 
     def receive(self, parser):
         to = parser.get("to")

@@ -25,39 +25,30 @@
 # THE SOFTWARE.
 
 import zoe
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
-class BankDepositCmd:
-    def __init__(self, withdrawal = False):
+class SmallTalkCmd:
+    def __init__(self):
         self._listener = zoe.Listener(None, None, self, "localhost", 30000, True)
-        self._withdrawal = withdrawal
+        self._talk = {
+            "hola": "hola",
+            "saluda": "hola",
+            "qué tal": "bien, aunque estaría mejor en la nube de oracle",
+            "qué haces": "nada, enviar mensajes abrir sockets y tal",
+            "zoe": "qué",
+            "zoe, saluda": "hooola",
+            "luchas como un granjero": "qué apropiado, tú peleas como una vaca",
+            "quieres": "la verdad es que no",
+            "por qué": "las leyes de la física son como una amante esquiva",
+        }
 
     def execute(self, objects):
-        money = objects["money"]
-        concepts = objects["strings"]
-        dates = objects["dates"]
-       
-        if len(money) != len(concepts):
-            print("I can only handle as many amounts as concepts")
-            return {"feedback-string":"Necesito tantas cantidades como conceptos"}
+        p = objects["original"]
+        return {"feedback-string":self.answer(p)}
 
-        if len(dates) != 1 and len(dates) != len(money):
-            print("I can only handle 1 date or as many as amounts")
-            return {"feedback-string":"Necesito una única fecha, o una por concepto"}
+    def answer(self, p):
+        result = process.extract(p, self._talk)
+        text, score = result[0]
+        return self._talk[text]
 
-        for i in range(len(money)):
-            amount, currency = money[i]
-            what = concepts[i]
-
-            if len(dates) == 1:
-                date = dates[0]
-            else:
-                date = dates[i]
-
-            if self._withdrawal:
-                amount = str(0 - float(amount))
-
-            print("bank entry on " + date + ": " + amount + " " + currency + " as " + what)
-            params = {"dst":"banking", "tag":"entry", "date":date, "amount":amount, "what":what}
-            msg = zoe.MessageBuilder(params).msg()
-            self._listener.sendbus(msg)
-            return {"feedback-string":"Ingreso realizado"}

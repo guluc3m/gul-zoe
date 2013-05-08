@@ -52,6 +52,9 @@ class BankingAgent:
         ts = parser.get("date")
         amount = parser.get("amount")
         what = parser.get("what")
+        if not y or y == "":
+            y2, m2, d2 = ts.split("-")
+            y = zoe.Courses.courseyears(y2)
         self._model.entry(y, ts, amount, what)
 
     def notify(self, year, original = None):

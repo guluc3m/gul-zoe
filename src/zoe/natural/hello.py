@@ -48,4 +48,4 @@ class HelloCmd:
             params = {"dst":"twitter", "to":u["twitter"], "msg":text}
             msg = zoe.MessageBuilder(params).msg()
             self._listener.sendbus(msg)
-
+        return {"feedback-string":"Mensaje enviado"}

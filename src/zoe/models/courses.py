@@ -77,6 +77,9 @@ class Courses:
         if not month:
             month = datetime.date.today().month
 
+        year = int(year)
+        month = int(month)
+
         if month < Courses.FIRST_MONTH:
             return str(year-1) + "/" + str(year)
         else:
