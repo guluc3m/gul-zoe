@@ -27,8 +27,10 @@
 import zoe
 
 class MailAgent:
-    def __init__(self, host, port, serverhost, serverport, user, password):
+    def __init__(self, host, port, serverhost, serverport, smtp, smtpport, user, password):
         self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+        self._smtp = smtp
+        self._smtpport = smtpport
         self._user = user
         self._password = password
 
@@ -44,11 +46,16 @@ class MailAgent:
         txt = parser.get("txt")
         files = parser.get("file")
         self._listener.log("mail", "debug", "email to " + recipient + " requested", parser)
-        if files.__class__ is str:
-            files = [files]
-        m = zoe.Mail(self._user, self._password).subject(s).text(txt)
-        for f in files:
-            m.file(f)
+        m = zoe.Mail(self._smtp, self._smtpport, self._user, self._password)
+        if s:
+            m.subject(s)
+        if txt:
+            m.text(txt)
+        if files:
+            if files.__class__ is str:
+                files = [files]
+            for f in files:
+                m.file(f)
         m.sendto(recipient) 
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
 

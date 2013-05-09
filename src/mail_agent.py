@@ -27,9 +27,12 @@
 import zoe
 import os
 
+
+smtp=os.environ['zoe_mail_smtp']
+port=os.environ['zoe_mail_port']
 user=os.environ['zoe_mail_user']
 password=os.environ['zoe_mail_password']
 
-agent = zoe.MailAgent("localhost", 30110, "localhost", 30000, user, password)
+agent = zoe.MailAgent("localhost", 30110, "localhost", 30000, smtp, port, user, password)
 agent.start()
 

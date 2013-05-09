@@ -9,11 +9,13 @@ from email.mime.text import MIMEText
 from email.encoders import encode_base64
 
 class Mail:
-    def __init__(self, user, password):
+    def __init__(self, smtp, port, user, password):
         self._user = user
         self._password = password
         self._msg = MIMEMultipart()
         self._msg["From"] = user
+        self._smtp = smtp
+        self._port = port
 
     def subject(self, subject):
         self._msg["Subject"] = subject
@@ -40,7 +42,7 @@ class Mail:
 
     def sendto(self, recipient):
         self._msg['To'] = recipient
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP(self._smtp, self._port)
         server.ehlo()
         server.starttls()
         server.ehlo()
