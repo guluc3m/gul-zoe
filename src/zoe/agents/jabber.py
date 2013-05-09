@@ -57,9 +57,20 @@ class JabberAgent (sleekxmpp.ClientXMPP):
     def messagefromjabber(self, msg):
         if msg['type'] in ('chat', 'normal'):
             text = msg["body"]
-            ret = zoe.Fuzzy().execute(text)
+            jid = msg["from"]
+            sender = self.finduser(jid)
+            context = {"sender":sender}
+            ret = zoe.Fuzzy().execute(text, context)
             if ret and ret["feedback-string"]:
                 msg.reply(ret["feedback-string"]).send()   
+
+    def finduser(self, jid):
+        user = jid.user + "@" + jid.domain
+        model = zoe.Users()
+        subjects = model.subjects()
+        for s in subjects:
+            if "jabber" in subjects[s] and subjects[s]["jabber"] == user:
+                return subjects[s]
 
     def receive(self, parser):
         to = parser.get("to")

@@ -211,15 +211,19 @@ class ActivitiesAgent:
         return data
   
     def json(self, original):
+        self._listener.log("activities", "debug", "JSON memo requested", original)
         data = self.memodata(original)
-        j = json.JSONEncoder().encode(data)
-        code = base64.b64encode(j.encode('utf-8')).decode('utf-8')
-        aMap = {"topic":"activities", "tag":["generated-memo", "json"], "memo":code}
+        #j = json.JSONEncoder(ensure_ascii=False).encode(data)
+        j = json.dumps(data, indent=2, ensure_ascii=False)
+        b64 = base64.standard_b64encode(j.encode('utf-8')).decode('utf-8')
+        attachment = zoe.Attachment(b64, "application/json", "memoria.json")
+        aMap = {"src":"activities", "topic":"activities", "tag":["generated-memo", "json"], "memo":attachment.str()}
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
         self._listener.log("activities", "info", "JSON memo generated", original)
 
     def memo(self, original):
+        self._listener.log("activities", "debug", "PDF memo requested", original)
         data = self.memodata(original)
         engine = tenjin.Engine()
         out = engine.render('activities_memo.tex', data)
@@ -240,8 +244,9 @@ class ActivitiesAgent:
         data = f.read()
         f.close()
         os.chdir(here)
-        code = base64.b64encode(data).decode('utf-8')
-        aMap = {"topic":"activities", "tag":["generated-memo", "pdf"], "memo":code}
+        b64 = base64.standard_b64encode(data).decode('utf-8')
+        attachment = zoe.Attachment(b64, "application/pdf", "memoria.pdf")
+        aMap = {"src":"activities", "topic":"activities", "tag":["generated-memo", "pdf"], "memo":attachment.str()}
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
         self._listener.log("activities", "info", "PDF memo generated", original)

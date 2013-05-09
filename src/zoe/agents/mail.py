@@ -25,6 +25,8 @@
 # THE SOFTWARE.
 
 import zoe
+import base64
+import uuid
 
 class MailAgent:
     def __init__(self, host, port, serverhost, serverport, smtp, smtpport, user, password):
@@ -45,6 +47,7 @@ class MailAgent:
         s = parser.get("subject")
         txt = parser.get("txt")
         files = parser.get("file")
+        atts = parser.get("att")
         self._listener.log("mail", "debug", "email to " + recipient + " requested", parser)
         m = zoe.Mail(self._smtp, self._smtpport, self._user, self._password)
         if s:
@@ -56,6 +59,16 @@ class MailAgent:
                 files = [files]
             for f in files:
                 m.file(f)
+        if atts:
+            if atts.__class__ is str:
+                atts = [atts]
+            for att in atts:
+                a = zoe.Attachment.build(att)
+                mime = a.mime()
+                b64 = a.base64()
+                filename = a.filename()
+                print("attachment: " , a.mime())
+                m.base64(b64, mime, filename)
         m.sendto(recipient) 
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
 

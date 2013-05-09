@@ -24,18 +24,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import zoe
+class Attachment:
+    def __init__(self, base64, mime, filename):
+        self._base64 = base64
+        self._mime = mime
+        self._filename = filename
 
-class GTalkCmd:
-    def __init__(self):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000, True)
+    def str(self):
+        return self._mime + ";" + self._filename + ":" + self._base64
 
-    def execute(self, objects):
-        users = objects["users"]
-        for text in objects["strings"]:
-            for u in users:
-                params = {"dst":"jabber", "to":u["jabber"], "msg":text}
-                msg = zoe.MessageBuilder(params).msg()
-                self._listener.sendbus(msg)
-        return {"feedback-string":"Mensaje enviado"}
+    def mime(self):
+        return self._mime
+
+    def base64(self):
+        return self._base64
+
+    def filename(self):
+        return self._filename
+
+    def build(s):
+        f = s.find(":")
+        header = s[:f]
+        base64 = s[f+1:]
+        mime, filename = header.split(";")
+        return Attachment(base64, mime, filename)
 

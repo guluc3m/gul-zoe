@@ -50,10 +50,14 @@ class Fuzzy:
             "di a <u> por gtalk <s>": zoe.GTalkCmd(),
             "ingreso <m> el día <d> <s>": zoe.BankDepositCmd(), 
             "pago <m> el día <d> <s>": zoe.BankDepositCmd(withdrawal = True),
+            "envía la memoria de actividades a <u>": zoe.ActivitiesCmd(),
+            "envíame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
+            "dame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
            }
 
-    def execute(self, original):
+    def execute(self, original, context):
         (command, objects) = self.analyze(original)
+        objects["context"] = context
         if command:
             return command.execute(objects)
 

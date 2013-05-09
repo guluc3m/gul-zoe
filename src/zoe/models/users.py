@@ -73,3 +73,4 @@ class Users:
 
     def group(self, name):
         return self._config["group " + name]
+
