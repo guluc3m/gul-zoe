@@ -124,49 +124,49 @@ class ActivitiesAgent:
         courses = sorted(courses, key = lambda c: c[0])
         self._courses = courses
 
-    def requestUsers(self):
-        msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}).msg()
+    def requestUsers(self, original):
+        msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}, original).msg()
         self._listener.sendbus(msg)
     
-    def requestBanking(self):
+    def requestBanking(self, original):
         courseyear = zoe.Courses.courseyears()
-        msg = zoe.MessageBuilder({"dst":"banking","tag":"notify", "year":courseyear}).msg()
+        msg = zoe.MessageBuilder({"dst":"banking","tag":"notify", "year":courseyear}, original).msg()
         self._listener.sendbus(msg)
     
-    def requestInventory(self):
-        msg = zoe.MessageBuilder({"dst":"inventory","tag":"notify"}).msg()
+    def requestInventory(self, original):
+        msg = zoe.MessageBuilder({"dst":"inventory","tag":"notify"}, original).msg()
         self._listener.sendbus(msg)
     
-    def requestCourses(self):
+    def requestCourses(self, original):
         courseyear = zoe.Courses.courseyears()
-        msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}).msg()
+        msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}, original).msg()
         self._listener.sendbus(msg)
 
-    def prerequisites(self, retry = True):
+    def prerequisites(self, original, retry = True):
         print ("Checking prerequisites")
         print ("  Checking user list")
         success = True
         if not self._users:
             print ("    missing")
-            self.requestUsers()
+            self.requestUsers(original)
             success = False
 
         print ("  Checking accounting")
         if not self._banking:
             print ("    missing")
-            self.requestBanking()
+            self.requestBanking(original)
             success = False
         
         print ("  Checking inventory")
         if not self._inventory:
             print ("    missing")
-            self.requestInventory()
+            self.requestInventory(original)
             success = False
         
         print ("  Checking courses")
         if not self._courses:
             print ("    missing")
-            self.requestCourses()
+            self.requestCourses(original)
             success = False
 
         if success:
@@ -175,13 +175,13 @@ class ActivitiesAgent:
         if retry:
             print ("Prerequisites not met. Let me try again in a few seconds...")
             time.sleep(3)
-            return self.prerequisites(False)
+            return self.prerequisites(original, False)
         else:
             print("Prerequisites not met, please check the logs and try again");
             return False
 
-    def memodata(self):
-        if not self.prerequisites():
+    def memodata(self, original):
+        if not self.prerequisites(original):
             return
         courseyear = zoe.Courses.courseyears()
         (incomings, expenses, balance) = self._banking
@@ -203,7 +203,7 @@ class ActivitiesAgent:
         return data
   
     def json(self, original):
-        data = self.memodata()
+        data = self.memodata(original)
         j = json.JSONEncoder().encode(data)
         code = base64.b64encode(j.encode('utf-8')).decode('utf-8')
         aMap = {"topic":"activities", "tag":["generated-memo", "json"], "memo":code}
@@ -211,7 +211,7 @@ class ActivitiesAgent:
         self._listener.sendbus(msg)
 
     def memo(self, original):
-        data = self.memodata()
+        data = self.memodata(original)
         engine = tenjin.Engine()
         out = engine.render('activities_memo.tex', data)
         if original.get("_cid"):
