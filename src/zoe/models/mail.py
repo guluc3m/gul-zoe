@@ -47,6 +47,5 @@ class Mail:
         server.login(self._user, self._password)
         server.sendmail(self._user, recipient, self._msg.as_string())
         server.close()
-        print('Sent email to %s' % recipient)
         return self
 

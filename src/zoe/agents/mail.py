@@ -24,15 +24,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
-from zoe.agents.mail import *
+import zoe
+
+class MailAgent:
+    def __init__(self, host, port, serverhost, serverport, user, password):
+        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+        self._user = user
+        self._password = password
+
+    def start(self):
+        self._listener.start()
+
+    def stop(self):
+        self._listener.stop()
+
+    def receive(self, parser):
+        recipient = parser.get("to")
+        s = parser.get("subject")
+        txt = parser.get("txt")
+        files = parser.get("file")
+        self._listener.log("mail", "debug", "email to " + recipient + " requested", parser)
+        if files.__class__ is str:
+            files = [files]
+        m = zoe.Mail(self._user, self._password).subject(s).text(txt)
+        for f in files:
+            m.file(f)
+        m.sendto(recipient) 
+        self._listener.log("mail", "info", "email sent to " + recipient, parser)
+
