@@ -56,6 +56,7 @@ class BankingAgent:
             y2, m2, d2 = ts.split("-")
             y = zoe.Courses.courseyears(y2)
         self._model.entry(y, ts, amount, what)
+        self._listener.log("banking", "info", "New entry: " + y + ", " + ts + ", " + str(amount) + ", " + what, parser)
 
     def notify(self, year, original = None):
         movements = self._model.movements(year)
@@ -73,4 +74,5 @@ class BankingAgent:
         aMap["balance"] = str(balance)
         aMap["ids"] = ids
         self._listener.sendbus(zoe.MessageBuilder(aMap, original).msg())
+        self._listener.log("banking", "info", "Sending banking notification for year " + str(year), original)
 

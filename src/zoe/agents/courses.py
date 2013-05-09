@@ -35,9 +35,11 @@ class CoursesAgent:
         self._listener = zoe.Listener(host, port, self, serverhost, serverport)
         self._model = zoe.Courses(url)
         self._interval = interval
+        self._url = url
 
     def update(self):
         self._model.update()
+        self._listener.log("courses", "info", "Updating course information from " + self._url)
         self.notify()
 
     def start(self):
@@ -76,6 +78,7 @@ class CoursesAgent:
         aMap["courseids"] = courseids
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("courses", "info", "Sending courses notification", original)
         
     def loop(self):
         while True:

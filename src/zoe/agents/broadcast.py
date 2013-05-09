@@ -47,14 +47,16 @@ class BroadcastAgent:
 
     def updateUsers(self, parser):
         self._parser = parser
+        self._listener.log("broadcast", "info", "Updating users info", parser)
 
-    def requestUsers(self):
+    def requestUsers(self, original = None):
         msg = MessageBuilder({"dst":"users","tag":"notify"}).msg()
         self._listener.sendbus(msg)
+        self._listener.log("broadcast", "info", "Sending users request", original)
 
     def send(self, parser):
         if not self._parser:
-            self.requestUsers()
+            self.requestUsers(parser)
             return
         msg = parser.get("msg")
         nicks = self._parser.get("group-broadcast-members")
@@ -67,4 +69,5 @@ class BroadcastAgent:
         account = self._parser.get(nick + "-twitter")
         tags = {"dst":"twitter", "to":account, "msg":msg}
         self._listener.sendbus(MessageBuilder(tags, original).msg())
+        self._listener.log("broadcast", "info", "Sending message '" + msg + "' to " + account, original)
 

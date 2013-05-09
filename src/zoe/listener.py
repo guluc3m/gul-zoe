@@ -60,9 +60,14 @@ class Listener:
                 # raised when closing the server socket -> ignore it
                 pass
 
-    def log(self, colour, header, host, port, message):
+    def mylog(self, colour, header, host, port, message):
         if self._debugmode:
             print (colour + header + " " + host + ":" + str(port) + " " + message + RESET)
+
+    def log(self, source, level, msg, original = None):
+        aMap = {"dst":"log", "src":source, "lvl":level, "msg":msg}
+        m = MessageBuilder(aMap, original).msg()
+        self.sendbus(m)
 
     def connection(self, conn, addr):
         message = ""
@@ -72,7 +77,7 @@ class Listener:
             if not data: break
             message = message + data.decode("utf-8")
         conn.close()
-        self.log (YELLOW, "RECV", host, port, message)
+        self.mylog (YELLOW, "RECV", host, port, message)
         parser = MessageParser(message)
         tags = parser.tags()
         if "exit!" in tags:
@@ -89,9 +94,9 @@ class Listener:
         try:
             s.connect((host, port))
             s.sendall(message.encode("utf-8"))
-            self.log (GREEN, "SENT", host, port, message)
+            self.mylog (GREEN, "SENT", host, port, message)
         except Exception as e:
-            self.log (RED, "ERR ", host, port, message)
+            self.mylog (RED, "ERR ", host, port, message)
             #raise e
         finally:
             s.close()

@@ -24,14 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
+import zoe
+
+agent = zoe.LogAgent("localhost", 30100, "localhost", 30000)
+agent.start()

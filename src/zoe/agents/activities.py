@@ -73,6 +73,7 @@ class ActivitiesAgent:
         tesorero = parser.get(parser.get("group-junta-tesorero") + "-name")
         vocal = parser.get(parser.get("group-junta-vocal") + "-name")
         self._users = {"presi":presi, "vice":vice, "tesorero":tesorero, "coord":coord, "vocal":vocal}
+        self._listener.log("activities", "info", "Users info received", parser)
 
     def updateBanking(self, parser):
         ids = parser.get("ids")
@@ -93,6 +94,7 @@ class ActivitiesAgent:
         expenses = sorted(expenses, key = lambda i: i[0])
         balance = parser.get("balance")
         self._banking = (incomings, expenses, balance)
+        self._listener.log("activities", "info", "Banking info received", parser)
     
     def updateInventory(self, parser):
         ids = parser.get("ids")
@@ -105,6 +107,7 @@ class ActivitiesAgent:
             o = (amount, what)
             objects.append(o)
         self._inventory = objects
+        self._listener.log("activities", "info", "Inventory info received", parser)
 
     def updateCourses(self, parser):
         courseids = parser.get("courseids")
@@ -123,24 +126,29 @@ class ActivitiesAgent:
             courses.append(c)
         courses = sorted(courses, key = lambda c: c[0])
         self._courses = courses
+        self._listener.log("activities", "info", "Courses info received", parser)
 
     def requestUsers(self, original):
         msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "Users request sent", original)
     
     def requestBanking(self, original):
         courseyear = zoe.Courses.courseyears()
         msg = zoe.MessageBuilder({"dst":"banking","tag":"notify", "year":courseyear}, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "Banking request sent for year " + courseyear, original)
     
     def requestInventory(self, original):
         msg = zoe.MessageBuilder({"dst":"inventory","tag":"notify"}, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "Inventory request sent", original)
     
     def requestCourses(self, original):
         courseyear = zoe.Courses.courseyears()
         msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "Courses request sent for year " + courseyear, original)
 
     def prerequisites(self, original, retry = True):
         print ("Checking prerequisites")
@@ -209,6 +217,7 @@ class ActivitiesAgent:
         aMap = {"topic":"activities", "tag":["generated-memo", "json"], "memo":code}
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "JSON memo generated", original)
 
     def memo(self, original):
         data = self.memodata(original)
@@ -235,4 +244,5 @@ class ActivitiesAgent:
         aMap = {"topic":"activities", "tag":["generated-memo", "pdf"], "memo":code}
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "PDF memo generated", original)
         

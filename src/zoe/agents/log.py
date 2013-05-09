@@ -24,14 +24,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
+from zoe.zs import *
+import sys
+class LogAgent:
+    def __init__(self, host, port, serverhost, serverport):
+        self._listener = Listener(host, port, self, serverhost, serverport)
+
+    def start(self):
+        self._listener.start()
+
+    def stop(self):
+        self._listener.stop()
+
+    def receive(self, parser):
+        src = parser.get("src")
+        msg = parser.get("msg")
+        level = parser.get("lvl")
+        print ("{:<15} {:<10} {}".format(src, level, msg))
+        sys.stdout.flush()
+
