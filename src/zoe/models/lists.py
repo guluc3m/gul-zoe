@@ -24,10 +24,52 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.natural.hello import *
-from zoe.natural.deposit import *
-from zoe.natural.fuzzy import *
-from zoe.natural.gtalk import *
-from zoe.natural.smalltalk import *
-from zoe.natural.activities import *
-from zoe.natural.lists import *
+import os
+import os.path
+import subprocess
+
+class Lists:
+    def __init__(self, db = "/tmp/zoe-members"):
+        self._db = db
+        if not os.path.exists(db):
+            self.setmembers(99)
+        self.update()
+
+    def update(self):
+        self.updatelists()
+        self.updatemembers()
+
+    def updatelists(self):
+        lists = {}
+        cwd=os.getcwd()
+        os.chdir("../tareas")
+        p = subprocess.Popen('./list_members.sh', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for line in p.stdout.readlines():
+            line = line.decode("utf-8")
+            l, m = line.split()
+            if not l in lists:
+                lists[l] = []
+            lists[l].append(m)
+        os.chdir(cwd)
+        self._lists = lists
+
+    def setmembers(self, n):
+        f = open(self._db, "w")
+        f.write(str(n))
+        f.close()
+        self._members = n
+
+    def updatemembers(self):
+        f = open(self._db, "r")
+        self._members = int(f.read())
+        f.close()
+
+    def members(self):
+        return self._members
+
+    def lists(self):
+        return self._lists
+
+    def find(self, email):
+        return [x for x in self._lists if email in self._lists[x]]
+

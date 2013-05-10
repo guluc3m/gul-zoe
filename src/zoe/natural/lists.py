@@ -24,10 +24,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.natural.hello import *
-from zoe.natural.deposit import *
-from zoe.natural.fuzzy import *
-from zoe.natural.gtalk import *
-from zoe.natural.smalltalk import *
-from zoe.natural.activities import *
-from zoe.natural.lists import *
+import zoe
+
+class ListsCmd:
+    def __init__(self):
+        self._listener = zoe.Listener(None, None, self, "localhost", 30000)
+
+    def execute(self, objects):
+        inbook = objects["integers"][0]
+        params = {"dst":"lists", "tag":"set", "inbook":inbook}
+        msg = zoe.MessageBuilder(params).msg()
+        self._listener.sendbus(msg)
+        return {"feedback-string":"OK, ahora somos " + inbook + " socios"}

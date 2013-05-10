@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import sys
 import uuid
 import socket
 import threading
@@ -84,6 +85,7 @@ class Listener:
             self.stop()
             return
         self._delegate.receive(parser)
+        sys.stdout.flush()
 
     def stop(self):
         self._running = False

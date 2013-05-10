@@ -29,3 +29,4 @@ from zoe.models.courses import *
 from zoe.models.banking import * 
 from zoe.models.mail import *
 from zoe.models.attachment import *
+from zoe.models.lists import *

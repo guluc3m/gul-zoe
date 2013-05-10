@@ -35,12 +35,18 @@ class SmallTalkCmd:
             "hola": "hola",
             "saluda": "hola",
             "qué tal": "bien, aunque estaría mejor en la nube de oracle",
-            "qué haces": "nada, enviar mensajes abrir sockets y tal",
+            "cómo estás": "me siento difusa", 
+            "qué haces": "nada, enviar mensajes, abrir sockets y tal",
             "zoe": "qué",
-            "zoe, saluda": "hooola",
+            "zoe, saluda": "hooola, cansiiiino",
             "luchas como un granjero": "qué apropiado, tú peleas como una vaca",
             "quieres": "la verdad es que no",
             "por qué": "las leyes de la física son como una amante esquiva",
+            "gracias": "a ti", 
+            "hasta luego": "pásalo bien", 
+            "adiós": "que tengas un buen día", 
+            "cómo te llamas": "me llamo Zoe, en honor al primer Cylon",
+            "qué es un cylon": "Yo qué sé, no he visto nada de esa serie",
         }
 
     def execute(self, objects):

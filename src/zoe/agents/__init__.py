@@ -36,3 +36,4 @@ from zoe.agents.stalker import *
 from zoe.agents.courses import *
 from zoe.agents.jabber import *
 from zoe.agents.mail import *
+from zoe.agents.lists import *

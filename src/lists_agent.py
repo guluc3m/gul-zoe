@@ -24,10 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.natural.hello import *
-from zoe.natural.deposit import *
-from zoe.natural.fuzzy import *
-from zoe.natural.gtalk import *
-from zoe.natural.smalltalk import *
-from zoe.natural.activities import *
-from zoe.natural.lists import *
+import zoe
+
+agent = zoe.ListsAgent("localhost", 30111, "localhost", 30000)
+agent.start()

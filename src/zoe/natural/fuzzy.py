@@ -40,6 +40,7 @@ class Fuzzy:
         self._moneyre = re.compile("([0-9]*[\.,]?[0-9]+)\s*(leuros|euros|euro|eur)", re.IGNORECASE)
         self._stringre = re.compile('\"([^\"]+)\"')
         self._datere = re.compile("(\d\d\d\d-\d\d-\d\d)")
+        self._integerre = re.compile("\s+([0-9]*)\s+")
         self._commands = {
             "say hello to <u>": zoe.HelloCmd(None), 
             "say hello from <u> to <u>": zoe.HelloCmd(0), 
@@ -53,6 +54,9 @@ class Fuzzy:
             "envía la memoria de actividades a <u>": zoe.ActivitiesCmd(),
             "envíame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
             "dame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
+            "somos <i> socios": zoe.ListsCmd(), 
+            "hay <i> socios": zoe.ListsCmd(), 
+            "<i> socios en el libro": zoe.ListsCmd(), 
            }
 
     def execute(self, original, context):
@@ -78,10 +82,13 @@ class Fuzzy:
         (dates, cmd) = self.extractdates(cmd)
         print("Found dates: " + str(dates))
         
+        (integers, cmd) = self.extractintegers(cmd)
+        print("Found integers: " + str(integers))
+        
         # extract number, ips...
         
         cmd = self.removeduplicates(cmd)
-        cmdobjects = {"users":users, "money":money, "strings":strings, 
+        cmdobjects = {"users":users, "money":money, "strings":strings, "integers":integers,
                       "dates":dates, "original":original, "stripped":cmd}
         
         # try to find a command
@@ -167,3 +174,12 @@ class Fuzzy:
             cmd = self.regen(cmd, start, end, "<d>")
         return (foundstrings, " ".join(cmd.split()))
 
+    def extractintegers(self, cmd):
+        foundints = []
+        for match in self._integerre.finditer(cmd):
+            s = match.group(1)
+            foundints.append(s)
+            start = match.start()
+            end = match.end()
+            cmd = self.regen(cmd, start, end, "<i>")
+        return (foundints, " ".join(cmd.split()))

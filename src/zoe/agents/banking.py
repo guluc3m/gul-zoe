@@ -57,6 +57,7 @@ class BankingAgent:
             y = zoe.Courses.courseyears(y2)
         self._model.entry(y, ts, amount, what)
         self._listener.log("banking", "info", "New entry: " + y + ", " + ts + ", " + str(amount) + ", " + what, parser)
+        self.notify(y, parser)
 
     def notify(self, year, original = None):
         movements = self._model.movements(year)

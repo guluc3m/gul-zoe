@@ -42,6 +42,7 @@ class ActivitiesAgent:
         self._banking = None
         self._inventory = None
         self._courses = None
+        self._lists = None
 
     def start(self):
         self._listener.start()
@@ -64,6 +65,8 @@ class ActivitiesAgent:
             self.updateInventory(parser)
         if "courses" in tags and "notification" in tags:
             self.updateCourses(parser)
+        if "lists" in tags and "notification" in tags:
+            self.updateLists(parser)
         #self._listener.sendbus(response)
 
     def updateUsers(self, parser):
@@ -128,6 +131,11 @@ class ActivitiesAgent:
         self._courses = courses
         self._listener.log("activities", "info", "Courses info received", parser)
 
+    def updateLists(self, parser):
+        inlist = len(parser.get("list-gul-members"))
+        inbook = parser.get("book-members")
+        self._lists = (inlist, inbook)
+    
     def requestUsers(self, original):
         msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}, original).msg()
         self._listener.sendbus(msg)
@@ -149,6 +157,11 @@ class ActivitiesAgent:
         msg = zoe.MessageBuilder({"dst":"courses","tag":"notify", "year":courseyear}, original).msg()
         self._listener.sendbus(msg)
         self._listener.log("activities", "info", "Courses request sent for year " + courseyear, original)
+    
+    def requestLists(self, original):
+        msg = zoe.MessageBuilder({"dst":"lists","tag":"notify"}, original).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "Lists request sent", original)
 
     def prerequisites(self, original, retry = True):
         print ("Checking prerequisites")
@@ -177,12 +190,18 @@ class ActivitiesAgent:
             self.requestCourses(original)
             success = False
 
+        print ("  Checking lists")
+        if not self._lists:
+            print ("    missing")
+            self.requestLists(original)
+            success = False
+
         if success:
             return True
 
         if retry:
             print ("Prerequisites not met. Let me try again in a few seconds...")
-            time.sleep(3)
+            time.sleep(10)
             return self.prerequisites(original, False)
         else:
             print("Prerequisites not met, please check the logs and try again");
@@ -193,10 +212,11 @@ class ActivitiesAgent:
             return
         courseyear = zoe.Courses.courseyears()
         (incomings, expenses, balance) = self._banking
+        (inlist, inbook) = self._lists
         data = {
             "CURSO"         :courseyear,
-            "ALTAS_EN_LISTA":444, # TODO 
-            "ALTAS_EN_LIBRO":90,  # TODO
+            "ALTAS_EN_LISTA":inlist,
+            "ALTAS_EN_LIBRO":inbook,
             "PRESIDENTE"    :self._users["presi"],
             "VICEPRESIDENTE":self._users["vice"], 
             "COORDINADOR"   :self._users["coord"],
@@ -213,7 +233,8 @@ class ActivitiesAgent:
     def json(self, original):
         self._listener.log("activities", "debug", "JSON memo requested", original)
         data = self.memodata(original)
-        #j = json.JSONEncoder(ensure_ascii=False).encode(data)
+        if not data:
+            return
         j = json.dumps(data, indent=2, ensure_ascii=False)
         b64 = base64.standard_b64encode(j.encode('utf-8')).decode('utf-8')
         attachment = zoe.Attachment(b64, "application/json", "memoria.json")
@@ -225,6 +246,8 @@ class ActivitiesAgent:
     def memo(self, original):
         self._listener.log("activities", "debug", "PDF memo requested", original)
         data = self.memodata(original)
+        if not data:
+            return
         engine = tenjin.Engine()
         out = engine.render('activities_memo.tex', data)
         if original.get("_cid"):
