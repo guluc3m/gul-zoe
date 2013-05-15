@@ -51,7 +51,7 @@ class HelloCmd:
         return {"feedback-string":"Mensaje enviado"}
 
 HelloCmd.commands = [
-    ("say hello to <u>", HelloCmd(None)), 
-    ("say hello from <u> to <u>", HelloCmd(0)), 
-    ("say hello to <u> from <u>", HelloCmd(-1)), 
+    ("say hello to <user>", HelloCmd(None)), 
+    ("say hello from <user> to <user>", HelloCmd(0)), 
+    ("say hello to <user> from <user>", HelloCmd(-1)), 
 ]

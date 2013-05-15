@@ -38,7 +38,7 @@ class ListsCmd:
         return {"feedback-string":"OK, ahora somos " + inbook + " socios"}
 
 ListsCmd.commands = [
-    ("somos <i> socios", ListsCmd()), 
-    ("hay <i> socios", ListsCmd()), 
-    ("<i> socios en el libro", ListsCmd()), 
+    ("somos <integer> socios", ListsCmd()), 
+    ("hay <integer> socios", ListsCmd()), 
+    ("<integer> socios en el libro", ListsCmd()), 
 ]

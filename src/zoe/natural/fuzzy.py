@@ -88,7 +88,7 @@ class Fuzzy:
     
     def extract_dates(self, cmd):
         exp = r'\s(\d\d\d\d-\d\d-\d\d)\s'
-        return self.extract(cmd, exp, "<float>")
+        return self.extract(cmd, exp, "<date>")
         
     def removespurious(self, cmd):
         trans = str.maketrans(",.", "  ")

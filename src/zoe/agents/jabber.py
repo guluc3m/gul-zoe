@@ -26,6 +26,14 @@
 
 import zoe
 import sleekxmpp
+import time
+
+class JabberSession:
+    def __init__(self, c):
+        self._c = c
+
+    def feedback(self, msg):
+        self._c(mto="voiser@gmail.com", mbody=msg)
 
 class JabberAgent (sleekxmpp.ClientXMPP):
     def __init__(self, host, port, serverhost, serverport, \
@@ -59,7 +67,8 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             text = msg["body"]
             jid = msg["from"]
             sender = self.finduser(jid)
-            context = {"sender":sender}
+            js = JabberSession(self.send_message)
+            context = {"sender":sender, "feedback":JabberSession(self.send_message)}
             ret = zoe.Fuzzy().execute(text, context)
             if ret and ret["feedback-string"]:
                 msg.reply(ret["feedback-string"]).send()   

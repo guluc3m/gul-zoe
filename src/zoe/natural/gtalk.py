@@ -40,5 +40,5 @@ class GTalkCmd:
         return {"feedback-string":"Mensaje enviado"}
 
 GTalkCmd.commands = [
-    ("di a <u> por gtalk <s>", GTalkCmd())
+    ("di a <user> por gtalk <string>", GTalkCmd())
 ]

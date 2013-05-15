@@ -73,6 +73,6 @@ def callback(parser):
     show(parser)
     sys.exit(0)
 
-agent = zoe.StalkerAgent("localhost", 0, "localhost", 30000, (source, topic, msg), callback)
+agent = zoe.StalkerAgent("localhost", 0, "localhost", 30000, (source, topic, msg), callback, timeout = 10)
 agent.start()
 

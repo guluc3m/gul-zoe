@@ -28,6 +28,7 @@ import sys
 import uuid
 import socket
 import threading
+import traceback
 from zoe.zp import *
 
 RESET = '\033[0m'
@@ -36,12 +37,13 @@ GREEN = '\033[32m'
 YELLOW = '\033[33m'
 
 class Listener:
-    def __init__(self, host, port, delegate, serverhost, serverport, debugmode = False):
+    def __init__(self, host, port, delegate, serverhost, serverport, debugmode = False, timeout = None):
         self._host, self._port = host, port
         self._srvhost, self._srvport = serverhost, serverport
         self._delegate = delegate
         self._running = False
         self._debugmode = debugmode
+        self._timeout = timeout
 
     def start(self, sockethook = None):
         self._running = True
@@ -52,13 +54,17 @@ class Listener:
         self._socket.listen(10)
         if sockethook:
             sockethook()
+        self._socket.settimeout(1)
         while self._running:
             try:
+                if self._timeout and self._timeout > 0:
+                    self._timeout = self._timeout - 1
+                    if self._timeout < 1:
+                        return
                 conn, addr = self._socket.accept()
                 thread = threading.Thread(target = self.connection, args = (conn, addr))
                 thread.start()
             except Exception as e:
-                # raised when closing the server socket -> ignore it
                 pass
 
     def mylog(self, colour, header, host, port, message):
@@ -84,8 +90,14 @@ class Listener:
         if "exit!" in tags:
             self.stop()
             return
-        self._delegate.receive(parser)
-        sys.stdout.flush()
+        try:
+            self._delegate.receive(parser)
+        except:
+            print("EXCEPTION")
+            traceback.print_exc()
+            print("FLUSH")
+            sys.stdout.flush()
+            sys.stderr.flush()
 
     def stop(self):
         self._running = False

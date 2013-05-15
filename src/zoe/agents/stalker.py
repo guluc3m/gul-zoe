@@ -29,8 +29,8 @@ import uuid
 import sys
 
 class StalkerAgent:
-    def __init__(self, host, port, serverhost, serverport, msgparams, callback, userdata = None):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+    def __init__(self, host, port, serverhost, serverport, msgparams, callback, userdata = None, timeout = None):
+        self._listener = Listener(host, port, self, serverhost, serverport, timeout = timeout)
         self._source, self._topic, self._original = msgparams
         self._name = "stalker-" + str(uuid.uuid4())
         self._parser = MessageParser(self._original)

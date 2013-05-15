@@ -32,10 +32,10 @@ class BankDepositCmd:
         self._withdrawal = withdrawal
 
     def execute(self, objects):
-        money = objects["money"]
+        money = objects["floats"] + objects["integers"]
         concepts = objects["strings"]
         dates = objects["dates"]
-       
+        
         if len(money) != len(concepts):
             print("I can only handle as many amounts as concepts")
             return {"feedback-string":"Necesito tantas cantidades como conceptos"}
@@ -45,7 +45,7 @@ class BankDepositCmd:
             return {"feedback-string":"Necesito una única fecha, o una por concepto"}
 
         for i in range(len(money)):
-            amount, currency = money[i]
+            amount = money[i]
             what = concepts[i]
 
             if len(dates) == 1:
@@ -54,15 +54,15 @@ class BankDepositCmd:
                 date = dates[i]
 
             if self._withdrawal:
-                amount = str(0 - float(amount))
+                amount = "-" + amount
 
-            print("bank entry on " + date + ": " + amount + " " + currency + " as " + what)
+            print("bank entry on " + date + ": " + amount + " as " + what)
             params = {"dst":"banking", "tag":"entry", "date":date, "amount":amount, "what":what}
             msg = zoe.MessageBuilder(params).msg()
             self._listener.sendbus(msg)
-            return {"feedback-string":"Ingreso realizado"}
+            return {"feedback-string":"Ingreso de " + amount + " realizado"}
 
 BankDepositCmd.commands = [
-    ("ingreso <m> el día <d> <s>", BankDepositCmd()), 
-    ("pago <m> el día <d> <s>", BankDepositCmd(withdrawal = True)),
+    ("ingreso /de <float> /el /día <date> <string>", BankDepositCmd()), 
+    ("pago /de <float> /el /día <date> <string>", BankDepositCmd(withdrawal = True)),
 ]

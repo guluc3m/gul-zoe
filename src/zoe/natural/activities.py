@@ -34,32 +34,54 @@ class ActivitiesCmd:
         self._tome = tome
         self._lock = threading.Lock()
 
+    def feedback(self, objects, msg):
+        if "feedback" in objects["context"]:
+            objects["context"]["feedback"].feedback(msg)
+
     def execute(self, objects):
+        self.feedback(objects, "Voy a generar la memoria")
+
+        # Prepare a "generate memo" message
         aMap = {"dst":"activities", "tag":"memo", "_cid":uuid.uuid4()}
         trigger = zoe.MessageBuilder(aMap).msg()
+
+        # Send the message and stalk topic "activities" for a message from agent "activities" 
+        # with the same CID of the trigger message.
+        # When the message is received, call self.memoready
+        # Use a 30 seconds timeout
         msgparams = ("activities", "activities", trigger)
-        self._stalker = zoe.StalkerAgent("localhost", 0, "localhost", 30000, msgparams, self.memoready, objects)
+        self._stalker = zoe.StalkerAgent("localhost", 0, "localhost", 30000, msgparams, self.memoready, objects, timeout = 30)
         self._stalker.start()
+        
+        # Synchronize threads
         with self._lock:
             pass
+
+        # Get the memo
         f = objects["memo"]
-        users = self.mails(objects)
-        print("Tengo que mandar la memoria a:", users)
-        for u in users:
-            params = {"dst":"mail", "to":u["mail"], "subject":"Memoria de actividades", "att":f}
+        if not f:
+            self.feedback(objects, "Ha habido un error")
+            return objects
+
+        # Send the memo to every user in the original command
+        mails = self.mails(objects)
+        for u in mails:
+            self.feedback(objects, "Enviando la memoria a " + u)
+            params = {"dst":"mail", "to":u, "subject":"Memoria de actividades", "att":f}
             msg = zoe.MessageBuilder(params).msg()
             self._listener.sendbus(msg)
-        objects["feedback-string"] = "Enviada"
-        return objects
+
+        self.feedback(objects, "Memoria enviada")
 
     def mails(self, objects):
         if self._tome:
             user = objects["context"]["sender"]
-            return [ user ]
+            return [ user["mail"] ]
         else:
-            return objects["users"]
+            return [ x["mail"] for x in objects["users"] ]
 
     def memoready(self, parser, objects):
+        self.feedback(objects, "La memoria se ha generado")
         with self._lock:
             objects["memo"] = parser.get("memo")
         self._stalker.stop()
@@ -69,3 +91,4 @@ ActivitiesCmd.commands = [
     ("envíame la memoria de actividades", ActivitiesCmd(tome = True)),
     ("dame la memoria de actividades", ActivitiesCmd(tome = True)),
 ]
+
