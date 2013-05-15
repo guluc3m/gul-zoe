@@ -24,3 +24,5 @@ __pycache__
 *.log
 logs/pids
 *.cache
+
+src/zoe-users.conf
