@@ -27,94 +27,96 @@
 import zoe
 import sys
 import re
-
+import operator
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 class Fuzzy:
-
+    
     likelihood = 80
-
+    
     def __init__(self):
         self._users = zoe.Users()
-        self._moneyre = re.compile("([0-9]*[\.,]?[0-9]+)\s*(leuros|euros|euro|eur)", re.IGNORECASE)
-        self._stringre = re.compile('\"([^\"]+)\"')
-        self._datere = re.compile("(\d\d\d\d-\d\d-\d\d)")
-        self._integerre = re.compile("\s+([0-9]*)\s+")
-        self._commands = {
-            "say hello to <u>": zoe.HelloCmd(None), 
-            "say hello from <u> to <u>": zoe.HelloCmd(0), 
-            "say hello to <u> from <u>": zoe.HelloCmd(-1), 
-            "bank deposit <m> on <d> as <s>": zoe.BankDepositCmd(),
-            "bank withdrawal <m> on <d> as <s>": zoe.BankDepositCmd(withdrawal = True),
-
-            "di a <u> por gtalk <s>": zoe.GTalkCmd(),
-            "ingreso <m> el día <d> <s>": zoe.BankDepositCmd(), 
-            "pago <m> el día <d> <s>": zoe.BankDepositCmd(withdrawal = True),
-            "envía la memoria de actividades a <u>": zoe.ActivitiesCmd(),
-            "envíame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
-            "dame la memoria de actividades": zoe.ActivitiesCmd(tome = True),
-            "somos <i> socios": zoe.ListsCmd(), 
-            "hay <i> socios": zoe.ListsCmd(), 
-            "<i> socios en el libro": zoe.ListsCmd(), 
-           }
-
-    def execute(self, original, context):
-        (command, objects) = self.analyze(original)
-        objects["context"] = context
-        if command:
-            return command.execute(objects)
+        self._cmdmap = {}
+        cmds = [x for x in dir(zoe.natural) if x[-3:] == "Cmd"]
+        for cmd in cmds:
+            klass = getattr(zoe.natural, cmd)
+            self.register(klass)
 
     def analyze(self, original):
-        print("Original command: " + original)
-       
         cmd = original
+        strings, cmd = self.extract_strings(cmd)
+        integers, cmd = self.extract_integers(cmd)
+        floats, cmd = self.extract_floats(cmd)
+        users, cmd = self.extract_users(cmd)
+        dates, cmd = self.extract_dates(cmd)
+        cmd = self.removeduplicates(cmd.casefold())
+        r = {"users":users, "strings":strings, "integers":integers,
+             "dates":dates, "floats":floats, 
+             "original":original, "stripped":cmd}
+        return r
+    
+    def regen(self, cmd, start, end, substitution):
+        return cmd[:start] + substitution + cmd[end:]
 
-        (strings, cmd) = self.extractstrings(cmd)
-        print("Found strings: " + str(strings))
-        
-        (users, cmd) = self.extractusers(cmd)
-        print("Found users: " + str(users))
-        
-        (money, cmd) = self.extractmoney(cmd)
-        print("Found money: " + str(money))
-        
-        (dates, cmd) = self.extractdates(cmd)
-        print("Found dates: " + str(dates))
-        
-        (integers, cmd) = self.extractintegers(cmd)
-        print("Found integers: " + str(integers))
-        
-        # extract number, ips...
-        
-        cmd = self.removeduplicates(cmd)
-        cmdobjects = {"users":users, "money":money, "strings":strings, "integers":integers,
-                      "dates":dates, "original":original, "stripped":cmd}
-        
-        # try to find a command
-        result = process.extract(cmd, self._commands)
-        print("Fuzzy matching results:")
-        for text, score in result:
-            print (text + " => " + str(score))
-        text, score = result[0]
+    def extract(self, cmd, exp, sub):
+        exp = re.compile(exp)
+        strings = []
+        cmd = " " + cmd + " "
+        while True:
+            s = exp.search(cmd)
+            if s:
+                start, end = s.span()
+                string = s.group(1)
+                cmd = cmd[:start] + " " + sub + " " + cmd[end:]
+                strings.append(string)
+            else:
+                break
+        return (strings, cmd.strip())
 
-        command = None
+    def extract_strings(self, cmd):
+        exp = r'\s\"([^\"]+)\"\s'
+        return self.extract(cmd, exp, "<string>")
 
-        # command found
+    def extract_integers(self, cmd):
+        exp = r'\s([0-9]+)\s'
+        return self.extract(cmd, exp, "<integer>")
 
-        if score > self.likelihood:
-            command = self._commands[text]
-        else:
-            c = zoe.SmallTalkCmd()
-            trial = c.execute(cmdobjects)
-            if trial:
-                command = c
-            
-        return (command, cmdobjects)
+    def extract_floats(self, cmd):
+        exp = r'\s([0-9]*\.[0-9]+)\s'
+        return self.extract(cmd, exp, "<float>")
+    
+    def extract_dates(self, cmd):
+        exp = r'\s(\d\d\d\d-\d\d-\d\d)\s'
+        return self.extract(cmd, exp, "<float>")
+        
+    def removespurious(self, cmd):
+        trans = str.maketrans(",.", "  ")
+        return cmd.casefold().translate(trans)
 
+    def extract_users(self, cmd):
+        mailexp = re.compile(r'([^@]+@[^@]+)')
+        twitterexp = re.compile(r'(@[^@]+)')
+        users = zoe.Users().subjects()
+        foundusers = []
+        remaining = []
+        for word in cmd.split():
+            cleanword = self.removespurious(word).strip()
+            if cleanword in users.keys() and not word in foundusers:
+                foundusers.append(users[cleanword])
+                remaining.append("<user>")
+            elif mailexp.match(word):
+                foundusers.append({"mail":word, "preferred":"mail"})
+                remaining.append("<user>")
+            elif twitterexp.match(word):
+                foundusers.append({"twitter":word, "preferred":"twitter"})
+                remaining.append("<user>")
+            else:
+                remaining.append(word)
+        return (foundusers, " ".join(remaining))
+    
     def removeduplicates(self, cmd):
         cmd2 = []
-        print("Removing duplicates")
         lastword = ""
         for word in cmd.split():
             if word == lastword:
@@ -123,63 +125,52 @@ class Fuzzy:
             cmd2.append(word)
         return " ".join(cmd2)
 
-    def removespurious(self, cmd):
-        trans = str.maketrans(",.", "  ")
-        return cmd.casefold().translate(trans)
+    def combinations(self, tokens):
+        if len(tokens) == 1:
+            return tokens[0]
+        else:
+            head = tokens[0]
+            tail = tokens[1:]
+            result = []
+            tails = self.combinations(tail)
+            for h in head:
+                for t in tails:
+                    result.append(h + " " + t)
+            return result
 
-    def extractusers(self, cmd):
-        users = zoe.Users().subjects()
-        foundusers = []
-        remaining = []
-        for word in cmd.split():
-            cleanword = self.removespurious(word).strip()
-            if cleanword in users.keys() and not word in foundusers:
-                foundusers.append(users[cleanword])
-                remaining.append("<u>")
-            else:
-                remaining.append(word)
-        
-        return (foundusers, " ".join(remaining))
+    def patterns(self, cmd):
+        tokens = cmd.split()
+        result = []
+        for token in tokens:
+            syns = token.split("/")
+            result.append(syns)
+        return self.combinations(result) 
+       
+    def register(self, klass):
+        cmds = klass.commands
+        for cmd in cmds:
+            pattern, impl = cmd
+            for p in self.patterns(pattern):
+                self._cmdmap[pattern] = impl
 
-    def regen(self, cmd, start, end, substitution):
-        return cmd[:start] + substitution + (" " * (end - start - len(substitution))) + cmd[end:]
+    def lookup(self, stripped):
+        result = process.extract(stripped, self._cmdmap)
+        #for text, score in result:
+        #    print (text + " => " + str(score))
+        return result[0]
 
-    def extractmoney(self, cmd):
-        foundamounts = []
-        for match in self._moneyre.finditer(cmd):
-            amount = (match.group(1), match.group(2))
-            foundamounts.append(amount)
-            start = match.start()
-            end = match.end()
-            cmd = self.regen(cmd, start, end, "<m>")
-        return (foundamounts, " ".join(cmd.split()))
+    def commandfor(self, cmd):
+        r = self.analyze(cmd)
+        stripped = r["stripped"]
+        canonic, score = self.lookup(stripped)
+        if score > self.likelihood:
+            return self._cmdmap[canonic], r
+        else:
+            return zoe.SmallTalkCmd(), r
 
-    def extractstrings(self, cmd):
-        foundstrings = []
-        for match in self._stringre.finditer(cmd):
-            s = match.group(1)
-            foundstrings.append(s)
-            start = match.start()
-            end = match.end()
-            cmd = self.regen(cmd, start, end, "<s>")
-        return (foundstrings, " ".join(cmd.split()))
-    
-    def extractdates(self, cmd):
-        foundstrings = []
-        for match in self._datere.finditer(cmd):
-            s = match.group(0)
-            foundstrings.append(s)
-            start = match.start()
-            end = match.end()
-            cmd = self.regen(cmd, start, end, "<d>")
-        return (foundstrings, " ".join(cmd.split()))
+    def execute(self, cmd, context = None):
+        c, r = self.commandfor(cmd)
+        r["context"] = context
+        r2 = c.execute(r)
+        return r2
 
-    def extractintegers(self, cmd):
-        foundints = []
-        for match in self._integerre.finditer(cmd):
-            s = match.group(1)
-            foundints.append(s)
-            start = match.start()
-            end = match.end()
-            cmd = self.regen(cmd, start, end, "<i>")
-        return (foundints, " ".join(cmd.split()))

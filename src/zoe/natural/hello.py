@@ -49,3 +49,9 @@ class HelloCmd:
             msg = zoe.MessageBuilder(params).msg()
             self._listener.sendbus(msg)
         return {"feedback-string":"Mensaje enviado"}
+
+HelloCmd.commands = [
+    ("say hello to <u>", HelloCmd(None)), 
+    ("say hello from <u> to <u>", HelloCmd(0)), 
+    ("say hello to <u> from <u>", HelloCmd(-1)), 
+]

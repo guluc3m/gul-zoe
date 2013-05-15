@@ -80,6 +80,10 @@ class ActivitiesAgent:
 
     def updateBanking(self, parser):
         ids = parser.get("ids")
+        if not ids:
+            self._banking = None
+            self._listener.log("activities", "ERROR", "Banking info empty!", parser)
+            return
         if ids.__class__ is str:
             ids = [ids]
         incomings = []
@@ -101,6 +105,10 @@ class ActivitiesAgent:
     
     def updateInventory(self, parser):
         ids = parser.get("ids")
+        if not ids:
+            self._inventory = None
+            self._listener.log("activities", "ERROR", "Inventory info empty!", parser)
+            return
         if ids.__class__ is str:
             ids = [ids]
         objects = []
@@ -114,6 +122,10 @@ class ActivitiesAgent:
 
     def updateCourses(self, parser):
         courseids = parser.get("courseids")
+        if not courseids:
+            self._courses = None
+            self._listener.log("activities", "ERROR", "Courses info empty!", parser)
+            return
         if courseids.__class__ is str:
             courseids = [courseids]
         courses = []

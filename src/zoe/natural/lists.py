@@ -36,3 +36,9 @@ class ListsCmd:
         msg = zoe.MessageBuilder(params).msg()
         self._listener.sendbus(msg)
         return {"feedback-string":"OK, ahora somos " + inbook + " socios"}
+
+ListsCmd.commands = [
+    ("somos <i> socios", ListsCmd()), 
+    ("hay <i> socios", ListsCmd()), 
+    ("<i> socios en el libro", ListsCmd()), 
+]

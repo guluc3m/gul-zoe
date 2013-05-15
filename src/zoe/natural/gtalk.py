@@ -39,3 +39,6 @@ class GTalkCmd:
                 self._listener.sendbus(msg)
         return {"feedback-string":"Mensaje enviado"}
 
+GTalkCmd.commands = [
+    ("di a <u> por gtalk <s>", GTalkCmd())
+]

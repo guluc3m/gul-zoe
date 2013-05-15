@@ -64,3 +64,8 @@ class ActivitiesCmd:
             objects["memo"] = parser.get("memo")
         self._stalker.stop()
 
+ActivitiesCmd.commands = [
+    ("envía la memoria de actividades a <u>", ActivitiesCmd()),
+    ("envíame la memoria de actividades", ActivitiesCmd(tome = True)),
+    ("dame la memoria de actividades", ActivitiesCmd(tome = True)),
+]

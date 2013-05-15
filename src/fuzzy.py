@@ -34,16 +34,9 @@ class FuzzyShell(cmd.Cmd):
 
     def default(self, line):
         lex = zoe.Fuzzy()
-        command, objs = lex.analyze(line)
-        if not command:
-            print("Sorry I don't understand you.")
-            return
-        print("Chosen command: " + str(command))
-        print("Objects: " + str(objs))
-        ret = command.execute(objs)
+        ret = lex.execute(line)
         if ret:
             print(ret)
-
 
     def do_EOF(self, line):
         return True
@@ -54,5 +47,4 @@ if (cmd):
     shell.default(cmd)
 else:
     shell.cmdloop()
-
 

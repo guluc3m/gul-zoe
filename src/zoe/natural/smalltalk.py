@@ -50,7 +50,7 @@ class SmallTalkCmd:
         }
 
     def execute(self, objects):
-        p = objects["original"]
+        p = objects['original']
         return {"feedback-string":self.answer(p)}
 
     def answer(self, p):
@@ -58,3 +58,4 @@ class SmallTalkCmd:
         text, score = result[0]
         return self._talk[text]
 
+SmallTalkCmd.commands = []

@@ -61,3 +61,8 @@ class BankDepositCmd:
             msg = zoe.MessageBuilder(params).msg()
             self._listener.sendbus(msg)
             return {"feedback-string":"Ingreso realizado"}
+
+BankDepositCmd.commands = [
+    ("ingreso <m> el día <d> <s>", BankDepositCmd()), 
+    ("pago <m> el día <d> <s>", BankDepositCmd(withdrawal = True)),
+]
