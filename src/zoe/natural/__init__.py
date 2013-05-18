@@ -26,6 +26,7 @@
 
 from zoe.natural.hello import *
 from zoe.natural.deposit import *
+from zoe.natural.bankbalance import *
 from zoe.natural.fuzzy import *
 from zoe.natural.gtalk import *
 from zoe.natural.smalltalk import *
