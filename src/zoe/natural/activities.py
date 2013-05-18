@@ -58,10 +58,11 @@ class ActivitiesCmd:
             pass
 
         # Get the memo
-        f = objects["memo"]
-        if not f:
+        if not "memo" in objects:
             self.feedback(objects, "Ha habido un error")
             return objects
+
+        f = objects["memo"]
 
         # Send the memo to every user in the original command
         mails = self.mails(objects)
