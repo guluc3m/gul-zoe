@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import base64
+
 class Attachment:
     def __init__(self, base64, mime, filename):
         self._base64 = base64
@@ -41,6 +43,9 @@ class Attachment:
 
     def filename(self):
         return self._filename
+
+    def plaintext(self):
+        return base64.standard_b64decode(self._base64).decode("utf-8")
 
     def build(s):
         f = s.find(":")

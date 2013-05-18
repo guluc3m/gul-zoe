@@ -50,6 +50,10 @@ class Mail:
     def text(self, text):
         self._msg.attach(MIMEText(text))
         return self
+    
+    def html(self, text):
+        self._msg.attach(MIMEText(text, 'html'))
+        return self
 
     def file(self, path, name = None):
         if not name:
