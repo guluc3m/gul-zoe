@@ -28,13 +28,18 @@ import cmd
 import zoe
 import sys
 
+class ShellSession:
+    def feedback(self, msg):
+        print(msg)
+
 class FuzzyShell(cmd.Cmd):
 
     prompt = "zoe> "
 
     def default(self, line):
         lex = zoe.Fuzzy()
-        ret = lex.execute(line)
+        context = {"feedback":ShellSession()}
+        ret = lex.execute(line, context)
         if ret:
             print(ret)
 
