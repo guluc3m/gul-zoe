@@ -53,7 +53,7 @@ class BankBalanceCmd:
         # When the message is received, call self.ready
         # Use a 30 seconds timeout
         msgparams = ("banking", "banking", trigger)
-        self._stalker = zoe.StalkerAgent(msgparams, self.memoready, objects, timeout = 30)
+        self._stalker = zoe.StalkerAgent(msgparams, self.ready, objects, timeout = 30)
         self._stalker.start()
         
         # Synchronize threads
