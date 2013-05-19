@@ -27,7 +27,6 @@
 import zoe
 import sys
 import re
-import operator
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
