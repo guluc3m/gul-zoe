@@ -26,6 +26,6 @@
 
 import zoe
 
-agent = zoe.CoursesAgent("localhost", 30108, "localhost", 30000, 30)
+agent = zoe.CoursesAgent(30)
 agent.start()
 

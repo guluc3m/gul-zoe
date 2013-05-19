@@ -43,7 +43,7 @@ class Server:
         self._dispatchers = []
         self._agents = {}
         self._agentslookup = {}
-        self._listener = Listener(host, port, self, host, port)
+        self._listener = Listener(port, self)
         self._config = configparser.ConfigParser()
         if configfile:
             self._config.read(configfile)
@@ -66,8 +66,12 @@ class Server:
         for section in self._config.sections():
             sectype, secname = section.split(" ")
             if sectype == "agent":
-                host = self._config[section]["host"]
-                port = int(self._config[section]["port"])
+                sec = self._config[section]
+                if "host" in sec:
+                    host = sec["host"]
+                else:
+                    host = "localhost"
+                port = int(sec["port"])
                 self.registerAgent (secname, host, port)
 
     def registerDispatcher(self, dispatcher):

@@ -30,7 +30,7 @@ import threading
 
 class ActivitiesCmd:
     def __init__(self, tome = None):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000)
+        self._listener = zoe.Listener(0, self)
         self._tome = tome
         self._lock = threading.Lock()
 
@@ -50,7 +50,7 @@ class ActivitiesCmd:
         # When the message is received, call self.memoready
         # Use a 30 seconds timeout
         msgparams = ("activities", "activities", trigger)
-        self._stalker = zoe.StalkerAgent("localhost", 0, "localhost", 30000, msgparams, self.memoready, objects, timeout = 30)
+        self._stalker = zoe.StalkerAgent(msgparams, self.memoready, objects, timeout = 30)
         self._stalker.start()
         
         # Synchronize threads

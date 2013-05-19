@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import os
 import sys
 import uuid
 import socket
@@ -37,9 +38,13 @@ GREEN = '\033[32m'
 YELLOW = '\033[33m'
 
 class Listener:
-    def __init__(self, host, port, delegate, serverhost, serverport, debugmode = False, timeout = None):
-        self._host, self._port = host, port
-        self._srvhost, self._srvport = serverhost, serverport
+    def __init__(self, port, delegate, host = '', serverhost = None, serverport = None, debugmode = False, timeout = None):
+        if not serverhost:
+            serverhost = os.environ["ZOE_SERVER_HOST"]
+        if not serverport:
+            serverport = os.environ["ZOE_SERVER_PORT"]
+        self._host, self._port = host, int(port)
+        self._srvhost, self._srvport = serverhost, int(serverport)
         self._delegate = delegate
         self._running = False
         self._debugmode = debugmode

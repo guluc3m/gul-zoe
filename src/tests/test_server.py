@@ -10,8 +10,8 @@ import zoe
 
 
 class TestAgent:
-    def __init__(self, host, port, serverhost, serverport):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+    def __init__(self, port):
+        self._listener = zoe.Listener(port, self)
 
     def start(self):
         self._listener.start()
@@ -107,7 +107,7 @@ agents: agent2 agent3
         self._agent.start()
 
     def launch_test_agent(self):
-        self._testagent = TestAgent("localhost", 10011, "localhost", 10000)
+        self._testagent = TestAgent(10011)
         self._testagent.start()
 
     def launch_server(self):

@@ -26,5 +26,5 @@
 
 import zoe
 
-agent = zoe.ListsAgent("localhost", 30111, "localhost", 30000)
+agent = zoe.ListsAgent()
 agent.start()

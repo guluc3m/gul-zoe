@@ -28,11 +28,10 @@ import zoe
 import uuid
 import threading
 import base64
-from datetime import datetime
 
 class BankBalanceCmd:
     def __init__(self, me = True, mail = False):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000, True)
+        self._listener = zoe.Listener(0, self)
         self._me = me
         self._mail = mail
         self._lock = threading.Lock()
@@ -54,7 +53,7 @@ class BankBalanceCmd:
         # When the message is received, call self.ready
         # Use a 30 seconds timeout
         msgparams = ("banking", "banking", trigger)
-        self._stalker = zoe.StalkerAgent("localhost", 0, "localhost", 30000, msgparams, self.ready, objects, timeout = 30)
+        self._stalker = zoe.StalkerAgent(msgparams, self.memoready, objects, timeout = 30)
         self._stalker.start()
         
         # Synchronize threads
@@ -78,7 +77,7 @@ class BankBalanceCmd:
                 params = {"dst":"mail", "to":u, "subject":"Movimientos bancarios", "html":attachment.str()}
                 msg = zoe.MessageBuilder(params).msg()
                 self._listener.sendbus(msg)
-            self.feedback(objects, str(datetime.now()) + " - enviado")
+            self.feedback(objects, "Enviado")
         else:
             self.feedback(objects, memo)
 
@@ -89,7 +88,7 @@ class BankBalanceCmd:
             return self.getmemoplain(parser)
 
     def getmemoplain(self, parser):
-        memo = "Movimientos bancarios generados con fecha: " + str(datetime.now()) + "\n\n"
+        memo = "Movimientos bancarios: \n\n"
         ids = parser.get("ids")
         if ids.__class__ is str:
             ids = [ ids ]

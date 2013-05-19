@@ -28,11 +28,10 @@ import zoe
 import uuid
 import threading
 import base64
-from datetime import datetime
 
 class InventoryCmd:
     def __init__(self, me = True, mail = False):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000)
+        self._listener = zoe.Listener(0, self)
         self._me = me
         self._mail = mail
         self._lock = threading.Lock()
@@ -53,7 +52,7 @@ class InventoryCmd:
         # When the message is received, call self.ready
         # Use a 30 seconds timeout
         msgparams = ("inventory", "inventory", trigger)
-        self._stalker = zoe.StalkerAgent("localhost", 0, "localhost", 30000, msgparams, self.ready, objects, timeout = 30)
+        self._stalker = zoe.StalkerAgent(msgparams, self.ready, objects, timeout = 30)
         self._stalker.start()
         
         # Synchronize threads
@@ -99,12 +98,12 @@ class QueryInventory(InventoryCmd):
                 params = {"dst":"mail", "to":u, "subject":"Inventario", "txt64":attachment.str()}
                 msg = zoe.MessageBuilder(params).msg()
                 self._listener.sendbus(msg)
-            self.feedback(objects, "Enviado - " + str(datetime.now()))
+            self.feedback(objects, "Enviado")
         else:
             self.feedback(objects, memo)
 
     def getmemo(self, parser):
-        memo = "Inventario - " + str(datetime.now()) + "\n"
+        memo = "Inventario\n"
         ids = parser.list("ids")
         for i in ids:
             amount = parser.get(i + "-amount")
@@ -140,7 +139,7 @@ class AddInventory(InventoryCmd):
             sep = line.find(tokens[1])
             what = line[sep:]
             self.add(amount, what, parser)
-        return {"feedback-string":"Inventario actualizado - " + str(datetime.now())}
+        return {"feedback-string":"Inventario actualizado"}
 
     def addcmdline(self, objects, parser):
         print(objects)
@@ -153,7 +152,7 @@ class AddInventory(InventoryCmd):
             amount = amounts[i]
             what = whats[i]
             self.add(amount, what, parser)
-        return {"feedback-string":"Inventario actualizado - " + str(datetime.now())}
+        return {"feedback-string":"Inventario actualizado"}
 
 
 

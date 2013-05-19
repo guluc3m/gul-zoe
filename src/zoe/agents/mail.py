@@ -40,8 +40,10 @@ class MailFeedback:
         self._m.sendto(self._to)
 
 class MailAgent:
-    def __init__(self, host, port, serverhost, serverport, smtp, smtpport, user, password):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport, True)
+    def __init__(self, smtp, smtpport, user, password):
+        conf = zoe.Config()
+        port = conf.port("mail")
+        self._listener = zoe.Listener(port, self)
         self._smtp = smtp
         self._smtpport = smtpport
         self._user = user

@@ -28,7 +28,7 @@ from zoe.zs import *
 
 class EchoAgent:
     def __init__(self, host, port, serverhost, serverport):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+        self._listener = Listener(port, self, host, serverhost, serverport)
 
     def start(self):
         self._listener.start()

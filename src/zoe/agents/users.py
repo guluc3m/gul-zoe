@@ -30,9 +30,13 @@ import configparser
 import zoe
 
 class UsersAgent:
-    def __init__(self, host, port, serverhost, serverport, interval = 1, conf = "zoe-users.conf"):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
-        self._model = zoe.Users(conf)
+    def __init__(self, interval = 1, db = None):
+        conf = zoe.Config()
+        port = conf.port("users")
+        if not db:
+            db = conf.conf("zoe-users.conf")
+        self._listener = zoe.Listener(port, self, debugmode = True)
+        self._model = zoe.Users(db)
         self._interval = interval
         self.update()
 

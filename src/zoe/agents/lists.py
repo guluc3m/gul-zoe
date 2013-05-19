@@ -29,8 +29,10 @@ import time
 import threading
 
 class ListsAgent:
-    def __init__(self, host, port, serverhost, serverport, interval = 60):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+    def __init__(self, interval = 60):
+        conf = zoe.Config()
+        port = conf.port("lists")
+        self._listener = zoe.Listener(port, self)
         self._model = zoe.Lists()
         self._interval = interval
         self.update()

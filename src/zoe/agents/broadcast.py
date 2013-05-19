@@ -24,11 +24,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe import *
+import zoe
 
 class BroadcastAgent:
-    def __init__(self, host, port, serverhost, serverport):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+    def __init__(self):
+        conf = zoe.Config()
+        port = conf.port("broadcast")
+        self._listener = zoe.Listener(port, self)
         self._parser = None
         self.requestUsers()
 
@@ -50,7 +52,7 @@ class BroadcastAgent:
         self._listener.log("broadcast", "info", "Updating users info", parser)
 
     def requestUsers(self, original = None):
-        msg = MessageBuilder({"dst":"users","tag":"notify"}).msg()
+        msg = zoe.MessageBuilder({"dst":"users","tag":"notify"}).msg()
         self._listener.sendbus(msg)
         self._listener.log("broadcast", "info", "Sending users request", original)
 
@@ -68,6 +70,6 @@ class BroadcastAgent:
     def tweet(self, nick, msg, original = None):
         account = self._parser.get(nick + "-twitter")
         tags = {"dst":"twitter", "to":account, "msg":msg}
-        self._listener.sendbus(MessageBuilder(tags, original).msg())
+        self._listener.sendbus(zoe.MessageBuilder(tags, original).msg())
         self._listener.log("broadcast", "info", "Sending message '" + msg + "' to " + account, original)
 

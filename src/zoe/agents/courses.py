@@ -31,8 +31,10 @@ import configparser
 import zoe
 
 class CoursesAgent:
-    def __init__(self, host, port, serverhost, serverport, interval = 60, url = "http://cursos.gul.es/index.php/courses/json"):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+    def __init__(self, interval = 60, url = "http://cursos.gul.es/index.php/courses/json"):
+        conf = zoe.Config()
+        port = conf.port("courses")
+        self._listener = zoe.Listener(port, self)
         self._model = zoe.Courses(url)
         self._interval = interval
         self._url = url

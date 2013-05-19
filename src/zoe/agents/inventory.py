@@ -28,11 +28,15 @@ import sqlite3
 import uuid
 import datetime
 
-from zoe.zs import *
+import zoe
 
 class InventoryAgent:
-    def __init__(self, host, port, serverhost, serverport, db = "/tmp/zoe-inventory.sqlite3"):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+    def __init__(self, db = None):
+        conf = zoe.Config()
+        port = conf.port("inventory")
+        if not db:
+            db = conf.db("zoe-inventory.sqlite3")
+        self._listener = zoe.Listener(port, self)
         self._db = db
         self.notify()
 
@@ -80,7 +84,7 @@ class InventoryAgent:
             aMap[uuid + "-what"] = what
             ids.append(uuid)
         aMap["ids"] = ids
-        self._listener.sendbus(MessageBuilder(aMap, original).msg())
+        self._listener.sendbus(zoe.MessageBuilder(aMap, original).msg())
 
     def movements(self):
         conn, c = self.opendb()

@@ -24,13 +24,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe import *
+import zoe
 import tweepy
 
 class TwitterAgent:
-    def __init__(self, host, port, serverhost, serverport, \
-                 consumer_key, consumer_secret, access_token, access_token_secret):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+    def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret):
+        conf = zoe.Config()
+        port = conf.port("twitter")
+        self._listener = zoe.Listener(port, self)
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         self._api = tweepy.API(auth)

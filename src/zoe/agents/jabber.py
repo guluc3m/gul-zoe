@@ -27,22 +27,24 @@
 import zoe
 import sleekxmpp
 import time
+from datetime import datetime
 
 class JabberSession:
     def __init__(self, c):
         self._c = c
 
     def feedback(self, msg):
-        self._c(mto="voiser@gmail.com", mbody=msg)
+        self._c(mto="voiser@gmail.com", mbody=str(datetime.now()) + " - " + msg)
 
 class JabberAgent (sleekxmpp.ClientXMPP):
-    def __init__(self, host, port, serverhost, serverport, \
-                 jabberhost, jabberport, jabberuser, jabberpassword):
+    def __init__(self, jabberhost, jabberport, jabberuser, jabberpassword):
         sleekxmpp.ClientXMPP.__init__(self, jabberuser, jabberpassword)
+        conf = zoe.Config()
+        port = conf.port("jabber")
+        self._listener = zoe.Listener(port, self)
         self.add_event_handler("session_start", self.session_start)
         self.add_event_handler("ssl_invalid_cert", self.ssl_invalid_cert)
         self.add_event_handler("message", self.messagefromjabber)
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
         if self.connect((jabberhost, jabberport)):
             self.process(block=False)
             self.start()

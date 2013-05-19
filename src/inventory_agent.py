@@ -26,6 +26,6 @@
 
 import zoe
 
-agent = zoe.InventoryAgent("localhost", 30107, "localhost", 30000)
+agent = zoe.InventoryAgent()
 agent.start()
 

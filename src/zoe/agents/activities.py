@@ -36,8 +36,10 @@ import uuid
 from tenjin.helpers import *
 
 class ActivitiesAgent:
-    def __init__(self, host, port, serverhost, serverport):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+    def __init__(self):
+        conf = zoe.Config()
+        port = conf.port("activities")
+        self._listener = zoe.Listener(port, self)
         self._users = None
         self._banking = None
         self._inventory = None

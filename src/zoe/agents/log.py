@@ -24,11 +24,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.zs import *
+import zoe
 import sys
+
 class LogAgent:
-    def __init__(self, host, port, serverhost, serverport):
-        self._listener = Listener(host, port, self, serverhost, serverport)
+    def __init__(self):
+        conf = zoe.Config()
+        port = conf.port("log")
+        self._listener = zoe.Listener(port, self)
 
     def start(self):
         self._listener.start()

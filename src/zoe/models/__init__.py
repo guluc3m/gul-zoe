@@ -30,3 +30,4 @@ from zoe.models.banking import *
 from zoe.models.mail import *
 from zoe.models.attachment import *
 from zoe.models.lists import *
+from zoe.models.conf import *

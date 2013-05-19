@@ -30,8 +30,12 @@ import datetime
 import zoe
 
 class BankingAgent:
-    def __init__(self, host, port, serverhost, serverport, db = "/tmp/zoe-banking.sqlite3"):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+    def __init__(self, db = None):
+        conf = zoe.Config()
+        port = conf.port("banking")
+        if not db:
+            db = conf.db("zoe-banking.sqlite3")
+        self._listener = zoe.Listener(port, self)
         self._model = zoe.Banking(db)
 
     def start(self):

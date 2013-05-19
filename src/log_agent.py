@@ -26,5 +26,5 @@
 
 import zoe
 
-agent = zoe.LogAgent("localhost", 30100, "localhost", 30000)
+agent = zoe.LogAgent()
 agent.start()

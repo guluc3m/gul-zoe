@@ -30,7 +30,7 @@ from fuzzywuzzy import process
 
 class SmallTalkCmd:
     def __init__(self):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000, True)
+        self._listener = zoe.Listener(0, self)
         self._talk = {
             "hola": "hola",
             "saluda": "hola",

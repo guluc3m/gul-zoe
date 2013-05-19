@@ -28,7 +28,7 @@ import zoe
 
 class ListsCmd:
     def __init__(self):
-        self._listener = zoe.Listener(None, None, self, "localhost", 30000)
+        self._listener = zoe.Listener(0, self)
 
     def execute(self, objects):
         inbook = objects["integers"][0]

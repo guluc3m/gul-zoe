@@ -32,7 +32,6 @@ port=os.environ['zoe_jabber_port']
 user=os.environ['zoe_jabber_user']
 password=os.environ['zoe_jabber_password']
 
-agent = zoe.JabberAgent("localhost", 30109, "localhost", 30000, \
-                         host, port, user, password)
+agent = zoe.JabberAgent(host, port, user, password)
 agent.start()
 

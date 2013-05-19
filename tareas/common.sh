@@ -8,6 +8,6 @@ function sanitize() {
 
 function send() {
     MSG="$1"
-    echo -n "$MSG" | nc $SERVER_HOST $SERVER_PORT
+    echo -n "$MSG" | nc $ZOE_SERVER_HOST $ZOE_SERVER_PORT
 }
 

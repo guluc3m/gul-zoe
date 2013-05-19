@@ -24,34 +24,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import zoe
+import os
+import configparser
 
-class HelloCmd:
-    def __init__(self, fromdef):
-        self._listener = zoe.Listener(0, self)
-        self._fromdef = fromdef
+class Config:
+    def __init__(self, conffile = None, confstring = None):
+        if not conffile and not confstring:
+            conffile = os.environ["ZOE_HOME"] + "/src/zoe.conf"
+        self._conffile = conffile
+        self._confstring = confstring
+        self.update()
 
-    def execute(self, objects):
-        users = objects["users"]
-        if self._fromdef is None:
-            f = None
-            t = users
+    def update(self): 
+        self._config = configparser.ConfigParser()
+        if self._conffile:
+            self._config.read(self._conffile, encoding = "utf8")
         else:
-            f = users[self._fromdef]
-            t = [x for x in users if f != x]
+            self._config.read_string(self._confstring, encoding = "utf8")
+            
+    def bind_host(self, agent):
+        a = self._config["agent " + agent]
+        if "host" in a:
+            return a["host"]
+        else:
+            return ''
+        
+    def port(self, agent):
+        return self._config["agent " + agent]["port"]
 
-        for u in t:
-            if f:
-                text = "hello from @" + f["twitter"] + "!"
-            else:
-                text = "hello!"
-            params = {"dst":"twitter", "to":u["twitter"], "msg":text}
-            msg = zoe.MessageBuilder(params).msg()
-            self._listener.sendbus(msg)
-        return {"feedback-string":"Mensaje enviado"}
+    def conf(self, f):
+        return os.environ["ZOE_HOME"] + "/src/" + f
 
-HelloCmd.commands = [
-    ("say hello to <user>", HelloCmd(None)), 
-    ("say hello from <user> to <user>", HelloCmd(0)), 
-    ("say hello to <user> from <user>", HelloCmd(-1)), 
-]
+    def db(self, f):
+        return "/tmp/" + f
