@@ -88,7 +88,7 @@ class ActivitiesCmd:
         self._stalker.stop()
 
 ActivitiesCmd.commands = [
-    ("envía la memoria de actividades a <u>", ActivitiesCmd()),
+    ("envía la memoria de actividades a <user>", ActivitiesCmd()),
     ("envíame la memoria de actividades", ActivitiesCmd(tome = True)),
     ("dame la memoria de actividades", ActivitiesCmd(tome = True)),
 ]
