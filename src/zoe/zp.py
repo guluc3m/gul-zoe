@@ -54,13 +54,15 @@ class MessageParser:
             return self._map[key]
         else:
             return None
+    def list(self, key):
+        r = self.get(key)
+        if r.__class__ is list:
+            return r
+        else:
+            return [r]
 
     def tags(self):
-        tags = self.get("tag")
-        if tags.__class__ is list:
-            return tags
-        else:
-            return [tags]
+        return self.list("tag")
 
 
 class MessageBuilder:

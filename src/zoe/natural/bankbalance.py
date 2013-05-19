@@ -91,6 +91,8 @@ class BankBalanceCmd:
     def getmemoplain(self, parser):
         memo = "Movimientos bancarios generados con fecha: " + str(datetime.now()) + "\n\n"
         ids = parser.get("ids")
+        if ids.__class__ is str:
+            ids = [ ids ]
         for i in ids:
             date = parser.get(i + "-date")
             amount = parser.get(i + "-amount")
@@ -105,6 +107,8 @@ class BankBalanceCmd:
     def getmemohtml(self, parser):
         memo = "<html><body><table><tbody><tr><th>Fecha</th><th>Cantidad</th><th>Concepto</th></tr>"
         ids = parser.get("ids")
+        if ids.__class__ is str:
+            ids = [ ids ]
         for i in ids:
             date = parser.get(i + "-date")
             amount = parser.get(i + "-amount")
