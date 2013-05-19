@@ -32,3 +32,4 @@ from zoe.natural.gtalk import *
 from zoe.natural.smalltalk import *
 from zoe.natural.activities import *
 from zoe.natural.lists import *
+from zoe.natural.inventory import *
