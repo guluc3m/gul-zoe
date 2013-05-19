@@ -27,10 +27,21 @@
 import zoe
 import base64
 import uuid
+import re
+import email
+
+class MailFeedback:
+    def __init__(self, to, m):
+        self._to = to
+        self._m = m
+
+    def feedback(self, msg):
+        self._m.text(msg)
+        self._m.sendto(self._to)
 
 class MailAgent:
     def __init__(self, host, port, serverhost, serverport, smtp, smtpport, user, password):
-        self._listener = zoe.Listener(host, port, self, serverhost, serverport)
+        self._listener = zoe.Listener(host, port, self, serverhost, serverport, True)
         self._smtp = smtp
         self._smtpport = smtpport
         self._user = user
@@ -43,9 +54,42 @@ class MailAgent:
         self._listener.stop()
 
     def receive(self, parser):
+        if "received" in parser.tags():
+            self.rcvmail(parser)
+        else:
+            self.sendmail(parser)
+
+    def rcvmail(self, parser):
+        b64 = parser.get("body")
+        text = base64.standard_b64decode(b64.encode("utf-8")).decode("utf-8")
+        mail = email.message_from_string(text)
+        mp = mail.is_multipart()
+        if not mp:
+            parts = [ mail ]
+        else:
+            parts = mail.get_payload()
+        for part in parts:
+            mime = part.get_content_type()
+            if not mime == "text/plain":
+                continue
+            text = part.get_payload()
+            s = text.find("\n\n")
+            command = text[:s].strip()
+            bigstring = text[s:].strip()
+            f = zoe.Fuzzy()
+            context = {}
+            rcpt = mail["From"]
+            subject = mail["Subject"]
+            context["bigstring"] = bigstring
+            context["sender"] = rcpt
+            context["feedback"] = MailFeedback(rcpt, zoe.Mail(self._smtp, self._smtpport, self._user, self._password).subject(subject))
+            r = f.execute(command, context)
+
+    def sendmail(self, parser):
         recipient = parser.get("to")
         s = parser.get("subject")
         txt = parser.get("txt")
+        txt64 = parser.get("txt64")
         files = parser.get("file")
         atts = parser.get("att")
         htmls = parser.get("html")
@@ -75,8 +119,14 @@ class MailAgent:
             for html in htmls:
                 a = zoe.Attachment.build(html)
                 h = a.plaintext() 
-                #m.html("<html><body>hola</body></html>")
                 m.html(h)
+        if txt64:
+            if txt64.__class__ is str:
+                txt64 = [txt64]
+            for t in txt64:
+                a = zoe.Attachment.build(t)
+                h = a.plaintext() 
+                m.text(h)
         m.sendto(recipient) 
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
 
