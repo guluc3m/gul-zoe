@@ -5,7 +5,7 @@
 CMD="$1"
 CMD=`sanitize "$CMD"`
 
-ID=`uuidgen`
+ID=`genuid`
 TMP="/tmp/fuzzy-$ID"
 
 pushd $ZOE_BASE >/dev/null

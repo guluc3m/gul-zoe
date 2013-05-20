@@ -6,7 +6,7 @@ YEAR="$1"
 YEAR=`sanitize "$YEAR"`
 
 # choose a random CID
-CID=`uuidgen`
+CID=`genuid`
 
 # Query parameters
 SRC="courses"

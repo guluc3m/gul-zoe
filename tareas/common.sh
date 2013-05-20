@@ -11,3 +11,11 @@ function send() {
     echo -n "$MSG" | nc $ZOE_SERVER_HOST $ZOE_SERVER_PORT
 }
 
+function genuid() {
+    if [ "`uname`" == "Linux" ] 
+    then
+        uuid
+    else
+        uuidgen
+    fi
+}

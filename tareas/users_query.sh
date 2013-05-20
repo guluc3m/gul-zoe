@@ -7,7 +7,7 @@ USER="$1"
 USER=`sanitize "$USER"`
 
 # choose a random CID
-CID=`uuidgen`
+CID=`genuid`
 
 # Query parameters
 SRC="users"

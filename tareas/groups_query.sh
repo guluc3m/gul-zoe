@@ -7,7 +7,7 @@ GRP="$1"
 GRP=`sanitize "$GRP"`
 
 # choose a random CID
-CID=`uuidgen`
+CID=`genuid`
 
 # Query parameters
 SRC="users"

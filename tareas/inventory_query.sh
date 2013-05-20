@@ -3,7 +3,7 @@
 . common.sh
 
 # choose a random CID
-CID=`uuidgen`
+CID=`genuid`
 
 # Query parameters
 SRC="inventory"

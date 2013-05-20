@@ -2,7 +2,7 @@
 
 . common.sh
 
-ID=`uuidgen`
+ID=`genuid`
 FILE=/tmp/zoe-mail-$ID
 BODY=`cat | base64`
 echo $BODY
