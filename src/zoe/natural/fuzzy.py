@@ -49,7 +49,7 @@ class Fuzzy:
         floats, cmd = self.extract_floats(cmd)
         users, cmd = self.extract_users(cmd)
         dates, cmd = self.extract_dates(cmd)
-        cmd = self.removeduplicates(cmd.casefold())
+        cmd = self.removeduplicates(cmd.lower())
         r = {"users":users, "strings":strings, "integers":integers,
              "dates":dates, "floats":floats, 
              "original":original, "stripped":cmd}
@@ -91,7 +91,7 @@ class Fuzzy:
         
     def removespurious(self, cmd):
         trans = str.maketrans(",.", "  ")
-        return cmd.casefold().translate(trans)
+        return cmd.lower().translate(trans)
 
     def extract_users(self, cmd):
         mailexp = re.compile(r'([^@]+@[^@]+)')
