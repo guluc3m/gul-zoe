@@ -58,7 +58,7 @@ class BankingAgent:
         what = parser.get("what")
         if not y or y == "":
             y2, m2, d2 = ts.split("-")
-            y = zoe.Courses.courseyears(y2)
+            y = zoe.Courses.courseyears(y2, m2)
         self._model.entry(y, ts, amount, what)
         self._listener.log("banking", "info", "New entry: " + y + ", " + ts + ", " + str(amount) + ", " + what, parser)
         self.notify(y, parser)
