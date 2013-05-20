@@ -63,6 +63,6 @@ class BankDepositCmd:
             return {"feedback-string":"Ingreso de " + amount + " realizado"}
 
 BankDepositCmd.commands = [
-    ("ingreso /de <float> /el /día <date> <string>", BankDepositCmd()), 
-    ("pago /de <float> /el /día <date> <string>", BankDepositCmd(withdrawal = True)),
+    ("ingreso /de <float>/<integer> /el /día <date> <string>", BankDepositCmd()), 
+    ("pago /de <float>/<integer> /el /día <date> <string>", BankDepositCmd(withdrawal = True)),
 ]
