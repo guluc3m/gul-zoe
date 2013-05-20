@@ -30,6 +30,17 @@ import re
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
+class FuzzyCmd:
+    def execute(self, objects):
+        t = ""
+        for k in sorted(Fuzzy()._cmdmap.keys()):
+            t = t + k + "\n"
+        return {"feedback-string":t}
+
+FuzzyCmd.commands = [
+    ("ayuda", FuzzyCmd())
+]
+
 class Fuzzy:
     
     likelihood = 80
@@ -150,7 +161,8 @@ class Fuzzy:
         for cmd in cmds:
             pattern, impl = cmd
             for p in self.patterns(pattern):
-                self._cmdmap[pattern] = impl
+                q = " ".join(p.split())
+                self._cmdmap[q] = impl
 
     def lookup(self, stripped):
         result = process.extract(stripped, self._cmdmap)
