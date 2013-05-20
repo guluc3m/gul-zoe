@@ -1,7 +1,5 @@
 ZOE_BASE="$ZOE_HOME/src"
 ZOE_PIDS="$ZOE_HOME/logs/pids"
 ZOE_LOGS="$ZOE_HOME/logs"
-PYTHON3="python3.3"
-PYTHON2="python2.7"
 ENABLED_AGENTS="log users lists banking inventory courses broadcast twitter jabber mail activities"
 MAILMAN="root@ibor.gul.es"
