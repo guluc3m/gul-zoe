@@ -1,1 +1,0 @@
-from tenjin.tenjin import *
