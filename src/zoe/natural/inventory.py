@@ -142,7 +142,6 @@ class AddInventory(InventoryCmd):
         return {"feedback-string":"Inventario actualizado"}
 
     def addcmdline(self, objects, parser):
-        print(objects)
         amounts = objects["integers"]
         whats = objects["strings"]
         if len(amounts) != len(whats):
