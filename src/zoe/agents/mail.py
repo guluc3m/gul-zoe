@@ -37,6 +37,8 @@ class MailFeedback:
 
     def feedback(self, msg):
         self._m.text(msg)
+    
+    def send(self):
         self._m.sendto(self._to)
 
 class MailAgent:
@@ -83,9 +85,20 @@ class MailAgent:
             rcpt = mail["From"]
             subject = mail["Subject"]
             context["bigstring"] = bigstring
-            context["sender"] = rcpt
-            context["feedback"] = MailFeedback(rcpt, zoe.Mail(self._smtp, self._smtpport, self._user, self._password).subject(subject))
+            context["sender"] = self.finduser(rcpt)
+            feedback = MailFeedback(rcpt, zoe.Mail(self._smtp, self._smtpport, self._user, self._password).subject(subject))
+            context["feedback"] = feedback
             r = f.execute(command, context)
+            if r and "feedback-string" in r:
+                feedback.feedback(r["feedback-string"])
+            feedback.send()
+    
+    def finduser(self, address):
+        model = zoe.Users()
+        subjects = model.subjects()
+        for s in subjects:
+            if "mail" in subjects[s] and subjects[s]["mail"] == address:
+                return subjects[s]
 
     def sendmail(self, parser):
         recipient = parser.get("to")
