@@ -163,7 +163,7 @@ class UpdateInventory(AddInventory):
 
     def execute0(self, objects, parser):
         self.drop(objects, parser)
-        self.addmail(objects, parser)
+        return self.addmail(objects, parser)
         
     def drop(self, objects, parser):
         ids = parser.list("ids")
