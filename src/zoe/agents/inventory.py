@@ -66,6 +66,7 @@ class InventoryAgent:
         amount = parser.get("amount")
         what = parser.get("what")
         self.entry0(amount, what)
+        self._listener.log("inventory", "info", "inventory updated", parser)
 
     def entry0(self, amount, what):
         conn, c = self.opendb()
@@ -105,4 +106,5 @@ class InventoryAgent:
         c.execute("update i set amount = ? where id = ?", (amount, ident))
         conn.commit()
         c.close()
+        self._listener.log("inventory", "info", "inventory entry updated", parser)
 
