@@ -69,10 +69,14 @@ urlcolor={blue},
 
 \item{Medios materiales:}
 \begin{itemize}
-<?py for o in INVENTARIO: ?>
-<?py     amount, what = o ?>
+<?py if len(INVENTARIO) == 0: ?>
+\item No hay datos
+<?py else: ?>
+<?py     for o in INVENTARIO: ?>
+<?py         amount, what = o ?>
 \item{} #{amount} #{what}
-<?py #endfor ?>
+<?py     #endfor ?>
+<?py #endif ?>
 \end{itemize}
 \end{itemize}
 \newpage
@@ -174,19 +178,27 @@ A partir de septiembre de 2012 la propia asociación produce autónomamente el p
 \textsf{Ingresos}
 
 \begin{itemize}
-<?py for i in INGRESOS: ?>
-<?py     date, amount, what = i ?>
+<?py if len(INGRESOS) == 0: ?>
+\item No hay datos
+<?py else: ?>
+<?py     for i in INGRESOS: ?>
+<?py         date, amount, what = i ?>
 \item #{date}: #{amount} Euros (#{what})
-<?py #endfor ?>
+<?py     #endfor ?>
+<?py #endif ?>
 \end{itemize}
 
 \textsf{Gastos}
 
 \begin{itemize}
-<?py for g in GASTOS: ?>
-<?py     date, amount, what = g ?>
+<?py if len(GASTOS) == 0: ?>
+\item No hay datos
+<?py else: ?>
+<?py     for g in GASTOS: ?>
+<?py         date, amount, what = g ?>
 \item #{date}: #{amount} Euros (#{what})
-<?py #endfor ?>
+<?py     #endfor ?>
+<?py #endif ?>
 \end{itemize}
 
 \textsf{Saldo actual}
