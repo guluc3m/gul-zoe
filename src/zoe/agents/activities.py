@@ -81,13 +81,9 @@ class ActivitiesAgent:
         self._listener.log("activities", "info", "Users info received", parser)
 
     def updateBanking(self, parser):
-        ids = parser.get("ids")
-        if not ids:
-            self._banking = None
-            self._listener.log("activities", "ERROR", "Banking info empty!", parser)
-            return
-        if ids.__class__ is str:
-            ids = [ids]
+        ids = parser.list("ids")
+        if len(ids) == 0:
+            self._listener.log("activities", "WARNING", "Banking info empty!", parser)
         incomings = []
         expenses = []
         for id in ids:
@@ -106,13 +102,9 @@ class ActivitiesAgent:
         self._listener.log("activities", "info", "Banking info received", parser)
     
     def updateInventory(self, parser):
-        ids = parser.get("ids")
-        if not ids:
-            self._inventory = None
-            self._listener.log("activities", "ERROR", "Inventory info empty!", parser)
-            return
-        if ids.__class__ is str:
-            ids = [ids]
+        ids = parser.list("ids")
+        if len(ids) == 0:
+            self._listener.log("activities", "WARNING", "Inventory info empty!", parser)
         objects = []
         for id in ids:
             amount = parser.get(id + "-amount")
@@ -181,31 +173,31 @@ class ActivitiesAgent:
         print ("Checking prerequisites")
         print ("  Checking user list")
         success = True
-        if not self._users:
+        if self._users == None:
             print ("    missing")
             self.requestUsers(original)
             success = False
 
         print ("  Checking accounting")
-        if not self._banking:
+        if self._banking == None:
             print ("    missing")
             self.requestBanking(original)
             success = False
         
         print ("  Checking inventory")
-        if not self._inventory:
+        if self._inventory == None:
             print ("    missing")
             self.requestInventory(original)
             success = False
         
         print ("  Checking courses")
-        if not self._courses:
+        if self._courses == None:
             print ("    missing")
             self.requestCourses(original)
             success = False
 
         print ("  Checking lists")
-        if not self._lists:
+        if self._lists == None:
             print ("    missing")
             self.requestLists(original)
             success = False
