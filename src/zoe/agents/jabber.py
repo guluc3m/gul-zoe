@@ -30,11 +30,12 @@ import time
 from datetime import datetime
 
 class JabberSession:
-    def __init__(self):
-        self.b = ""
+    def __init__(self, to, send):
+        self._to = to
+        self._send = send
 
     def feedback(self, msg):
-        self.b = self.b + msg + "\n"
+        self._send(mto=self._to, mbody=msg, mtype='chat')
 
 class JabberAgent (sleekxmpp.ClientXMPP):
     def __init__(self, jabberhost, jabberport, jabberuser, jabberpassword):
@@ -69,13 +70,12 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             text = msg["body"]
             jid = msg["from"]
             sender = self.finduser(jid)
-            js = JabberSession()
+            js = JabberSession(jid, self.send_message)
             context = {"sender":sender, "feedback":js}
             ret = zoe.Fuzzy().execute(text, context)
             print("RET", ret)
             if ret and "feedback-string" in ret:
-                js.feedback(ret["feedback-string"])
-            msg.reply(js.b).send()   
+                msg.reply(ret["feedback-string"]).send()
 
     def finduser(self, jid):
         user = jid.user + "@" + jid.domain
