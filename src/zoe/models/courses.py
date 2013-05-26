@@ -31,7 +31,7 @@ import datetime
 
 class Courses:
 
-    FIRST_MONTH=10
+    FIRST_MONTH=9
 
     def __init__(self, url = "http://cursos.gul.es/index.php/courses/json"):
         self._url = url;
