@@ -31,11 +31,10 @@ import zoe
 
 class UsersAgent:
     def __init__(self, interval = 1, db = None):
-        conf = zoe.Config()
-        port = conf.port("users")
         if not db:
+            conf = zoe.Config()
             db = conf.conf("zoe-users.conf")
-        self._listener = zoe.Listener(port, self, debugmode = True)
+        self._listener = zoe.Listener(self, name = "users")
         self._model = zoe.Users(db)
         self._interval = interval
         self.update()

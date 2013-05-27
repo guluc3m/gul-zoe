@@ -28,9 +28,7 @@ import zoe
 
 class BroadcastAgent:
     def __init__(self):
-        conf = zoe.Config()
-        port = conf.port("broadcast")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "broadcast")
         self._parser = None
         self.requestUsers()
 

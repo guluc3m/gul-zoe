@@ -43,7 +43,7 @@ class Server:
         self._dispatchers = []
         self._agents = {}
         self._agentslookup = {}
-        self._listener = Listener(port, self)
+        self._listener = Listener(self, port = port, keepaliveinterval = 0)
         self._config = configparser.ConfigParser()
         if configfile:
             self._config.read(configfile)
@@ -146,9 +146,10 @@ class Server:
         self.sendto(host, int(port), message)
 
     def serve(self, parser):
-        if "register" in parser.tags():
+        tags = parser.tags()
+        if "register" in tags:
             self.registerAgentDyn(parser)
-        if "unregister" in parser.tags():
+        if "unregister" in tags:
             name = parser.get("name")
             topic = parser.get("topic")
             self.unregisterAgent(name)

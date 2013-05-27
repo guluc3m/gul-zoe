@@ -28,7 +28,7 @@ import zoe
 
 class GTalkCmd:
     def __init__(self):
-        self._listener = zoe.Listener(0, self)
+        self._listener = zoe.Listener(self, port = 0)
 
     def execute(self, objects):
         users = objects["users"]

@@ -40,9 +40,7 @@ class JabberSession:
 class JabberAgent (sleekxmpp.ClientXMPP):
     def __init__(self, jabberhost, jabberport, jabberuser, jabberpassword):
         sleekxmpp.ClientXMPP.__init__(self, jabberuser, jabberpassword)
-        conf = zoe.Config()
-        port = conf.port("jabber")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "jabber")
         self.add_event_handler("session_start", self.session_start)
         self.add_event_handler("ssl_invalid_cert", self.ssl_invalid_cert)
         self.add_event_handler("message", self.messagefromjabber)

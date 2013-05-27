@@ -37,9 +37,7 @@ from tenjin.helpers import *
 
 class ActivitiesAgent:
     def __init__(self):
-        conf = zoe.Config()
-        port = conf.port("activities")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "activities")
         self._users = None
         self._banking = None
         self._inventory = None

@@ -32,11 +32,10 @@ import zoe
 
 class InventoryAgent:
     def __init__(self, db = None):
-        conf = zoe.Config()
-        port = conf.port("inventory")
         if not db:
+            conf = zoe.Config()
             db = conf.db("zoe-inventory.sqlite3")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "inventory")
         self._db = db
         self.notify()
 

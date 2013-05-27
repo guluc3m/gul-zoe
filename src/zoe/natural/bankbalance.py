@@ -31,7 +31,7 @@ import base64
 
 class BankBalanceCmd:
     def __init__(self, me = True, mail = False):
-        self._listener = zoe.Listener(0, self)
+        self._listener = zoe.Listener(self, port = 0)
         self._me = me
         self._mail = mail
         self._lock = threading.Lock()

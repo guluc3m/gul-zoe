@@ -27,9 +27,10 @@
 import uuid
 
 class MessageParser:
-    def __init__(self, msg):
+    def __init__(self, msg, addr = None):
         self._msg = msg.strip()
         self._map = {}
+        self._addr = addr
         pairs = msg.split("&")
         for pair in pairs:
             if pair == "":
@@ -64,6 +65,8 @@ class MessageParser:
     def tags(self):
         return self.list("tag")
 
+    def addr(self):
+        return self._addr
 
 class MessageBuilder:
 

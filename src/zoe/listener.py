@@ -27,10 +27,11 @@
 import os
 import sys
 import uuid
+import time
 import socket
 import threading
 import traceback
-from zoe.zp import *
+import zoe
 
 RESET = '\033[0m'
 RED = '\033[31m'
@@ -38,19 +39,40 @@ GREEN = '\033[32m'
 YELLOW = '\033[33m'
 
 class Listener:
-    def __init__(self, port, delegate, host = '', serverhost = None, serverport = None, debugmode = False, timeout = None):
+    def __init__(self, 
+                 delegate,
+                 name = None,
+                 host = '', 
+                 port = None, 
+                 serverhost = None, 
+                 serverport = None, 
+                 debugmode = False, 
+                 timeout = None, 
+                 keepaliveinterval = 10):
         if not serverhost:
             serverhost = os.environ["ZOE_SERVER_HOST"]
         if not serverport:
             serverport = os.environ["ZOE_SERVER_PORT"]
-        self._host, self._port = host, int(port)
+        if not (port == None):
+            self._name = None
+            self._host = host
+            self._port = port
+        else:
+            conf = zoe.Config()
+            self._name = name
+            self._host = conf.bind_host(name)
+            self._port = int(conf.port(name))
         self._srvhost, self._srvport = serverhost, int(serverport)
         self._delegate = delegate
         self._running = False
         self._debugmode = debugmode
         self._timeout = timeout
+        self._interval = keepaliveinterval
 
     def start(self, sockethook = None):
+        if (self._interval > 0):
+            self._resendDaemonThread = threading.Thread (target = self.keepalive)
+            self._resendDaemonThread.start()
         self._running = True
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -78,7 +100,7 @@ class Listener:
 
     def log(self, source, level, msg, original = None):
         aMap = {"dst":"log", "src":source, "lvl":level, "msg":msg}
-        m = MessageBuilder(aMap, original).msg()
+        m = zoe.MessageBuilder(aMap, original).msg()
         self.sendbus(m)
 
     def connection(self, conn, addr):
@@ -90,7 +112,7 @@ class Listener:
             message = message + data.decode("utf-8")
         conn.close()
         self.mylog (YELLOW, "RECV", host, port, message)
-        parser = MessageParser(message)
+        parser = zoe.MessageParser(message, addr = addr)
         tags = parser.tags()
         if "exit!" in tags:
             self.stop()
@@ -98,9 +120,7 @@ class Listener:
         try:
             self._delegate.receive(parser)
         except:
-            print("EXCEPTION")
             traceback.print_exc()
-            print("FLUSH")
             sys.stdout.flush()
             sys.stderr.flush()
 
@@ -109,17 +129,24 @@ class Listener:
         self._socket.close()
 
     def send(self, message, host, port):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
             s.sendall(message.encode("utf-8"))
             self.mylog (GREEN, "SENT", host, port, message)
         except Exception as e:
             self.mylog (RED, "ERR ", host, port, message)
-            #raise e
         finally:
             s.close()
 
     def sendbus(self, message):
         self.send(message, self._srvhost, self._srvport)
+
+    def keepalive(self):
+        if self._name == None:
+            return
+        while True:
+            time.sleep(self._interval)
+            aMap = {"dst":"server", "tag":"keepalive", "name":self._name}
+            self.sendbus(zoe.MessageBuilder(aMap).msg())
 

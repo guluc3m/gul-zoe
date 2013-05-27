@@ -30,7 +30,7 @@ import threading
 
 class ActivitiesCmd:
     def __init__(self, tome = None):
-        self._listener = zoe.Listener(0, self)
+        self._listener = zoe.Listener(self, port = 0)
         self._tome = tome
         self._lock = threading.Lock()
 

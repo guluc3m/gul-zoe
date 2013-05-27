@@ -29,9 +29,7 @@ import tweepy
 
 class TwitterAgent:
     def __init__(self, consumer_key, consumer_secret, access_token, access_token_secret):
-        conf = zoe.Config()
-        port = conf.port("twitter")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "twitter")
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         self._api = tweepy.API(auth)

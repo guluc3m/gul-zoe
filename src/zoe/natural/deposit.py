@@ -28,7 +28,7 @@ import zoe
 
 class BankDepositCmd:
     def __init__(self, withdrawal = False):
-        self._listener = zoe.Listener(0, self)
+        self._listener = zoe.Listener(self, port = 0)
         self._withdrawal = withdrawal
 
     def execute(self, objects):

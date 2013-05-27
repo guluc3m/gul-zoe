@@ -11,7 +11,7 @@ import zoe
 
 class TestAgent:
     def __init__(self, port):
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, port = port)
 
     def start(self):
         self._listener.start()

@@ -28,7 +28,7 @@ import zoe
 
 class HelloCmd:
     def __init__(self, fromdef):
-        self._listener = zoe.Listener(0, self)
+        self._listener = zoe.Listener(self, port = 0)
         self._fromdef = fromdef
 
     def execute(self, objects):

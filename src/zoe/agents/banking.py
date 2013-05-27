@@ -31,11 +31,10 @@ import zoe
 
 class BankingAgent:
     def __init__(self, db = None):
-        conf = zoe.Config()
-        port = conf.port("banking")
         if not db:
+            conf = zoe.Config()
             db = conf.db("zoe-banking.sqlite3")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "banking")
         self._model = zoe.Banking(db)
 
     def start(self):

@@ -29,9 +29,7 @@ import sys
 
 class LogAgent:
     def __init__(self):
-        conf = zoe.Config()
-        port = conf.port("log")
-        self._listener = zoe.Listener(port, self)
+        self._listener = zoe.Listener(self, name = "log")
 
     def start(self):
         self._listener.start()
