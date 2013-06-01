@@ -74,6 +74,8 @@ class Mail:
     def base64(self, data, ctype, name = None):
         t1, t2 = ctype.split('/')
         attachment = MIMEBase(t1, t2)
+        if data.__class__ is str:
+            data = data.encode("utf-8")
         data2 = base64.standard_b64decode(data)
         attachment.set_payload(data2)
         encode_base64(attachment)
