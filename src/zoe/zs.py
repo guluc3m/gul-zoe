@@ -43,7 +43,7 @@ class Server:
         self._dispatchers = []
         self._agents = {}
         self._agentslookup = {}
-        self._listener = Listener(self, port = port, keepaliveinterval = 0)
+        self._listener = Listener(self, host = host, port = port, keepaliveinterval = 0)
         self._config = configparser.ConfigParser()
         if configfile:
             self._config.read(configfile)
@@ -155,6 +155,9 @@ class Server:
             self.unregisterAgent(name)
             if topic:
                 self._topicdispatcher.remove(topic, name)
+        if "keepalive" in tags:
+            name = parser.get("name")
+            print("SERVER RECEIVED KEEP ALIVE FROM", name)
 
     def debug(self, parser):
         cid = parser.get("_cid")
