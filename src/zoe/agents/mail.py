@@ -65,6 +65,11 @@ class MailAgent:
         b64 = parser.get("body")
         text = base64.standard_b64decode(b64.encode("utf-8")).decode("utf-8")
         mail = email.message_from_string(text)
+        rcpt = mail["From"]
+        sender = self.finduser(rcpt)
+        if not sender:
+            self._listener.log("mail", "debug", "Received a mail from an unknown address " + mail["from"])
+            return
         mp = mail.is_multipart()
         if not mp:
             parts = [ mail ]
@@ -80,10 +85,9 @@ class MailAgent:
             bigstring = text[s:].strip()
             f = zoe.Fuzzy()
             context = {}
-            rcpt = mail["From"]
             subject = mail["Subject"]
             context["bigstring"] = bigstring
-            context["sender"] = self.finduser(rcpt)
+            context["sender"] = sender
             feedback = MailFeedback(rcpt, zoe.Mail(self._smtp, self._smtpport, self._user, self._password).subject(subject))
             context["feedback"] = feedback
             r = f.execute(command, context)
@@ -92,10 +96,11 @@ class MailAgent:
             feedback.send()
     
     def finduser(self, address):
+        name, addr = email.utils.parseaddr(address)
         model = zoe.Users()
         subjects = model.subjects()
         for s in subjects:
-            if "mail" in subjects[s] and subjects[s]["mail"] == address:
+            if "mail" in subjects[s] and subjects[s]["mail"] == addr:
                 return subjects[s]
 
     def sendmail(self, parser):
