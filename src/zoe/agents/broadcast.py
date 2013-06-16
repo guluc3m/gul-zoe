@@ -58,16 +58,30 @@ class BroadcastAgent:
         if not self._parser:
             self.requestUsers(parser)
             return
+        group = parser.get("group")
+        if not group:
+            group = "broadcast"
         msg = parser.get("msg")
-        nicks = self._parser.get("group-broadcast-members")
+        nicks = self._parser.list("group-" + group + "-members")
         for nick in nicks:
             preferred = self._parser.get(nick + "-preferred")
             if preferred == "twitter":
                 self.tweet(nick, msg, parser)
+            if preferred == "mail":
+                self.mail(nick, msg, parser)
 
     def tweet(self, nick, msg, original = None):
         account = self._parser.get(nick + "-twitter")
         tags = {"dst":"twitter", "to":account, "msg":msg}
+        self._listener.sendbus(zoe.MessageBuilder(tags, original).msg())
+        self._listener.log("broadcast", "info", "Sending message '" + msg + "' to " + account, original)
+
+    def mail(self, nick, msg, original = None):
+        account = self._parser.get(nick + "-mail")
+        tags = {"dst":"mail", 
+                "subject":"Message from Zoe",
+                "to":account, 
+                "txt":msg}
         self._listener.sendbus(zoe.MessageBuilder(tags, original).msg())
         self._listener.log("broadcast", "info", "Sending message '" + msg + "' to " + account, original)
 
