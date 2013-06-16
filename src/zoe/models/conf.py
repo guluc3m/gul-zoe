@@ -56,4 +56,5 @@ class Config:
         return os.environ["ZOE_HOME"] + "/src/" + f
 
     def db(self, f):
-        return "/tmp/" + f
+        return os.environ["ZOE_HOME"] + "/var/" + f
+
