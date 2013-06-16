@@ -48,7 +48,7 @@ class Mail:
         return self
 
     def text(self, text):
-        self._msg.attach(MIMEText(text))
+        self._msg.attach(MIMEText(text, _charset = "utf-8"))
         return self
     
     def html(self, text):
@@ -58,6 +58,7 @@ class Mail:
     def file(self, path, name = None):
         if not name:
             name = os.path.basename(path)
+        print("**************", path)
         ctype, encoding = mimetypes.guess_type(path)
         print("ctype", ctype, "encoding", encoding)
         t1, t2 = ctype.split('/')
