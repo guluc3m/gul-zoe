@@ -45,7 +45,10 @@ class Attachment:
         return self._filename
 
     def plaintext(self):
-        return base64.standard_b64decode(self._base64).decode("utf-8")
+        x = self._base64
+        if x.__class__ is str:
+            x = x.encode('utf-8')
+        return base64.standard_b64decode(x).decode("utf-8")
 
     def build(s):
         f = s.find(":")
