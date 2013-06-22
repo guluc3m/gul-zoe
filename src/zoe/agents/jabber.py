@@ -69,6 +69,10 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             text = msg["body"]
             jid = msg["from"]
             sender = self.finduser(jid)
+            if not sender: 
+                self._listener.log("jabber", "WARNING", "received a jabber message from an unknown user")
+                msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
+                return
             js = JabberSession(jid, self.send_message)
             context = {"sender":sender, "feedback":js}
             ret = zoe.Fuzzy().execute(text, context)
