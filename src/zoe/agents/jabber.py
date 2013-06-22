@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import pprint
 import zoe
 import sleekxmpp
 import time
@@ -71,7 +72,7 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             js = JabberSession(jid, self.send_message)
             context = {"sender":sender, "feedback":js}
             ret = zoe.Fuzzy().execute(text, context)
-            print("RET", ret)
+            pprint.PrettyPrinter(indent=4).pprint(ret)
             if ret and "feedback-string" in ret:
                 msg.reply(ret["feedback-string"]).send()
 
@@ -87,4 +88,4 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         to = parser.get("to")
         msg = parser.get("msg")
         print ("Sending " + msg + " to " + to)
-        self.send_message(mto=to, mbody=msg)
+        self.send_message(mto=to, mbody=msg, mtype='chat')

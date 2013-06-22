@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import pprint
 import cmd
 import zoe
 import sys
@@ -41,7 +42,7 @@ class FuzzyShell(cmd.Cmd):
         context = {"feedback":ShellSession()}
         ret = lex.execute(line, context)
         if ret:
-            print(ret)
+            pprint.PrettyPrinter(indent = 4).pprint(ret)
 
     def do_EOF(self, line):
         return True
