@@ -38,7 +38,14 @@ class Users:
             self._config.read(self._conffile, encoding = "utf8")
         else:
             self._config.read_string(self._confstring, encoding = "utf8")
-            
+        for section in self._config.sections():
+            kind, name = section.split(" ")
+            if kind == "subject":
+                sec = self._config[section]
+                if "alias" in sec:
+                    for alias in sec["alias"].split():
+                        self._config["subject " + alias] = sec
+
     def asmap(self):
         users = {}
         users["subject"] = []
