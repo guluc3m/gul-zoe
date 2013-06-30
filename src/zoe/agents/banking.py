@@ -53,13 +53,14 @@ class BankingAgent:
     def entry(self, parser):
         y = parser.get("year")
         ts = parser.get("date")
+        account = parser.get("account")
         amount = parser.get("amount")
         what = parser.get("what")
         if not y or y == "":
             y2, m2, d2 = ts.split("-")
             y = zoe.Courses.courseyears(y2, m2)
-        self._model.entry(y, ts, amount, what)
-        self._listener.log("banking", "info", "New entry: " + y + ", " + ts + ", " + str(amount) + ", " + what, parser)
+        self._model.entry(y, ts, account, amount, what)
+        self._listener.log("banking", "info", "New entry: " + y + ", " + ts + ", " + account + ", " + str(amount) + ", " + what, parser)
         self.notify(y, parser)
 
     def notify(self, year, original = None):
@@ -68,9 +69,10 @@ class BankingAgent:
         ids = []
         balance = 0
         for movement in movements:
-            (uuid, year, ts, amount, what) = movement
+            (uuid, year, ts, account, amount, what) = movement
             aMap[uuid + "-year"] = year
             aMap[uuid + "-date"] = ts
+            aMap[uuid + "-account"] = account
             aMap[uuid + "-amount"] = str(amount)
             aMap[uuid + "-what"] = what
             balance = balance + amount

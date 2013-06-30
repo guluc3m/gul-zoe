@@ -24,9 +24,10 @@ for i in $IDS
 do
     year=`cat $TEMP | grep "^$i-year" | sed -e "s/^.*=//"`
     date=`cat $TEMP | grep "^$i-date" | sed -e "s/^.*=//"`
+    account=`cat $TEMP | grep "^$i-account" | sed -e "s/^.*=//"`
     amount=`cat $TEMP | grep "^$i-amount" | sed -e "s/^.*=//"`
     what=`cat $TEMP | grep "^$i-what" | sed -e "s/^.*=//"`
-    echo $date $amount $what
+    echo $account $date $amount $what
 done > $TEMP.2
 
 cat $TEMP.2 | sort

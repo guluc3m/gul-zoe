@@ -92,10 +92,11 @@ class BankBalanceCmd:
         ids = parser.list("ids")
         for i in ids:
             date = parser.get(i + "-date")
+            account = parser.get(i + "-account")
             amount = parser.get(i + "-amount")
             what = parser.get(i + "-what")
-            fmt = "{} {:>10} {}\n"
-            entry = fmt.format(date, amount, what)
+            fmt = "{} {:>10} {:>10} {}\n"
+            entry = fmt.format(date, account, amount, what)
             memo = memo + entry
         balance = parser.get("balance")
         memo = memo + "\nSaldo actual: " + balance
@@ -106,10 +107,11 @@ class BankBalanceCmd:
         ids = parser.list("ids")
         for i in ids:
             date = parser.get(i + "-date")
+            account = parser.get(i + "-account")
             amount = parser.get(i + "-amount")
             what = parser.get(i + "-what")
-            fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
-            entry = fmt.format(date, amount, what)
+            fmt = "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>"
+            entry = fmt.format(date, account, amount, what)
             memo = memo + entry
         memo = memo + "</tbody></table></body></html>"
         balance = parser.get("balance")

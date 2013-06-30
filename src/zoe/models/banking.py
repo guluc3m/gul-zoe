@@ -35,14 +35,14 @@ class Banking:
     def opendb(self):
         conn = sqlite3.connect(self._db)
         c = conn.cursor()
-        c.execute("create table if not exists m (id text, year text, ts text, amount real, what text)")
+        c.execute("create table if not exists m (id text, year text, ts text, account text, amount real, what text)")
         conn.commit()
         return (conn, c)
 
-    def entry(self, year, ts, amount, what):
+    def entry(self, year, ts, account, amount, what):
         conn, c = self.opendb()
-        params = (str(uuid.uuid4()), year, ts, amount, what)
-        c.execute("insert into m values(?, ?, ?, ?, ?)", params)
+        params = (str(uuid.uuid4()), year, ts, account, amount, what)
+        c.execute("insert into m values(?, ?, ?, ?, ?, ?)", params)
         conn.commit()
         c.close()
 
@@ -52,8 +52,8 @@ class Banking:
         c.execute("select * from m where year = ? order by ts", params)
         movements = []
         for row in c:
-            (uuid, year2, ts, amount, what) = row
-            movements.append((uuid, year, ts, amount, what))
+            (uuid, year2, ts, account, amount, what) = row
+            movements.append((uuid, year, ts, account, amount, what))
         c.close()
         return movements
 
