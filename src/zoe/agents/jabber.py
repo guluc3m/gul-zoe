@@ -28,6 +28,7 @@ import pprint
 import zoe
 import sleekxmpp
 import time
+import sys
 from datetime import datetime
 
 class JabberSession:
@@ -65,6 +66,7 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         self.get_roster()
 
     def messagefromjabber(self, msg):
+        print("msg = ", msg)
         if msg['type'] in ('chat', 'normal'):
             text = msg["body"]
             jid = msg["from"]
@@ -86,6 +88,8 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         subjects = model.subjects()
         for s in subjects:
             if "jabber" in subjects[s] and subjects[s]["jabber"] == user:
+                return subjects[s]
+            if "jabber-alias" in subjects[s] and subjects[s]["jabber-alias"] == user:
                 return subjects[s]
 
     def receive(self, parser):
