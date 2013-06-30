@@ -8,6 +8,7 @@ month="$(date +%m)"
 day="$(date +%d)"
 basenameReunionMensual="reunion_mensual_reminder"
 basenameHolaMundo="holamundo_reminder"
+basenameJuernes="juernesontour"
 
 #
 # Recordatorio reunion mensual
@@ -26,5 +27,15 @@ if [ "$dayOfTheWeek" -eq 1 ] && [ "$day" -le 17 ] && [ "$day" -ge 11 ];then #Ter
   listaDeCorreos=($(echo ${workdir}/lib/${basename}*))
   seleccionado=$((RANDOM % ${#listaDeCorreos[*]}))
   cat ${listaDeCorreos[$seleccionado]} | ./sendmail.sh "Este viernes toca HolaMundo" "radio@gul.uc3m.es"
+fi
+
+#
+# Recordatorio JuernesOnTour
+#
+if [ "$dayOfTheWeek" -eq 1 ] && [ "$day" -le 17 ] && [ "$day" -ge 11 ];then #Tercer lunes de mes
+  basename=$basenameJuernes
+  listaDeCorreos=($(echo ${workdir}/lib/${basename}*))
+  seleccionado=$((RANDOM % ${#listaDeCorreos[*]}))
+  cat ${listaDeCorreos[$seleccionado]} | ./sendmail.sh "Este jueves te espero en JuernesOnTour" "nairdcr@gmail.com"
 fi
 
