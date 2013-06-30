@@ -29,9 +29,14 @@ import cmd
 import zoe
 import sys
 
+RESET = '\033[0m'
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+
 class ShellSession:
     def feedback(self, msg):
-        print(msg)
+        print(YELLOW + msg + RESET)
 
 class FuzzyShell(cmd.Cmd):
 
@@ -43,6 +48,7 @@ class FuzzyShell(cmd.Cmd):
         ret = lex.execute(line, context)
         if ret:
             pprint.PrettyPrinter(indent = 4).pprint(ret)
+            print(GREEN + ret["feedback-string"] + RESET)
 
     def do_EOF(self, line):
         return True
