@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
 #
 # Copyright (c) 2013 David Muñoz Díaz <david@gul.es> 
@@ -35,34 +33,39 @@ class BankDepositCmd:
         money = objects["floats"] + objects["integers"]
         concepts = objects["strings"]
         dates = objects["dates"]
-        
-        if len(money) != len(concepts):
-            print("I can only handle as many amounts as concepts")
-            return {"feedback-string":"Necesito tantas cantidades como conceptos"}
+      
+        #if len(money) != len(concepts):
+        #    print("I can only handle as many amounts as concepts")
+        #    return {"feedback-string":"Necesito tantas cantidades como conceptos"}
 
-        if len(dates) != 1 and len(dates) != len(money):
-            print("I can only handle 1 date or as many as amounts")
-            return {"feedback-string":"Necesito una única fecha, o una por concepto"}
+        #if len(dates) != 1 and len(dates) != len(money):
+        #    print("I can only handle 1 date or as many as amounts")
+        #    return {"feedback-string":"Necesito una única fecha, o una por concepto"}
 
-        for i in range(len(money)):
-            amount = money[i]
-            what = concepts[i]
+        #for i in range(len(money)):
+        #    amount = money[i]
+        #    what = concepts[i * ]
 
-            if len(dates) == 1:
-                date = dates[0]
-            else:
-                date = dates[i]
+        #    if len(dates) == 1:
+        #        date = dates[0]
+        #    else:
+        #        date = dates[i]
 
-            if self._withdrawal:
-                amount = "-" + amount
+        amount = money[0]
+        account = concepts[0]
+        what = concepts[1]
+        date = dates[0]
 
-            print("bank entry on " + date + ": " + amount + " as " + what)
-            params = {"dst":"banking", "tag":"entry", "date":date, "amount":amount, "what":what}
-            msg = zoe.MessageBuilder(params).msg()
-            self._listener.sendbus(msg)
-            return {"feedback-string":"Ingreso de " + amount + " realizado"}
+        if self._withdrawal:
+            amount = "-" + amount
+
+        print("bank entry on " + date + " " + account + ": " + amount + " as " + what)
+        params = {"dst":"banking", "tag":"entry", "date":date, "amount":amount, "what":what, "account":account}
+        msg = zoe.MessageBuilder(params).msg()
+        self._listener.sendbus(msg)
+        return {"feedback-string":"Ingreso de " + amount + " realizado"}
 
 BankDepositCmd.commands = [
-    ("ingreso /de <float>/<integer> /el /día <date> <string>", BankDepositCmd()), 
-    ("pago /de <float>/<integer> /el /día <date> <string>", BankDepositCmd(withdrawal = True)),
+    ("ingreso /de <float>/<integer> /el /día <date> /en /la /cuenta <string> <string>", BankDepositCmd()), 
+    ("pago /de <float>/<integer> /el /día <date> /en /la /cuenta <string> <string>", BankDepositCmd(withdrawal = True)),
 ]

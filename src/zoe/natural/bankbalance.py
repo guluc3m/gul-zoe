@@ -30,10 +30,11 @@ import threading
 import base64
 
 class BankBalanceCmd:
-    def __init__(self, me = True, mail = False):
+    def __init__(self, me = True, mail = False, givenaccount = False):
         self._listener = zoe.Listener(self, port = 0)
         self._me = me
         self._mail = mail
+        self._givenaccount = givenaccount
         self._lock = threading.Lock()
     
     def feedback(self, objects, msg):
@@ -43,6 +44,10 @@ class BankBalanceCmd:
     def execute(self, objects):
         year = zoe.Courses.courseyears()
         self.feedback(objects, "Voy a obtener los movimientos bancarios del curso " + year)
+
+        if self._givenaccount:
+            self._account = objects["strings"][0]
+            self.feedback(objects, "Voy a considerar la cuenta " + self._account)
 
         # Prepare a "get balance" message
         aMap = {"dst":"banking", "tag":"notify", "year":year, "_cid":uuid.uuid4()}
@@ -82,41 +87,46 @@ class BankBalanceCmd:
             self.feedback(objects, memo)
 
     def getmemo(self, parser):
-        if self._mail:
-            return self.getmemohtml(parser)
-        else:
-            return self.getmemoplain(parser)
-
-    def getmemoplain(self, parser):
-        memo = "Movimientos bancarios: \n\n"
+        movements = []
         ids = parser.list("ids")
+        mybalance = 0
         for i in ids:
-            date = parser.get(i + "-date")
             account = parser.get(i + "-account")
-            amount = parser.get(i + "-amount")
-            what = parser.get(i + "-what")
+            if not self._givenaccount or self._account == account:
+                date = parser.get(i + "-date")
+                amount = parser.get(i + "-amount")
+                what = parser.get(i + "-what")
+                entry = (date, account, amount, what)
+                movements.append(entry)
+                mybalance = mybalance + float(amount)
+        balance = parser.get("balance")
+        memo = {"movements":movements, "balance":balance, "localbalance":mybalance} 
+        if self._mail:
+            generator = self.getmemohtml
+        else:
+            generator = self.getmemoplain
+        return generator(memo)
+
+    def getmemoplain(self, memo):
+        m = "Movimientos bancarios: \n\n"
+        for date, account, amount, what in memo["movements"]:
             fmt = "{} {:>10} {:>10} {}\n"
             entry = fmt.format(date, account, amount, what)
-            memo = memo + entry
-        balance = parser.get("balance")
-        memo = memo + "\nSaldo actual: " + balance
-        return memo
+            m = m + entry
+        m = m + "\nSaldo actual: " + memo["balance"]
+        m = m + "\nSaldo calculado: " + str(memo["localbalance"])
+        return m
 
-    def getmemohtml(self, parser):
-        memo = "<html><body><table><tbody><tr><th>Fecha</th><th>Cantidad</th><th>Concepto</th></tr>"
-        ids = parser.list("ids")
-        for i in ids:
-            date = parser.get(i + "-date")
-            account = parser.get(i + "-account")
-            amount = parser.get(i + "-amount")
-            what = parser.get(i + "-what")
+    def getmemohtml(self, memo):
+        m = "<html><body><table><tbody><tr><th>Fecha</th><th>Cantidad</th><th>Concepto</th></tr>"
+        for date, account, amount, what in memo["movements"]:
             fmt = "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>"
             entry = fmt.format(date, account, amount, what)
-            memo = memo + entry
-        memo = memo + "</tbody></table></body></html>"
-        balance = parser.get("balance")
-        memo = memo + "<br />Saldo actual: " + balance
-        return memo
+            m = m + entry
+        m = m + "</tbody></table></body></html>"
+        m = m + "<br />Saldo actual: " + memo["balance"]
+        m = m + "<br />Saldo calculado: " + memo["localbalance"]
+        return m
 
     def mails(self, objects):
         if self._me:
@@ -131,7 +141,11 @@ class BankBalanceCmd:
             objects["memoparser"] = parser
         self._stalker.stop()
 
+
 BankBalanceCmd.commands = [
     ("dame los movimientos bancarios", BankBalanceCmd(me = True)),
+    ("dame los movimientos bancarios de la cuenta <string>", BankBalanceCmd(me = True, givenaccount = True)),
     ("envíame/mándame los movimientos bancarios", BankBalanceCmd(me = True, mail = True)),
+    ("envíame/mándame los movimientos bancarios de la cuenta <string>", BankBalanceCmd(me = True, mail = True, givenaccount = True)),
 ]
+
