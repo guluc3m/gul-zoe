@@ -48,7 +48,9 @@ class FuzzyShell(cmd.Cmd):
         ret = lex.execute(line, context)
         if ret:
             pprint.PrettyPrinter(indent = 4).pprint(ret)
-            print(GREEN + ret["feedback-string"] + RESET)
+            if ret and "feedback-string" in ret:
+                print(GREEN + ret["feedback-string"] + RESET)
+        return ret
 
     def do_EOF(self, line):
         return True
@@ -56,7 +58,9 @@ class FuzzyShell(cmd.Cmd):
 shell = FuzzyShell()
 cmd = " ".join(sys.argv[1:])
 if (cmd):
-    shell.default(cmd)
-else:
+    ret = shell.default(cmd)
+    if ret and "return-code" in ret:
+        sys.exit(ret["return-code"])
+else: 
     shell.cmdloop()
 
