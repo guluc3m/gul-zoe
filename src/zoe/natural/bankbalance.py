@@ -29,25 +29,18 @@ import uuid
 import threading
 import base64
 
-class BankBalanceCmd:
-    def __init__(self, me = True, mail = False, givenaccount = False):
+class BankBalanceBasedCommand:
+    def __init__(self):
         self._listener = zoe.Listener(self, port = 0)
-        self._me = me
-        self._mail = mail
-        self._givenaccount = givenaccount
         self._lock = threading.Lock()
-    
+
     def feedback(self, objects, msg):
         if "feedback" in objects["context"]:
             objects["context"]["feedback"].feedback(msg)
-
+            
     def execute(self, objects):
         year = zoe.Courses.courseyears()
         self.feedback(objects, "Voy a obtener los movimientos bancarios del curso " + year)
-
-        if self._givenaccount:
-            self._account = objects["strings"][0]
-            self.feedback(objects, "Voy a considerar la cuenta " + self._account)
 
         # Prepare a "get balance" message
         aMap = {"dst":"banking", "tag":"notify", "year":year, "_cid":uuid.uuid4()}
@@ -69,10 +62,47 @@ class BankBalanceCmd:
         if not "memoparser" in objects:
             self.feedback(objects, "Ha habido un error")
             return objects
-        parser = objects["memoparser"]
-        memo = self.getmemo(parser)
 
-        # Send the memo
+        return self.command(objects)
+    
+    def getmemo(self, parser, filteraccount = None):
+        movements = []
+        ids = parser.list("ids")
+        mybalance = 0
+        for i in ids:
+            account = parser.get(i + "-account")
+            if not filteraccount or filteraccount == account:
+                date = parser.get(i + "-date")
+                amount = parser.get(i + "-amount")
+                what = parser.get(i + "-what")
+                entry = (date, account, amount, what)
+                movements.append(entry)
+                mybalance = mybalance + float(amount)
+        balance = parser.get("balance")
+        memo = {"movements":movements, "balance":balance, "localbalance":mybalance} 
+        return memo
+        
+    def ready(self, parser, objects):
+        self.feedback(objects, "Ya tengo los movimientos")
+        with self._lock:
+            objects["memoparser"] = parser
+        self._stalker.stop()        
+    
+class BankBalanceCmd(BankBalanceBasedCommand):
+    def __init__(self, me = True, mail = False, givenaccount = False):
+        BankBalanceBasedCommand.__init__(self)
+        self._me = me
+        self._mail = mail
+        self._givenaccount = givenaccount
+
+    def command(self, objects):
+        parser = objects["memoparser"]
+        if self._givenaccount:
+            self._account = objects["strings"][0]
+            self.feedback(objects, "Voy a considerar la cuenta " + self._account)
+        else:
+            self._account = None
+        memo = self.textmemo(parser)
         if self._mail:
             b64 = base64.standard_b64encode(memo.encode('utf-8')).decode('utf-8')
             attachment = zoe.Attachment(b64, "text/html", "balance.html")
@@ -86,21 +116,8 @@ class BankBalanceCmd:
         else:
             self.feedback(objects, memo)
 
-    def getmemo(self, parser):
-        movements = []
-        ids = parser.list("ids")
-        mybalance = 0
-        for i in ids:
-            account = parser.get(i + "-account")
-            if not self._givenaccount or self._account == account:
-                date = parser.get(i + "-date")
-                amount = parser.get(i + "-amount")
-                what = parser.get(i + "-what")
-                entry = (date, account, amount, what)
-                movements.append(entry)
-                mybalance = mybalance + float(amount)
-        balance = parser.get("balance")
-        memo = {"movements":movements, "balance":balance, "localbalance":mybalance} 
+    def textmemo(self, parser):
+        memo = self.getmemo(parser, self._account)
         if self._mail:
             generator = self.getmemohtml
         else:
@@ -118,14 +135,14 @@ class BankBalanceCmd:
         return m
 
     def getmemohtml(self, memo):
-        m = "<html><body><table><tbody><tr><th>Fecha</th><th>Cantidad</th><th>Concepto</th></tr>"
+        m = "<html><body><table><tbody><tr><th>Fecha</th><th>Cuenta</th><th>Cantidad</th><th>Concepto</th></tr>"
         for date, account, amount, what in memo["movements"]:
             fmt = "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>"
             entry = fmt.format(date, account, amount, what)
             m = m + entry
         m = m + "</tbody></table></body></html>"
         m = m + "<br />Saldo actual: " + memo["balance"]
-        m = m + "<br />Saldo calculado: " + memo["localbalance"]
+        m = m + "<br />Saldo calculado: " + str(memo["localbalance"])
         return m
 
     def mails(self, objects):
@@ -135,17 +152,48 @@ class BankBalanceCmd:
         else:
             return [ x["mail"] for x in objects["users"] ]
 
-    def ready(self, parser, objects):
-        self.feedback(objects, "Ya tengo los movimientos")
-        with self._lock:
-            objects["memoparser"] = parser
-        self._stalker.stop()
+class CheckAccountBalanceCmd(BankBalanceBasedCommand):
+    def __init__(self, mail = False):
+        BankBalanceBasedCommand.__init__(self)
+        self._mail = mail
+        
+    def command(self, objects):
+        parser = objects["memoparser"]
+        numbers = objects["integers"] + objects["floats"] 
+        account = objects["strings"][0]
+        memo = self.getmemo(parser, account)
+        localbalance = memo["localbalance"]
+        expectedbalance = float(numbers[0])
+        if localbalance == expectedbalance:
+            msg = "El balance de la cuenta %s es el esperado, %0.2f" % (account, expectedbalance)
+            code = 0
+        else:
+            msg = "El balance de la cuenta %s _no_ cuadra. Me dicen que debería ser %0.2f pero obtengo %0.2f" % (account, expectedbalance, localbalance)
+            code = 1
+        if self._mail:
+            self.sendmail(msg)
+            self.feedback(objects, "Mensaje enviado");
+        else:
+            self.feedback(objects, msg)
+        return {"return-code":code}
+
+    def sendmail(self, msg):
+        params = {"dst":"broadcast", "tag":"send", "group":"banking", "msg":msg}
+        msg = zoe.MessageBuilder(params).msg()
+        self._listener.sendbus(msg)
 
 
 BankBalanceCmd.commands = [
     ("dame los movimientos bancarios", BankBalanceCmd(me = True)),
-    ("dame los movimientos bancarios de la cuenta <string>", BankBalanceCmd(me = True, givenaccount = True)),
+    ("dame los movimientos /bancarios de la cuenta <string>", BankBalanceCmd(me = True, givenaccount = True)),
     ("envíame/mándame los movimientos bancarios", BankBalanceCmd(me = True, mail = True)),
-    ("envíame/mándame los movimientos bancarios de la cuenta <string>", BankBalanceCmd(me = True, mail = True, givenaccount = True)),
+    ("envíame/mándame los movimientos /bancarios de la cuenta <string>", BankBalanceCmd(me = True, mail = True, givenaccount = True)),
+    ("envía los movimientos bancarios a <user>", BankBalanceCmd(me = False, mail = True)),
+    ("envía los movimientos /bancarios de la cuenta <string> a <user>", BankBalanceCmd(me = False, mail = True, givenaccount = True)),
 ]
 
+CheckAccountBalanceCmd.commands = [
+    ("el balance de la cuenta <string> debería ser <float>/<integer>", CheckAccountBalanceCmd()),
+    ("comprueba que el balance de la cuenta <string> es/sea <float>/<integer>", CheckAccountBalanceCmd()),
+    ("notifica/email si el balance de la cuenta <string> es <float>/<integer>", CheckAccountBalanceCmd(mail = True))
+]
