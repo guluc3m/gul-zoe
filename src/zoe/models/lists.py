@@ -70,6 +70,9 @@ class Lists:
     def lists(self):
         return self._lists
 
+    def list(self, name):
+        return self._lists[name]
+
     def find(self, email):
         return [x for x in self._lists if email in self._lists[x]]
 

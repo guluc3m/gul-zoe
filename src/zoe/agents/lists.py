@@ -26,6 +26,7 @@
 
 import zoe
 import time
+import base64
 import threading
 
 class ListsAgent:
@@ -67,8 +68,56 @@ class ListsAgent:
 
     def update(self):
         self._listener.log("lists", "debug", "Updating lists info")
-        self._model.update()
-    
+        oldmodel = self._model
+        self._model = zoe.Lists()
+        self.postupdate(oldmodel, self._model)
+
+    def postupdate(self, old, new):
+        oldmembers = set(old.list("gul"))
+        currentmembers = set(new.list("gul"))
+        gone = oldmembers - currentmembers
+        new = currentmembers - oldmembers
+        self._listener.log("lists", "info", "new members in GUL: " + str(new))
+        self._listener.log("lists", "info", "members gone away from GUL: " + str(gone))
+        self.welcome(list(new))
+        #self.farewell(list(gone))
+
+    def mail(self, addr, text):
+        b64 = base64.standard_b64encode(text.encode('utf-8')).decode('utf-8')
+        attachment = zoe.Attachment(b64, "text/plain", "hello.txt")
+        aMap = {"dst":"mail", "to":addr, "subject":"Bienvenido/a a la lista de distribución del GUL", "txt64":attachment.str()}
+        msg = zoe.MessageBuilder(aMap).msg()
+        return msg
+
+    def welcome(self, members):
+        for addr in members:
+            # OK this is temporary, some templates should be written
+            # and stored as files, in the spirit of reminders.sh
+            text = """
+Hola, %s
+
+Te doy la bienvenida a la lista del GUL UC3M. Aquí podrás hablar 
+con personas con intereses sobre Linux y software libre, plantear 
+tus dudas y participar en los debates y flames que de vez en cuando se 
+organizan.
+
+Permíteme recordarte que el GUL es una organización sin ánimo de 
+lucro, por lo que no te remitiremos publicidad ni cederemos tus 
+datos a nadie. 
+
+Si te apetece, este es un buen momento para presentarte enviando 
+un email a gul@gul.uc3m.es y contando un poco sobre ti, tus intereses 
+y tu experiencia. 
+
+Espero que tu experiencia en el GUL sea satisfactoria. 
+
+Recibe un saludo, 
+
+Zoe
+""" 
+            msg = self.mail(addr, text % (addr))
+            self._listener.sendbus(msg)
+
     def setmembers(self, parser):
         self._listener.log("lists", "debug", "Updating members info")
         inbook = parser.get("inbook")
