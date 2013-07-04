@@ -30,7 +30,7 @@ import base64
 import threading
 
 class ListsAgent:
-    def __init__(self, interval = 60):
+    def __init__(self, interval = 10):
         self._listener = zoe.Listener(self, name = "lists")
         self._model = zoe.Lists()
         self._interval = interval
@@ -80,12 +80,12 @@ class ListsAgent:
         self._listener.log("lists", "info", "new members in GUL: " + str(new))
         self._listener.log("lists", "info", "members gone away from GUL: " + str(gone))
         self.welcome(list(new))
-        #self.farewell(list(gone))
+        self.farewell(list(gone))
 
-    def mail(self, addr, text):
+    def mail(self, addr, subject, text):
         b64 = base64.standard_b64encode(text.encode('utf-8')).decode('utf-8')
         attachment = zoe.Attachment(b64, "text/plain", "hello.txt")
-        aMap = {"dst":"mail", "to":addr, "subject":"Bienvenido/a a la lista de distribución del GUL", "txt64":attachment.str()}
+        aMap = {"dst":"mail", "to":addr, "subject":subject, "txt64":attachment.str()}
         msg = zoe.MessageBuilder(aMap).msg()
         return msg
 
@@ -101,21 +101,41 @@ con personas con intereses sobre Linux y software libre, plantear
 tus dudas y participar en los debates y flames que de vez en cuando se 
 organizan.
 
+Actualmente hay %d personas apuntadas a la lista, así que recuerda
+tener un trato agradable y respetuoso. Excepto con los programadores
+de Ruby. Puedes meterte con ellos todo lo que quieras.
+
 Permíteme recordarte que el GUL es una organización sin ánimo de 
 lucro, por lo que no te remitiremos publicidad ni cederemos tus 
 datos a nadie. 
 
 Si te apetece, este es un buen momento para presentarte enviando 
-un email a gul@gul.uc3m.es y contando un poco sobre ti, tus intereses 
-y tu experiencia. 
+un email a gul@gul.uc3m.es y contando un poco sobre ti. 
 
 Espero que tu experiencia en el GUL sea satisfactoria. 
 
 Recibe un saludo, 
 
 Zoe
-""" 
-            msg = self.mail(addr, text % (addr))
+"""
+            msg = self.mail(addr, "Te doy la bienvenida a la lista del GUL UC3M", text % (addr, len(self._model.list("gul"))))
+            self._listener.sendbus(msg)
+    
+    def farewell(self, members):
+        for addr in members:
+            # OK this is temporary, some templates should be written
+            # and stored as files, in the spirit of reminders.sh
+            text = """
+Hola, %s
+
+Tu baja de la lista del GUL UC3M se ha tramitado correctamente.
+Espero que tu estancia aquí haya sido satisfactoria.
+
+Vuelve pronto, 
+
+Zoe
+"""
+            msg = self.mail(addr, "Baja de la lista del GUL UC3M", text % (addr))
             self._listener.sendbus(msg)
 
     def setmembers(self, parser):
