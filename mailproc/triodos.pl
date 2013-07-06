@@ -5,7 +5,9 @@ $file = $ARGV[0];
 local $/;
 open(FILE, $file);
 $document = <FILE>; 
-close (FILE);  
+close (FILE);
+$document =~ s/=\n//g;
+$document =~ s/\n>*//g;
 $document =~ s/\n/ /g;
 
 $incoming = $document =~ /alerta de Abono Superior/i;
