@@ -2,7 +2,24 @@
 
 . common.sh
 
-BODY=`cat | base64`
-MSG="dst=mail&tag=received&body=$BODY"
+ID=`genuid`
+BODY="/tmp/$ID"
+SCRIPT=${BODY}_script
+trap "rm $BODY $SCRIPT" 0
 
-send "$MSG"
+cat - > $BODY
+B64=`cat $BODY | base64`
+
+cd $MAILPROC
+for proc in $(find . -type f)
+do
+	$proc $BODY >> $SCRIPT
+done
+
+while read line
+do
+	echo Sending message $line
+	send "$line"
+done < $SCRIPT
+
+#MSG="dst=mail&tag=received&body=$BODY"
