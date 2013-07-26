@@ -24,13 +24,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.natural.hello import *
-from zoe.natural.deposit import *
-from zoe.natural.bankbalance import *
-from zoe.natural.fuzzy import *
-from zoe.natural.gtalk import *
-from zoe.natural.smalltalk import *
-from zoe.natural.activities import *
-from zoe.natural.lists import *
-from zoe.natural.inventory import *
-from zoe.natural.temperature import *
+import zoe
+import subprocess
+
+class TempCmd:
+    def __init__(self):
+        self._listener = zoe.Listener(self, port = 0)
+
+    def execute(self, objects):
+        p = subprocess.Popen('termometro', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        temp = p.stdout.read().decode("utf-8").strip()
+        return {"feedback-string":temp}
+
+TempCmd.commands = [
+    ("dame la temperatura", TempCmd()), 
+]
