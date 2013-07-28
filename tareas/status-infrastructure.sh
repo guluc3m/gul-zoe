@@ -23,7 +23,7 @@ check server server.py
 
 for AGENT in $ENABLED_AGENTS
 do
-    check $AGENT ${AGENT}_agent.py
+    check $AGENT ${AGENT}_agent
 done
 
 echo "Running:"
