@@ -69,7 +69,7 @@ class Users:
         for section in self._config.sections():
             kind, name = section.split(" ")
             if kind == "subject":
-                aMap = {}
+                aMap = {"id": name}
                 for key in self._config[section]:
                     aMap[key] = self._config[section][key]
                 ids[name] = aMap

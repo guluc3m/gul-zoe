@@ -74,7 +74,7 @@ class Fuzzy:
         users, cmd = self.extract_users(cmd)
         dates, cmd = self.extract_dates(cmd)
         cmd = self.removeduplicates(cmd.lower())
-        r = {"user":[u["name"] for u in users], "string":strings, "integer":integers,
+        r = {"user":[u["id"] for u in users], "string":strings, "integer":integers,
              "date":dates, "float":floats, 
              "original":original, "stripped":cmd}
         return r
