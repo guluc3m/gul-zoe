@@ -65,6 +65,19 @@ class Fuzzy:
              "dates":dates, "floats":floats, 
              "original":original, "stripped":cmd}
         return r
+
+    def analyze2(self, original):
+        cmd = original
+        strings, cmd = self.extract_strings(cmd)
+        integers, cmd = self.extract_integers(cmd)
+        floats, cmd = self.extract_floats(cmd)
+        users, cmd = self.extract_users(cmd)
+        dates, cmd = self.extract_dates(cmd)
+        cmd = self.removeduplicates(cmd.lower())
+        r = {"user":[u["name"] for u in users], "string":strings, "integer":integers,
+             "date":dates, "float":floats, 
+             "original":original, "stripped":cmd}
+        return r
     
     def regen(self, cmd, start, end, substitution):
         return cmd[:start] + substitution + cmd[end:]
@@ -164,8 +177,8 @@ class Fuzzy:
                 q = " ".join(p.split())
                 self._cmdmap[q] = impl
 
-    def lookup(self, stripped):
-        result = process.extract(stripped, self._cmdmap)
+    def lookup(self, stripped, amap):
+        result = process.extract(stripped, amap)
         #for text, score in result:
         #    print (text + " => " + str(score))
         return result[0]
@@ -173,7 +186,7 @@ class Fuzzy:
     def commandfor(self, cmd):
         r = self.analyze(cmd)
         stripped = r["stripped"]
-        canonic, score = self.lookup(stripped)
+        canonic, score = self.lookup(stripped, self._cmdmap)
         if score > self.likelihood:
             return self._cmdmap[canonic], r
         else:

@@ -43,6 +43,7 @@ class NaturalAgent:
         self._listener.stop()
 
     def reload(self):
+        fuzzy = zoe.Fuzzy()
         cmdproc = os.environ["ZOE_HOME"] + "/cmdproc"
         procs = [cmdproc + "/" + f for f in os.listdir(cmdproc)]
         procs = [p for p in procs if os.access(p, os.X_OK)]
@@ -50,9 +51,10 @@ class NaturalAgent:
         for proc in procs:
             p = subprocess.Popen(proc + " --get", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in p.stdout.readlines():
-                self._commands[line.decode("utf-8")] = proc
-
-        print(self._commands)
+                pattern = line.decode("utf-8")
+                for p in fuzzy.patterns(pattern):
+                    q = " ".join(p.split())
+                    self._commands[q] = proc
 
     def receive(self, parser):
         tags = parser.tags()
@@ -61,10 +63,23 @@ class NaturalAgent:
 
     def command(self, parser = None):
         cmd = parser.get("cmd")
-        analysis = zoe.Fuzzy().analyze(cmd)
+        fuzzy = zoe.Fuzzy()
+        analysis = fuzzy.analyze2(cmd)
+        stripped = analysis["stripped"]
+        canonical, score = fuzzy.lookup(stripped, self._commands)
         params = self.shellParams(analysis)
-        print("[command]", "--stripped", "'" + analysis["stripped"] + "'", "--original", "'" + analysis["original"] + "'", params)
-
+        shellcmd = [self._commands[canonical],
+                    "--run",  
+                    "--stripped", "'" + stripped + "'", 
+                    "--original", "'" + analysis["original"] + "'"]
+        shellcmd.append(params)
+        shellcmd = " ".join(shellcmd)
+        print("Executing " + shellcmd)
+        p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        for line in p.stdout.readlines():
+            line = line.decode("utf-8")
+            self._listener.sendbus(line)
+            
     def shellParams(self, original):
         analysis = dict(original)
         analysis["stripped"] = None
@@ -76,8 +91,6 @@ class NaturalAgent:
             value = analysis[key]
             if value.__class__ is list:
                 for value in analysis[key]:
-                    if key == "users":
-                        value = value["name"]
                     params = params + "--" + key + " '" + value + "' "
             else:
                 params = params + "--" + key + " '" + value + "' "

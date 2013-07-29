@@ -49,14 +49,15 @@ elsif ($run) {
 } 
 
 #
-#
+# Lists the commands this script attends
 #
 sub get {
-  print("di/envía a <user> por jabber <string>\n");
+  print("di/envía a <user> por jabber/gtalk <string>\n");
 }
 
 #
-#
+# Executes the command
+# This command generates a set of messages that have to be sent back to Zoe
 #
 sub run {
   foreach $user (@users) {
