@@ -75,12 +75,20 @@ class JabberAgent (sleekxmpp.ClientXMPP):
                 self._listener.log("jabber", "WARNING", "received a jabber message from an unknown user")
                 msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
                 return
-            js = JabberSession(jid, self.send_message)
-            context = {"sender":sender, "feedback":js}
-            ret = zoe.Fuzzy().execute(text, context)
-            pprint.PrettyPrinter(indent=4).pprint(ret)
-            if ret and "feedback-string" in ret:
-                msg.reply(ret["feedback-string"]).send()
+            
+            aMap = {"dst":"natural", 
+                    "src":"jabber", 
+                    "tag":"command", 
+                    "sender":sender["id"], 
+                    "cmd":text}
+            self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
+            self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
+            # js = JabberSession(jid, self.send_message)
+            # context = {"sender":sender, "feedback":js}
+            # ret = zoe.Fuzzy().execute(text, context)
+            # pprint.PrettyPrinter(indent=4).pprint(ret)
+            # if ret and "feedback-string" in ret:
+            #     msg.reply(ret["feedback-string"]).send()
 
     def finduser(self, jid):
         user = jid.user + "@" + jid.domain
@@ -94,6 +102,13 @@ class JabberAgent (sleekxmpp.ClientXMPP):
 
     def receive(self, parser):
         to = parser.get("to")
+        touser = parser.get("touser")
         msg = parser.get("msg")
-        print ("Sending " + msg + " to " + to)
-        self.send_message(mto=to, mbody=msg, mtype='chat')
+        if to:
+            print ("Sending " + msg + " to " + to)
+            self.send_message(mto = to, mbody = msg, mtype = 'chat')
+        if touser:
+            u = zoe.Users().subjects()[touser]
+            if u and u["jabber"]:
+                print ("Sending " + msg + " to user " + touser + " (" + u["jabber"] + ")")
+                self.send_message(mto = u["jabber"], mbody = msg, mtype = 'chat')
