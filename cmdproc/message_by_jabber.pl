@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 # -*- coding: utf-8 -*-
 #
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
@@ -24,17 +25,44 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
-from zoe.agents.mail import *
-from zoe.agents.lists import *
-from zoe.agents.natural import *
+#
+# Sends a user a given message via jabber
+#
+
+use Getopt::Long qw(:config pass_through);
+
+my $get;
+my $run;
+my @strings;
+my @users;
+
+GetOptions("get" => \$get,
+           "run" => \$run,
+           "string=s" => \@strings, 
+           "users=s" => \@users);
+
+if ($get) { 
+  &get;  
+} 
+elsif ($run) {
+  &run;
+} 
+
+#
+#
+#
+sub get {
+  print("di/envía a <user> por jabber <string>\n");
+}
+
+#
+#
+#
+sub run {
+  foreach $user (@users) {
+    foreach $message (@strings) {
+      print("dst=jabber&touser=$user&msg=$message\n");
+    }
+  }
+}
+
