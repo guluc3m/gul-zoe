@@ -26,3 +26,5 @@ logs/pids
 *.cache
 
 src/zoe-users.conf
+**/build
+*.sqlite3
