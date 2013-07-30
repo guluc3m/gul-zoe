@@ -79,7 +79,8 @@ class NaturalAgent:
         shellcmd = [cmdproc, " ".join(cmdparams),
                     "--run",  
                     "--stripped", "'" + stripped + "'", 
-                    "--original", "'" + analysis["original"] + "'"]
+                    "--original", "'" + analysis["original"] + "'", 
+                    "--canonical", "'" + canonical + "'"]
         shellcmd.append(params)
         shellcmd = " ".join(shellcmd)
         print("Executing " + shellcmd)
