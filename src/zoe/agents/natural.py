@@ -85,8 +85,11 @@ class NaturalAgent:
         print("Executing " + shellcmd)
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
-            line = line.decode("utf-8")
-            self._listener.sendbus(line)
+            line = line.decode("utf-8").strip()
+            print("cmdproc returned", line)
+            if line[:8] == "message ":
+                print("Sending back to the server", line[8:])
+                self._listener.sendbus(line[8:])
             
     def shellParams(self, original):
         analysis = dict(original)
