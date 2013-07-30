@@ -53,8 +53,15 @@ class NaturalAgent:
             for line in p.stdout.readlines():
                 pattern = line.decode("utf-8")
                 for p in fuzzy.patterns(pattern):
-                    q = " ".join(p.split())
-                    self._commands[q] = proc
+                    proccommand = []
+                    procparams = []
+                    for word in p.split():
+                        if word[0:2] == "--":
+                            procparams.append(word)
+                        else:
+                            proccommand.append(word)
+                    self._commands[" ".join(proccommand)] = (proc, procparams)
+        pprint.PrettyPrinter(indent=4).pprint(self._commands)
 
     def receive(self, parser):
         tags = parser.tags()
@@ -68,7 +75,8 @@ class NaturalAgent:
         stripped = analysis["stripped"]
         canonical, score = fuzzy.lookup(stripped, self._commands)
         params = self.shellParams(analysis)
-        shellcmd = [self._commands[canonical],
+        cmdproc, cmdparams = self._commands[canonical]
+        shellcmd = [cmdproc, " ".join(cmdparams),
                     "--run",  
                     "--stripped", "'" + stripped + "'", 
                     "--original", "'" + analysis["original"] + "'"]

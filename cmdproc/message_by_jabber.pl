@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# -*- coding: utf-8 -*-
 #
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
 #
@@ -33,36 +32,50 @@ use Getopt::Long qw(:config pass_through);
 
 my $get;
 my $run;
+my $me;
 my @strings;
 my @users;
 
 GetOptions("get" => \$get,
            "run" => \$run,
+           "me" => \$me, 
            "string=s" => \@strings, 
            "users=s" => \@users);
 
 if ($get) { 
   &get;  
-} 
-elsif ($run) {
-  &run;
-} 
+} elsif ($run and $me) {
+  &run_for_me;
+} elsif ($run and not $me) {
+  &run_for_others;
+}
 
 #
 # Lists the commands this script attends
 #
 sub get {
-  print("di/envía a <user> por jabber/gtalk <string>\n");
+  print("     di/envía a <user> por jabber/gtalk <string>\n");
+  print("--me dime <string>\n");
 }
 
 #
-# Executes the command
+# Executes the command in the --me case
+# This command generates a set of feedback messages 
+#
+sub run_for_me {
+    foreach $message (@strings) {
+        print("feedback $message\n");
+    }
+}
+
+#
+# Executes the command in the general case
 # This command generates a set of messages that have to be sent back to Zoe
 #
-sub run {
+sub run_for_others {
   foreach $user (@users) {
     foreach $message (@strings) {
-      print("dst=jabber&touser=$user&msg=$message\n");
+      print("message dst=jabber&touser=$user&msg=$message\n");
     }
   }
 }
