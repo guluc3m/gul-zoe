@@ -31,14 +31,6 @@ import time
 import sys
 from datetime import datetime
 
-class JabberSession:
-    def __init__(self, to, send):
-        self._to = to
-        self._send = send
-
-    def feedback(self, msg):
-        self._send(mto=self._to, mbody=msg, mtype='chat')
-
 class JabberAgent (sleekxmpp.ClientXMPP):
     def __init__(self, jabberhost, jabberport, jabberuser, jabberpassword):
         sleekxmpp.ClientXMPP.__init__(self, jabberuser, jabberpassword)
@@ -67,28 +59,24 @@ class JabberAgent (sleekxmpp.ClientXMPP):
 
     def messagefromjabber(self, msg):
         print("msg = ", msg)
-        if msg['type'] in ('chat', 'normal'):
-            text = msg["body"]
-            jid = msg["from"]
-            sender = self.finduser(jid)
-            if not sender: 
-                self._listener.log("jabber", "WARNING", "received a jabber message from an unknown user")
-                msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
-                return
-            
-            aMap = {"dst":"natural", 
-                    "src":"jabber", 
-                    "tag":"command", 
-                    "sender":sender["id"], 
-                    "cmd":text}
-            self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
-            self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
-            # js = JabberSession(jid, self.send_message)
-            # context = {"sender":sender, "feedback":js}
-            # ret = zoe.Fuzzy().execute(text, context)
-            # pprint.PrettyPrinter(indent=4).pprint(ret)
-            # if ret and "feedback-string" in ret:
-            #     msg.reply(ret["feedback-string"]).send()
+        if not (msg['type'] in ('chat', 'normal')):
+            self._listener.log("jabber", "WARNING", "received an unknown jabber message type")
+            return
+        text = msg["body"]
+        jid = msg["from"]
+        sender = self.finduser(jid)
+        if not sender: 
+            self._listener.log("jabber", "WARNING", "received a jabber message from an unknown user")
+            msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
+            return            
+        aMap = {"dst":"natural", 
+                "src":"jabber", 
+                "tag":"command", 
+                "sender":sender["id"],
+                "jid":str(jid),
+                "cmd":text}
+        self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
+        self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
 
     def finduser(self, jid):
         user = jid.user + "@" + jid.domain
@@ -101,6 +89,17 @@ class JabberAgent (sleekxmpp.ClientXMPP):
                 return subjects[s]
 
     def receive(self, parser):
+        if "command-feedback" in parser.tags():
+            self.feedback(parser)
+        else:
+            self.sendmsg(parser)
+    
+    def feedback(self, parser):
+        jid = parser.get("jid")
+        txt = parser.get("feedback-string")
+        self.send_message(mto = jid, mbody = txt, mtype = 'chat')
+        
+    def sendmsg(self, parser):
         to = parser.get("to")
         touser = parser.get("touser")
         msg = parser.get("msg")

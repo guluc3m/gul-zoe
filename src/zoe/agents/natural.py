@@ -68,7 +68,7 @@ class NaturalAgent:
         if "command" in tags:
             self.command(parser)
 
-    def command(self, parser = None):
+    def command(self, parser):
         cmd = parser.get("cmd")
         fuzzy = zoe.Fuzzy()
         analysis = fuzzy.analyze2(cmd)
@@ -79,7 +79,8 @@ class NaturalAgent:
         shellcmd = [cmdproc, " ".join(cmdparams),
                     "--run",  
                     "--stripped", "'" + stripped + "'", 
-                    "--original", "'" + analysis["original"] + "'"]
+                    "--original", "'" + analysis["original"] + "'", 
+                    "--canonical", "'" + canonical + "'"]
         shellcmd.append(params)
         shellcmd = " ".join(shellcmd)
         print("Executing " + shellcmd)
@@ -90,6 +91,17 @@ class NaturalAgent:
             if line[:8] == "message ":
                 print("Sending back to the server", line[8:])
                 self._listener.sendbus(line[8:])
+            if line[:9] == "feedback ":
+                print("Sending feedback", line[9:])
+                self.feedback(parser, line[9:])
+                
+    def feedback(self, original, text):
+        aMap = {"dst":original.get("src"), 
+                "src":"natural", 
+                "tag":"command-feedback", 
+                "feedback-string":text}
+        m = zoe.MessageBuilder.override(original, aMap)
+        self._listener.sendbus(m.msg())
             
     def shellParams(self, original):
         analysis = dict(original)
