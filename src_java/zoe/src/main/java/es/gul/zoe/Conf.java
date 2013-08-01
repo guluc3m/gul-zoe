@@ -39,7 +39,7 @@ public class Conf {
         ZOE_HOME = getEnvorinment("ZOE_HOME");
         File f = new File(ZOE_HOME, "src/zoe.conf");
         if (f == null || !f.exists()) {
-            throw new RuntimeException("cone.conf not found in $ZOE_HOME");
+            throw new RuntimeException("zoe.conf not found in $ZOE_HOME");
         }
         try {
             zoeConf = new Wini(f);

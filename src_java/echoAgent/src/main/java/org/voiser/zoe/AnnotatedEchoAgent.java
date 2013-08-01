@@ -23,59 +23,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package es.gul.zoe;
+package org.voiser.zoe;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-public class MessageParser {
+import es.gul.zoe.MessageBuilder;
+import es.gul.zoe.MessageParser;
+import es.gul.zoe.Validate;
+import es.gul.zoe.ValidationException;
+import es.gul.zoe.annotations.Agent;
+import es.gul.zoe.annotations.Message;
+import es.gul.zoe.annotations.Param;
 
-    private String origMsg;
-    private Map<String, List<String>> map;
+/**
+ * An example of an annotated agent.
+ * Annotated agents must be launched from an AnnotatedAgentLauncher instance.
+ * @author david
+ */
 
-    public MessageParser(String msg) {
-    	this(msg.getBytes());
-	}
-    
-    public MessageParser(byte[] message) {
-        origMsg = new String(message);
-        map = new LinkedHashMap<>();
-        String s = new String(message);
-        String[] pairs = s.split("&");
-        for (String pair : pairs) {
-            String[] parts = pair.split("=");
-            if (parts.length == 2) {
-                String key = parts[0];
-                String value = parts[1];
-                List<String> current = map.get(key);
-                if (current == null) {
-                    current = new LinkedList<>();
-                    map.put(key, current);
-                }
-                current.add(value);
-            }
-        }
-    }
+@Agent("echo")
+public class AnnotatedEchoAgent {
 
-    public String get(String key) {
-        List<String> values = map.get(key);
-        if (values == null) 
-            return null;
-        return values.get(0);
-    }
+    @Message
+    public MessageBuilder echo(
+            @Param("src") String origin,
+            @Param("msg") String msg, 
+                          MessageParser original) throws ValidationException {
 
-    public List<String> list(String key) {
-        return map.get(key);
-    }
+        // log the incoming message
+        System.out.println("Message received: " + original.toString());
 
-    public List<String> tags() {
-        return list("tag");
+        // check parameters
+        Validate.string(origin);
+        Validate.string(msg);
+
+        // Generate the new message from a map
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("src", "echo");
+        map.put("dst", origin);
+        map.put("msg", msg);
+
+        // The returned value will be sent back to Zoe
+        return new MessageBuilder(map, original);
     }
-    
-    @Override
-    public String toString() {
-        return origMsg;
-    }
-}    
+}

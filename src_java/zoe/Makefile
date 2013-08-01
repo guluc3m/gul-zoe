@@ -11,16 +11,16 @@ classes: dirs
 
 testClasses: classes
 	find src/test/java -name *.java > build/tmp/testsources
-	javac -cp '../lib/*:build/classes' -d build/testclasses @build/tmp/testsources
+	javac -cp '../lib/*:../libzoe/*:build/classes' -d build/testclasses @build/tmp/testsources
 
 test: testClasses
-	java -cp '../lib/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest 
+	java -cp '../lib/*:../libzoe/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest 
 
 jar: classes
 	pushd build/classes && jar cvf ../lib/${JAR} * && popd
-	cp build/lib/* ../lib/
+	cp build/lib/* ../libzoe/
 	@echo
-	@echo "The final jar has been copied to ${ZOE_HOME}/src_java/lib/${JAR}"
+	@echo "The final jar has been copied to ${ZOE_HOME}/src_java/libzoe/${JAR}"
 
 clean:
 	rm -rf build/

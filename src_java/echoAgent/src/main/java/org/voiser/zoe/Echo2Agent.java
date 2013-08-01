@@ -38,6 +38,7 @@ import es.gul.zoe.Validate;
  * An example agent. This example uses a Listener to communicate with the Zoe Server. 
  * This is useful when your agent must extend an existing class, so you can not 
  * take SimpleAgent as a base class.
+ * This agent includes its own main method, so no launcher is needed. 
  * @author david
  */
 public class Echo2Agent implements Agent {
@@ -72,4 +73,8 @@ public class Echo2Agent implements Agent {
         // Send the new message
         listener.sendbus(new MessageBuilder(map, original));
     }
+    
+    public static void main(String[] args) {
+		new Echo2Agent();
+	}
 }
