@@ -25,9 +25,7 @@
  */
 package org.voiser.zoe;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import es.gul.zoe.AnnotatedAgentLoader;
 import es.gul.zoe.MessageBuilder;
 import es.gul.zoe.MessageParser;
 import es.gul.zoe.Validate;
@@ -38,7 +36,7 @@ import es.gul.zoe.annotations.Param;
 
 /**
  * An example of an annotated agent.
- * Annotated agents must be launched from an AnnotatedAgentLauncher instance.
+ * @see AnnotatedAgentLoader
  * @author david
  */
 
@@ -58,13 +56,11 @@ public class AnnotatedEchoAgent {
         Validate.string(origin);
         Validate.string(msg);
 
-        // Generate the new message from a map
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("src", "echo");
-        map.put("dst", origin);
-        map.put("msg", msg);
-
-        // The returned value will be sent back to Zoe
-        return new MessageBuilder(map, original);
+        // the returned value will be sent back to the server
+        return new MessageBuilder()
+            .original(original)
+            .src("echo")
+            .dst(origin)
+            .put("msg", msg);
     }
 }

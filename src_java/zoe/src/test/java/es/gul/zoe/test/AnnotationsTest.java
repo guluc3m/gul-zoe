@@ -9,6 +9,7 @@ import es.gul.zoe.MessageParser;
 import es.gul.zoe.annotations.Agent;
 import es.gul.zoe.annotations.Message;
 import es.gul.zoe.annotations.Param;
+import es.gul.zoe.annotations.Strict;
 import static org.junit.Assert.*;
 
 public class AnnotationsTest {
@@ -21,6 +22,8 @@ public class AnnotationsTest {
 		public boolean tagNoParamsCalled = false;
 		public boolean twoTagsNoParamsCalled = false;
 		public boolean tagAndParamsCalled = false;
+        public boolean collisionTag4Called = false;
+        public boolean collisionTags45Called = false;
 		public String a = null;
 		public String b = null;
 		public List<String> c = null;
@@ -56,6 +59,19 @@ public class AnnotationsTest {
 			this.c = c;
 			this.parser = parser;
 		}
+		
+		@Strict
+		@Message(tags = "tag4")
+		public void collisionTag4() {
+		    somethingCalled = true;
+		    collisionTag4Called = true;
+		}
+
+		@Message(tags = {"tag4", "tag5"}) 
+        public void collisionTags45() {
+            somethingCalled = true;
+            collisionTags45Called = true;
+        }
 	}
 	
 	@Test
@@ -130,5 +146,15 @@ public class AnnotationsTest {
 		assertEquals("c2", agent.c.get(1));
 		assertNotNull(agent.parser);
 		assertEquals(parser, agent.parser);
+	}
+	
+	@Test
+	public void testCollision() throws Exception {
+        MyAgent agent = new MyAgent();
+        AnnotatedAgentLoader launcher = new AnnotatedAgentLoader(agent);
+        String msg = "tag=tag4&tag=tag5";
+        MessageParser parser = new MessageParser(msg);
+        launcher.receive(parser);
+        assertTrue(agent.collisionTags45Called);
 	}
 }

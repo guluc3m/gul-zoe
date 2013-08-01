@@ -14,7 +14,7 @@ testClasses: classes
 	javac -cp '../lib/*:../libzoe/*:build/classes' -d build/testclasses @build/tmp/testsources
 
 test: testClasses
-	java -cp '../lib/*:../libzoe/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest 
+	java -cp '../lib/*:../libzoe/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest es.gul.zoe.test.AnnotationsTest
 
 jar: classes
 	pushd build/classes && jar cvf ../lib/${JAR} * && popd
