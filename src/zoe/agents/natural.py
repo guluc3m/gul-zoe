@@ -34,7 +34,6 @@ import subprocess
 class NaturalAgent:
     def __init__(self):
         self._listener = zoe.Listener(self, name = "natural")
-        self.reload()
 
     def start(self):
         self._listener.start()
@@ -69,6 +68,7 @@ class NaturalAgent:
             self.command(parser)
 
     def command(self, parser):
+        self.reload()
         cmd = parser.get("cmd")
         fuzzy = zoe.Fuzzy()
         analysis = fuzzy.analyze2(cmd)
@@ -78,12 +78,15 @@ class NaturalAgent:
         cmdproc, cmdparams = self._commands[canonical]
         shellcmd = [cmdproc, " ".join(cmdparams),
                     "--run",  
-                    "--stripped", "'" + stripped + "'", 
-                    "--original", "'" + analysis["original"] + "'", 
+                    "--stripped",  "'" + stripped + "'", 
+                    "--original",  "'" + analysis["original"] + "'", 
                     "--canonical", "'" + canonical + "'"]
         shellcmd.append(params)
+        for key in parser._map:
+            for value in parser.list(key):
+                shellcmd.append("--msg-" + key)
+                shellcmd.append("'" + value + "'")
         shellcmd = " ".join(shellcmd)
-        print("Executing " + shellcmd)
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             line = line.decode("utf-8").strip()
