@@ -32,7 +32,6 @@ import es.gul.zoe.MessageBuilder;
 import es.gul.zoe.MessageParser;
 import es.gul.zoe.SimpleAgent;
 import es.gul.zoe.Validate;
-import es.gul.zoe.ValidationException;
 
 /**
  * An example agent. This example uses SimpleAgent as the base class
