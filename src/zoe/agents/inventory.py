@@ -27,7 +27,7 @@
 import sqlite3
 import uuid
 import datetime
-
+import base64
 import zoe
 
 class InventoryAgent:
@@ -53,6 +53,8 @@ class InventoryAgent:
             self.update(parser)
         if "notify" in tags:
             self.notify(parser)
+        if "memo" in tags:
+            self.memo(parser)
 
     def opendb(self):
         conn = sqlite3.connect(self._db)
@@ -107,3 +109,30 @@ class InventoryAgent:
         c.close()
         self._listener.log("inventory", "info", "inventory entry updated", parser)
 
+    def memo(self, parser):
+        movements = self.movements()
+        data = self.getmemohtml(movements).encode("utf-8")
+        b64 = base64.standard_b64encode(data).decode('utf-8')
+        attachment = zoe.Attachment(b64, "text/html", "inventory.html")
+        aMap = {"src":"inventory", "topic":"inventory", "tag":["generated-memo", "html"], "memo":attachment.str()}
+        msg = zoe.MessageBuilder(aMap, parser).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("inventory", "info", "HTML memo generated", parser)
+        recipient = parser.get("mail")
+        if not recipient:
+            return
+        aMap = {"src":"inventory", "dst":"mail", "to":recipient, "subject":"Inventory memo", "html":attachment.str()}
+        msg = zoe.MessageBuilder(aMap, parser).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("inventory", "info", "HTML memo mailed to " + recipient, parser)
+
+    def getmemohtml(self, movements):
+        m = "<html><body><table><tbody><tr><th>ID</th><th>Cantidad</th><th>Concepto</th></tr>"
+        for movement in movements:
+            (uuid, amount, what) = movement
+            fmt = "<tr><td>{}</td><td>{}</td><td>{}</td></tr>"
+            entry = fmt.format(uuid, amount, what)
+            m = m + entry
+        m = m + "</tbody></table>"
+        m = m + "</body></html>"
+        return m
