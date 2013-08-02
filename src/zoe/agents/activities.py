@@ -246,6 +246,7 @@ class ActivitiesAgent:
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
         self._listener.log("activities", "info", "JSON memo generated", original)
+        self.send_if_requested(original, attachment)
 
     def memo(self, original):
         self._listener.log("activities", "debug", "PDF memo requested", original)
@@ -277,4 +278,13 @@ class ActivitiesAgent:
         msg = zoe.MessageBuilder(aMap, original).msg()
         self._listener.sendbus(msg)
         self._listener.log("activities", "info", "PDF memo generated", original)
+        self.send_if_requested(original, attachment)
         
+    def send_if_requested(self, parser, attachment):
+        recipient = parser.get("mail")
+        if not recipient:
+            return
+        aMap = {"src":"activities", "dst":"mail", "to":recipient, "subject":"Memoria de actividades", "att":attachment.str()}
+        msg = zoe.MessageBuilder(aMap, parser).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("activities", "info", "HTML memo mailed to " + recipient, parser)
