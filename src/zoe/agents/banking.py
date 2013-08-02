@@ -94,7 +94,6 @@ class BankingAgent:
         msg = zoe.MessageBuilder(aMap, parser).msg()
         self._listener.sendbus(msg)
         self._listener.log("banking", "info", "HTML memo generated", parser)
-        # TODO: send the attachment by mail
         recipient = parser.get("mail")
         if not recipient:
             return
