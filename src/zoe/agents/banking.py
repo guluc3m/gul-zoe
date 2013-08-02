@@ -26,7 +26,7 @@
 
 import uuid
 import datetime
-
+import base64
 import zoe
 
 class BankingAgent:
@@ -49,6 +49,8 @@ class BankingAgent:
             self.entry(parser)
         if "notify" in tags:
             self.notify(parser.get("year"), parser)
+        if "memo" in tags:
+            self.memo(parser)
 
     def entry(self, parser):
         y = parser.get("year")
@@ -81,4 +83,54 @@ class BankingAgent:
         aMap["ids"] = ids
         self._listener.sendbus(zoe.MessageBuilder(aMap, original).msg())
         self._listener.log("banking", "info", "Sending banking notification for year " + str(year), original)
+
+    def memo(self, parser):
+        movements = self.getmovements(parser)
+        print(self.getmemoplain(movements))
+        data = self.getmemohtml(movements).encode("utf-8")
+        b64 = base64.standard_b64encode(data).decode('utf-8')
+        attachment = zoe.Attachment(b64, "text/html", "movements.html")
+        aMap = {"src":"banking", "topic":"banking", "tag":["generated-memo", "html"], "memo":attachment.str()}
+        msg = zoe.MessageBuilder(aMap, parser).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("banking", "info", "HTML memo generated", parser)
+        # TODO: send the attachment by mail
+
+    def getmovements(self, parser):
+        year = parser.get("year")
+        if not year:
+            year = zoe.Courses.courseyears()
+        print("Voy a mostrarte los movimientos del año", year)
+        movements = self._model.movements(year)
+        account = parser.get("account")
+        if account:
+            print("Voy a quedarme con la cuenta", account)
+            movements = [m for m in movements if m[3] == account] # would be nice if this filter was done by sqlite
+        return movements
+
+    def getmemoplain(self, movements):
+        m = "Movimientos bancarios: \n\n"
+        balance = 0
+        for movement in movements:
+            (uuid, year, date, account, amount, what) = movement
+            balance = balance + amount
+            fmt = "{} {} {:>10} {:>10} {}\n"
+            entry = fmt.format(uuid, date, account, amount, what)
+            m = m + entry
+        m = m + "\nSaldo actual: " + str(balance)
+        return m
+
+    def getmemohtml(self, movements):
+        m = "<html><body><table><tbody><tr><th>ID</th><th>Fecha</th><th>Cuenta</th><th>Cantidad</th><th>Concepto</th></tr>"
+        balance = 0
+        for movement in movements:
+            (uuid, year, date, account, amount, what) = movement
+            balance = balance + amount
+            fmt = "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>"
+            entry = fmt.format(uuid, date, account, amount, what)
+            m = m + entry
+        m = m + "</tbody></table>"
+        m = m + "<p>Saldo actual:" + str(balance) + "</p>"
+        m = m + "</body></html>"
+        return m
 
