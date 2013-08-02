@@ -145,8 +145,8 @@ class Listener:
     def keepalive(self):
         if self._name == None:
             return
-        while True:
-            time.sleep(self._interval)
-            aMap = {"dst":"server", "tag":"keepalive", "name":self._name}
-            self.sendbus(zoe.MessageBuilder(aMap).msg())
+        #while True:
+        #    time.sleep(self._interval)
+        #    aMap = {"dst":"server", "tag":"keepalive", "name":self._name}
+        #    self.sendbus(zoe.MessageBuilder(aMap).msg())
 
