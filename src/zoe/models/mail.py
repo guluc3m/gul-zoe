@@ -85,6 +85,13 @@ class Mail:
         return self
 
     def sendto(self, recipient):
+        if recipient.find("@") == -1:
+            # recipient is a user, not an email address
+            user = zoe.Users().subject(recipient)
+            if not recipient:
+                print("Can't find user", user)
+                return
+            recipient = user["mail"]
         self._msg['To'] = recipient
         server = smtplib.SMTP(self._smtp, self._port)
         server.ehlo()
@@ -94,4 +101,3 @@ class Mail:
         server.sendmail(self._user, recipient, self._msg.as_string())
         server.close()
         return self
-
