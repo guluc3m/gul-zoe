@@ -66,7 +66,7 @@ def get():
         print(k)
 
 def run(stripped):
-    print("feedback", talk[stripped])
+    print("feedback " + talk[stripped])
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--get", action = "store_true")
