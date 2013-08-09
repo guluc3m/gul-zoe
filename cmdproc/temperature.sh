@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/bin/bash
 #
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
 #
@@ -24,17 +24,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
-from zoe.agents.mail import *
-from zoe.agents.lists import *
-from zoe.agents.natural import *
+#
+# Replies with the current temperature, read with the "termometro" command 
+#
+
+case "$1" in
+    --get) 
+        echo "dame la temperatura"
+        ;;
+
+    --run)
+        echo "feedback La temperatura es de $(termometro)"
+        ;;
+esac

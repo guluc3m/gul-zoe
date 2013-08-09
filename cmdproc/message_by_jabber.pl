@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env perl
 #
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
 #
@@ -24,17 +24,59 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.agents.log import *
-from zoe.agents.echo import *
-from zoe.agents.users import *
-from zoe.agents.activities import *
-from zoe.agents.broadcast import *
-from zoe.agents.twitter import *
-from zoe.agents.banking import *
-from zoe.agents.inventory import *
-from zoe.agents.stalker import *
-from zoe.agents.courses import *
-from zoe.agents.jabber import *
-from zoe.agents.mail import *
-from zoe.agents.lists import *
-from zoe.agents.natural import *
+#
+# Sends a user a given message via jabber
+#
+
+use Getopt::Long qw(:config pass_through);
+
+my $get;
+my $run;
+my $me;
+my @strings;
+my @users;
+
+GetOptions("get" => \$get,
+           "run" => \$run,
+           "me" => \$me, 
+           "string=s" => \@strings, 
+           "users=s" => \@users);
+
+if ($get) { 
+  &get;  
+} elsif ($run and $me) {
+  &run_for_me;
+} elsif ($run and not $me) {
+  &run_for_others;
+}
+
+#
+# Lists the commands this script attends
+#
+sub get {
+  print("     di/envía a <user> por jabber/gtalk <string>\n");
+  print("--me dime <string>\n");
+}
+
+#
+# Executes the command in the --me case
+# This command generates a set of feedback messages 
+#
+sub run_for_me {
+    foreach $message (@strings) {
+        print("feedback $message\n");
+    }
+}
+
+#
+# Executes the command in the general case
+# This command generates a set of messages that have to be sent back to Zoe
+#
+sub run_for_others {
+  foreach $user (@users) {
+    foreach $message (@strings) {
+      print("message dst=jabber&touser=$user&msg=$message\n");
+    }
+  }
+}
+

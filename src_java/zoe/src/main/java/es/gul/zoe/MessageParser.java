@@ -35,6 +35,10 @@ public class MessageParser {
     private String origMsg;
     private Map<String, List<String>> map;
 
+    public MessageParser(String msg) {
+    	this(msg.getBytes());
+	}
+    
     public MessageParser(byte[] message) {
         origMsg = new String(message);
         map = new LinkedHashMap<>();

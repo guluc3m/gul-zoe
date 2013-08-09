@@ -107,10 +107,10 @@ class MailAgent:
         recipient = parser.get("to")
         s = parser.get("subject")
         txt = parser.get("txt")
-        txt64 = parser.get("txt64")
-        files = parser.get("file")
-        atts = parser.get("att")
-        htmls = parser.get("html")
+        txt64 = parser.list("txt64")
+        files = parser.list("file")
+        atts = parser.list("att")
+        htmls = parser.list("html")
         self._listener.log("mail", "debug", "email to " + recipient + " requested", parser)
         m = zoe.Mail(self._smtp, self._smtpport, self._user, self._password)
         if s:
@@ -118,13 +118,9 @@ class MailAgent:
         if txt:
             m.text(txt)
         if files:
-            if files.__class__ is str:
-                files = [files]
             for f in files:
                 m.file(f)
         if atts:
-            if atts.__class__ is str:
-                atts = [atts]
             for att in atts:
                 a = zoe.Attachment.build(att)
                 mime = a.mime()
@@ -132,19 +128,14 @@ class MailAgent:
                 filename = a.filename()
                 m.base64(b64, mime, filename)
         if htmls:
-            if htmls.__class__ is str:
-                htmls = [htmls]
             for html in htmls:
                 a = zoe.Attachment.build(html)
                 h = a.plaintext() 
                 m.html(h)
         if txt64:
-            if txt64.__class__ is str:
-                txt64 = [txt64]
             for t in txt64:
                 a = zoe.Attachment.build(t)
                 h = a.plaintext() 
                 m.text(h)
         m.sendto(recipient) 
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
-

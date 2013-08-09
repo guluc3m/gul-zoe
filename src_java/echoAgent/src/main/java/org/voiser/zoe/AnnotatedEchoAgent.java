@@ -25,56 +25,42 @@
  */
 package org.voiser.zoe;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import es.gul.zoe.Agent;
-import es.gul.zoe.Listener;
+import es.gul.zoe.AnnotatedAgentLoader;
 import es.gul.zoe.MessageBuilder;
 import es.gul.zoe.MessageParser;
 import es.gul.zoe.Validate;
+import es.gul.zoe.ValidationException;
+import es.gul.zoe.annotations.Agent;
+import es.gul.zoe.annotations.Message;
+import es.gul.zoe.annotations.Param;
 
 /**
- * An example agent. This example uses a Listener to communicate with the Zoe Server. 
- * This is useful when your agent must extend an existing class, so you can not 
- * take SimpleAgent as a base class.
- * This agent includes its own main method, so no launcher is needed. 
+ * An example of an annotated agent.
+ * @see AnnotatedAgentLoader
  * @author david
  */
-public class Echo2Agent implements Agent {
 
-    Listener listener;
-    
-    public Echo2Agent() {
-        listener = new Listener("echo", this);
-        listener.start();
-    }
-    
-    @Override
-    public void receive(MessageParser original) throws Exception {
-        
+@Agent("echo")
+public class AnnotatedEchoAgent {
+
+    @Message
+    public MessageBuilder echo(
+            @Param("src") String origin,
+            @Param("msg") String msg, 
+                          MessageParser original) throws ValidationException {
+
         // log the incoming message
         System.out.println("Message received: " + original.toString());
-        
-        // extract message parameters
-        String origin = original.get("src");
-        String msg = original.get("msg");
-        
+
         // check parameters
         Validate.string(origin);
         Validate.string(msg);
-        
-        // Generate the new message from a map
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("src", "echo");
-        map.put("dst", origin);
-        map.put("msg", msg);
-        
-        // Send the new message
-        listener.sendbus(new MessageBuilder(map, original));
+
+        // the returned value will be sent back to the server
+        return new MessageBuilder()
+            .original(original)
+            .src("echo")
+            .dst(origin)
+            .put("msg", msg);
     }
-    
-    public static void main(String[] args) {
-		new Echo2Agent();
-	}
 }
