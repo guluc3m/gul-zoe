@@ -40,7 +40,7 @@ GetOptions("get" => \$get,
            "run" => \$run,
            "me" => \$me, 
            "msg-sender=s" => \$sender,
-           "users=s" => \@users);
+           "user=s" => \@users);
 
 if ($get) { 
   &get;  

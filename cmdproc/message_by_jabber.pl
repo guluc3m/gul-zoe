@@ -40,7 +40,7 @@ GetOptions("get" => \$get,
            "run" => \$run,
            "me" => \$me, 
            "string=s" => \@strings, 
-           "users=s" => \@users);
+           "user=s" => \@users);
 
 if ($get) { 
   &get;  

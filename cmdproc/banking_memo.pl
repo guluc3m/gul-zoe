@@ -43,8 +43,8 @@ GetOptions("get" => \$get,
            "me" => \$me,
            "account" => \$account, 
            "msg-sender=s" => \$sender,
-           "strings=s" => \@strings,
-           "users=s" => \@users);
+           "string=s" => \@strings,
+           "user=s" => \@users);
 
 if ($get) { 
   &get;  
