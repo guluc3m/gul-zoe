@@ -32,15 +32,21 @@ use Getopt::Long qw(:config pass_through);
 
 my $get;
 my $run;
+my $to;
 my @strings;
+my @users;
 
 GetOptions("get" => \$get,
            "run" => \$run,
-           "string=s" => \@strings);
+           "to" => \$to, 
+           "string=s" => \@strings, 
+           "user=s" => \@users);
 
 if ($get) { 
   &get;  
-} elsif ($run) {
+} elsif ($run and $to) {
+  &run_to;
+} elsif ($run and not $to) {
   &run;
 }
 
@@ -48,7 +54,8 @@ if ($get) {
 # Lists the commands this script attends
 #
 sub get {
-  print("twit/tuit/tuitea/twitter <string>\n");
+  print("     twit/tuit/tuitea/twitter <string>\n");
+  print("--to twit/tuit/tuitea/twitter a <user> <string>\n");
 }
 
 sub run {
@@ -57,3 +64,10 @@ sub run {
   }
 }
 
+sub run_to {
+  foreach $user (@users) {
+    foreach $message (@strings) {
+      print("message dst=twitter&msg=$message&to=$user\n");
+    }
+  }
+}
