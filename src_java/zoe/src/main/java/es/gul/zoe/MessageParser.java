@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MessageParser {
 
@@ -72,6 +73,10 @@ public class MessageParser {
 
     public List<String> tags() {
         return list("tag");
+    }
+    
+    public Set<String> keys() {
+        return map.keySet();
     }
     
     @Override

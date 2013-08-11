@@ -29,19 +29,27 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import es.gul.zoe.MessageParser;
+import es.gul.zoe.Users;
 import es.gul.zoe.annotations.Agent;
 import es.gul.zoe.annotations.Message;
 import es.gul.zoe.annotations.Param;
 
+/**
+ * Sends messages to Twitter.
+ * @author david
+ *
+ */
 @Agent("twitter")
 public class TwitterAgent {
 
-    @Message
-    public void send(@Param("to") String to, 
-                     @Param("msg") String message) {
-        
-        String finalMsg = to == null ? message : "@" + to + " " + message;
-        
+    private Users users;
+    private Twitter twitter;
+    
+    /**
+     * 
+     */
+    public TwitterAgent() {
         String consumerKey = System.getenv("zoe_twitter_consumer_key");
         String consumerSecret = System.getenv("zoe_twitter_consumer_secret");
         String accessToken = System.getenv("zoe_twitter_access_token");
@@ -55,9 +63,46 @@ public class TwitterAgent {
             .setOAuthAccessTokenSecret(accessTokenSecret);
         
         TwitterFactory tf = new TwitterFactory(cb.build());
-        Twitter twitter = tf.getInstance();
+        twitter = tf.getInstance();        
+    }
+    
+    /**
+     * Users notification
+     * @param parser
+     */
+    @Message(tags = {"users", "notification"})
+    public void updateUsers(MessageParser parser) {
+        System.out.println("Receiving users notification");
+        Users users = new Users(parser);
+        this.users = users;
+    }
+    
+    /**
+     * Post message to Twitter
+     * @param to
+     * @param message
+     */
+    @Message
+    public void send(@Param("to")  String to, 
+                     @Param("msg") String message) {
         
+        // Ensure we have users notification
+        if (this.users == null) {
+            System.out.println("I don't have users information.");
+            return;
+        }
+        
+        // Try to find a user with the given name and a twitter account.
+        // If no one is found, assume that the destination is a twitter user, not a zone one.
+        String dest = this.users.get(to, "twitter");
+        if (dest == null) {
+            System.out.println("Can't find a user called " + to + ". I'll assume it is a twitter account");
+            dest = to;
+        }
+        
+        // Send the message to Twitter
         try {
+            String finalMsg = to == null ? message : "@" + dest + " " + message;
             twitter.updateStatus(finalMsg);
             System.out.println("twitted: " + finalMsg);
         } catch (TwitterException e) {

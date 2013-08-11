@@ -11,10 +11,10 @@ classes: dirs
 
 testClasses: classes
 	find src/test/java -name *.java > build/tmp/testsources
-	javac -cp '../lib/*:../libzoe/*:build/classes' -d build/testclasses @build/tmp/testsources
+	javac -cp '../lib/*:../libzoe/*:../libtest/*:build/classes' -d build/testclasses @build/tmp/testsources
 
 test: testClasses
-	java -cp '../lib/*:../libzoe/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest es.gul.zoe.test.AnnotationsTest
+	java -cp '../lib/*:../libzoe/*:../libtest/*:build/classes:build/testclasses' org.junit.runner.JUnitCore es.gul.zoe.test.SmokeTest es.gul.zoe.test.AnnotationsTest
 
 jar: classes
 	pushd build/classes && jar cvf ../lib/${JAR} * && popd
