@@ -6,15 +6,6 @@ sys.path[0:0] = [os.path.join(os.path.dirname(__file__), ".."),]
 
 import zoe
 
-class TestCmd:
-    def execute(self, r):
-        return True
-    
-TestCmd.commands = [
-                    ("abc/def <integer> ghi <string>", TestCmd()), 
-                    ("jkl <integer> <string>", TestCmd())
-                   ]
-
 class TestFuzzy (unittest.TestCase):
 
     def test_extract_strings(self):
@@ -52,10 +43,11 @@ class TestFuzzy (unittest.TestCase):
         f = zoe.Fuzzy()
         cmd = 'abc voiser def 5 "ghi" 6.7'
         r = f.analyze(cmd)
-        self.assertEqual (["ghi"], r["strings"])
-        self.assertEqual (["5"], r["integers"])
-        self.assertEqual (["6.7"], r["floats"])
-        self.assertEqual (1, len(r["users"]))
+        print(r)
+        self.assertEqual (["ghi"], r["string"])
+        self.assertEqual (["5"], r["integer"])
+        self.assertEqual (["6.7"], r["float"])
+        self.assertEqual (1, len(r["user"]))
         self.assertEqual ("abc <user> def <integer> <string> <float>", r["stripped"])
 
     def test_pattern(self):
@@ -70,21 +62,6 @@ class TestFuzzy (unittest.TestCase):
         ps.remove("ghi jkl mn")
         ps.remove("ghi jkl op")
         self.assertEqual (0, len(ps))
-
-    def test_command(self):
-        f = zoe.Fuzzy()
-        f.register(TestCmd)
-        c, r = f.commandfor('jkl 5 "string string"')
-        self.assertEqual (TestCmd, c.__class__)
-        c, r = f.commandfor('idontknow')
-        self.assertEqual (zoe.SmallTalkCmd, c.__class__)
-
-    def test_execute(self):
-        f = zoe.Fuzzy()
-        f.register(TestCmd())
-        r2 = f.execute('jkl 5 "string string"')
-        self.assertTrue (r2)
-
 
 if __name__ == "__main__":
     unittest.main()

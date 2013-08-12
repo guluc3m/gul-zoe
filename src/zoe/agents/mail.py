@@ -83,17 +83,6 @@ class MailAgent:
             s = text.find("\n\n")
             command = text[:s].strip()
             bigstring = text[s:].strip()
-            f = zoe.Fuzzy()
-            context = {}
-            subject = mail["Subject"]
-            context["bigstring"] = bigstring
-            context["sender"] = sender
-            feedback = MailFeedback(rcpt, zoe.Mail(self._smtp, self._smtpport, self._user, self._password).subject(subject))
-            context["feedback"] = feedback
-            r = f.execute(command, context)
-            if r and "feedback-string" in r:
-                feedback.feedback(r["feedback-string"])
-            feedback.send()
     
     def finduser(self, address):
         name, addr = email.utils.parseaddr(address)

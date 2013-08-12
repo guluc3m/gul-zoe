@@ -71,7 +71,7 @@ class NaturalAgent:
         self.reload()
         cmd = parser.get("cmd")
         fuzzy = zoe.Fuzzy()
-        analysis = fuzzy.analyze2(cmd)
+        analysis = fuzzy.analyze(cmd)
         stripped = analysis["stripped"]
         canonical, score = fuzzy.lookup(stripped, self._commands)
         params = self.shellParams(analysis)

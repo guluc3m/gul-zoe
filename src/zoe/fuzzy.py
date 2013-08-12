@@ -30,17 +30,6 @@ import re
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
-class FuzzyCmd:
-    def execute(self, objects):
-        t = ""
-        for k in sorted(Fuzzy()._cmdmap.keys()):
-            t = t + k + "\n"
-        return {"feedback-string":t}
-
-FuzzyCmd.commands = [
-    ("ayuda", FuzzyCmd())
-]
-
 class Fuzzy:
     
     likelihood = 80
@@ -48,25 +37,8 @@ class Fuzzy:
     def __init__(self):
         self._users = zoe.Users()
         self._cmdmap = {}
-        cmds = [x for x in dir(zoe.natural) if x[-3:] == "Cmd"]
-        for cmd in cmds:
-            klass = getattr(zoe.natural, cmd)
-            self.register(klass)
 
     def analyze(self, original):
-        cmd = original
-        strings, cmd = self.extract_strings(cmd)
-        integers, cmd = self.extract_integers(cmd)
-        floats, cmd = self.extract_floats(cmd)
-        users, cmd = self.extract_users(cmd)
-        dates, cmd = self.extract_dates(cmd)
-        cmd = self.removeduplicates(cmd.lower())
-        r = {"users":users, "strings":strings, "integers":integers,
-             "dates":dates, "floats":floats, 
-             "original":original, "stripped":cmd}
-        return r
-
-    def analyze2(self, original):
         cmd = original
         strings, cmd = self.extract_strings(cmd)
         integers, cmd = self.extract_integers(cmd)
@@ -168,33 +140,3 @@ class Fuzzy:
             syns = token.split("/")
             result.append(syns)
         return self.combinations(result) 
-       
-    def register(self, klass):
-        cmds = klass.commands
-        for cmd in cmds:
-            pattern, impl = cmd
-            for p in self.patterns(pattern):
-                q = " ".join(p.split())
-                self._cmdmap[q] = impl
-
-    def lookup(self, stripped, amap):
-        result = process.extract(stripped, amap)
-        #for text, score in result:
-        #    print (text + " => " + str(score))
-        return result[0]
-
-    def commandfor(self, cmd):
-        r = self.analyze(cmd)
-        stripped = r["stripped"]
-        canonic, score = self.lookup(stripped, self._cmdmap)
-        if score > self.likelihood:
-            return self._cmdmap[canonic], r
-        else:
-            return zoe.SmallTalkCmd(), r
-
-    def execute(self, cmd, context = None):
-        c, r = self.commandfor(cmd)
-        r["context"] = context
-        r2 = c.execute(r)
-        return r2
-
