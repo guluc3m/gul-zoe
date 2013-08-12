@@ -25,9 +25,10 @@
 # THE SOFTWARE.
 
 import configparser
+import os
 
 class Users:
-    def __init__(self, conffile = "zoe-users.conf", confstring = None):
+    def __init__(self, conffile = os.environ['ZOE_HOME'] + "/src/zoe-users.conf", confstring = None):
         self._conffile = conffile
         self._confstring = confstring
         self.update()
