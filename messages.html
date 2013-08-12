@@ -1,0 +1,621 @@
+<html>
+<head>
+<style>
+
+table {
+    border-collapse:collapse;
+    border:0;
+}
+
+.msg, .exm {
+    font-family: courier;
+    font-size:12px;
+    min-width:300px;
+}
+
+.rcv {
+    color: #3a3;
+}
+
+.snt {
+    color:#aa3;
+}
+
+.exm {
+    color: #33a;
+}
+
+.warning {
+    color: red;
+    font-weight:bold;
+}
+
+.natural {
+    color:blue;
+}
+
+.option {
+    font-family: normal;
+    color: black;
+}
+
+th {
+    background: #ffc;
+    text-align:center;
+}
+
+td {
+    padding-left:10px;
+    padding-right:10px;
+}
+
+tr {
+    border-bottom: 1px solid #aaa;
+}
+
+tr:hover {
+    background:#cfc;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Message syntax</h1>
+A message is a set of key-value pairs that are serialized to plain text with the following syntax:
+<pre>
+key1=value1&amp;key2=value2
+</pre>
+There is no way of escaping the &amp; and = symbols. You should avoid using special symbols. The rule of thumb is:
+<ul>
+    <li>Do not use the following symbols: &amp; = ' </li>
+    <li>If you need a value with them, encode your message. Base64 is a great option.</li>
+    <li>The trailing '=' in base64 are OK.</li>
+    <li>You can safely use the symbol "</li>
+</ul>
+A key can be multievaluated:
+<pre>
+key1=value1&amp;key1=value1b&amp;key2=value2
+</pre>
+In order to improve readability in this document, some extra spaces and newlines will be added:
+<pre>
+key1 = value1
+&amp; key1 = value1b
+&amp; key2 = value2
+</pre>
+Please take into account that these extra spaces should <em>not</em> exist in the real messages.
+
+<h1>Messages</h1>
+<table>
+    <tr><td class="msg">Message</td>
+        <td class="exp">Meaning</td>
+        <td class="exm">Parameter example</td>
+        </tr>
+
+    <tr><th colspan="3">Activities</th></tr>
+
+    <tr><td class="msg rcv">dst = activities <br />
+                            &amp; tag = memo</td>                            
+        <td class="exp">Generate the activities memo</td>
+        <td class="exm"></td>
+        </tr>
+    
+    <tr><td class="msg rcv">dst = activities <br />
+                            &amp; tag = memo <br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Generate the activities memo and mail it to <em>user</em></td>
+        <td class="exm">mail = david</td>
+        </tr>
+    
+    <tr><td class="msg rcv">dst = activities <br />
+                            &amp; tag = memo <br />
+                            &amp; tag = json</td>
+        <td class="exp">Generate the activities memo in JSON format</td>
+        <td class="exm"></td>
+        </tr>
+    
+    <tr><td class="msg rcv">dst = activities<br />
+                            &amp; tag = memo<br />
+                            &amp; tag = json<br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Generate the activities memo in JSON format and mail it to <em>user</em></td>
+        <td class="exm">mail = david</td>
+        </tr>
+
+    <tr><td class="msg snt">src = activities<br />
+                            &amp; topic = activities<br />
+                            &amp; tag = generated-memo<br />
+                            &amp; tag = pdf<br />
+                            &amp; memo = <em>attachment</em></td>
+        <td class="exp">Contains the activities memo in PDF format</td>
+        <td class="exm">See attachment format</td>
+        </tr>
+
+    <tr><td class="msg snt">src = activities<br />
+                            &amp; topic = activities<br />
+                            &amp; tag = generated-memo<br />
+                            &amp; tag = json<br />
+                            &amp; memo = <em>attachment</em></td>
+        <td class="exp">Contains the activities memo in JSON format</td>
+        <td class="exm">See attachment format</td>
+        </tr>
+    
+    <tr><th colspan="3">Banking</th></tr>
+
+    <tr><td class="msg rcv">dst = banking<br />
+                            &amp; tag = notify<br />
+                            &amp; year = <em>yyyy/yyyy</em></td>
+        <td class="exp">Banking notification request</td>
+        <td class="exm">year = 2012/2013</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = banking <br />
+                            &amp; tag = entry <br />
+                            &amp; year = <em>yyyy/yyyy</em><br />
+                            &amp; date = <em>yyyy-mm-dd</em><br />
+                            &amp; account = <em>xxx</em><br /> 
+                            &amp; amount = <em>xxx</em> <br />
+                            &amp; what = <em>xxxx</em></td>
+        <td class="exp">Banking entry</td>
+        <td class="exm">year = 2012/2013 <br />
+                        &amp; date = 2012-09-01 <br />
+                        &amp; account = 0001 <br />
+                        &amp; amount = 10.3 <br />
+                        &amp; what = Saldo inicial</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = banking <br />
+                            &amp; tag = memo <br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Generate the banking memo of the current year and all acounts and mail it to <em>user</em></td>
+        <td class="exm">mail = david</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = banking <br />
+                            &amp; tag = memo <br />
+                            &amp; year = <em>yyyy/yyyy</em> <br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Generate the banking memo of year <em>yyyy</em> memo and mail it to <em>user</em></td>
+        <td class="exm">mail = david <br />
+                        &amp; year = 2012/2013</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = banking <br />
+                            &amp; tag = memo <br />
+                            &amp; year = <em>yyyy/yyyy</em> <br />
+                            &amp; account = <em>xxxx</em> <br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Generate the activities memo of the given year and account and mail it to <em>user</em></td>
+        <td class="exm">mail = david <br />
+                        &amp; year = 2012/2013 <br />
+                        &amp; account = 0001</td>
+        </tr>
+
+    <tr><td class="msg snt">src = banking <br />
+                            &amp; topic = banking <br />
+                            &amp; tag = banking <br />
+                            &amp; tag = notification <br />
+                            &amp; year = <em>yyyy/yyyy</em> <br />
+                            &amp; ID1-year = <em>yyyy/yyyy</em> <br />
+                            &amp; ID1-date = <em>yyyy-mm-dd</em> <br />
+                            &amp; ID1-account = <em>xxxx</em> <br />
+                            &amp; ID1-amount = <em>xxxx</em> <br />
+                            &amp; ID1-what = <em>xxxx</em> <br />
+                            &amp; ID2-year = <em>yyyy/yyyy</em> <br />
+                            &amp; ID2-date = <em>yyyy-mm-dd</em> <br />
+                            &amp; ID2-account = <em>xxxx</em> <br />
+                            &amp; ID2-amount = <em>xxxx</em> <br />
+                            &amp; ID2-what = <em>xxxx</em> <br />
+                            &amp; ids = ID1 <br />
+                            &amp; ids = ID2 <br />
+                            &amp; balance = <em>balance</em></td>
+        <td class="exp">The banking notification message. Every entry is identified by a unique ID.</td>
+        <td class="exm">entry1-year = 2012/2013 <br />
+                        &amp; entry1-date = 2012-09-01 <br /></td>
+        </tr>
+        
+    <tr><th colspan="3">Broadcast</th></tr>
+
+    <tr><td class="msg rcv">dst = broadcast <br />
+                            &amp; tag = send <br />
+                            &amp; msg = <em>message</em></td>
+        <td class="exp">Sends <em>message</em> to all members of group <em>broadcast</em>. The message is sent via the preferred channel configured in zoe-users.conf</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = broadcast <br />
+                            &amp; tag = send <br />
+                            &amp; msg = <em>message</em> <br />
+                            &amp; group = <em>group</em></td>
+        <td class="exp">Sends <em>message</em> to all members of group <em>group</em>. The message is sent via the preferred channel configured in zoe-users.conf</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><th colspan="3">Courses</th></tr>
+
+    <tr><td class="msg rcv">dst = courses <br />
+                            &amp; tag = notify</td>
+        <td class="exp">Requests a courses notification. The current year is considered.</td>
+        <td class="exm"></td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = courses <br />
+                            &amp; tag = notify <br />
+                            &amp; year = <em>yyyy/yyyy</em></td>                            
+        <td class="exp">Requests a notification of the courses organized in the given year</td>
+        <td class="exm"></td>
+        </tr>
+    
+    <tr><td class="msg snt">src = courses <br />
+                            &amp; topic = courses <br />
+                            &amp; tag = courses <br />
+                            &amp; tag = notification <br />
+                            &amp; year = <em>yyyy/yyyy</em><br />
+                            &amp; courseids = id1 <br />
+                            &amp; courseids = id2 <br />
+                            &amp; course-<em>id</em>-mindate = yyyy-mm-dd <br />
+                            &amp; course-<em>id</em>-maxdate = yyyy-mm-dd <br />
+                            &amp; course-<em>id</em>-lectureids = lid1 <br />
+                            &amp; course-<em>id</em>-lectureids = lid2 <br />
+                            &amp; course-<em>id</em>-lecture-<em>lid1</em> = <em>lecture title</em> <br />
+                            &amp; course-<em>id</em>-lecture-<em>lid2</em> = <em>lecture title</em> <br />
+                            </td>
+        <td class="exp">Contains the user and group information as configured in <em>zoe-users.conf</em></td>
+        <td class="exm">
+<pre>
+course-20-lecture-685 = Traducción  de GNOME
+&amp; course-20-lecture-686 = Introducción a jQuery
+&amp; course-20-lectureids = 685
+&amp; course-20-lectureids = 686
+&amp; course-20-maxdate = 2012-11-09
+&amp; course-20-mindate = 2012-11-05
+&amp; course-21-lecture-711 = Detección de vulnerabilidades en Linux
+&amp; course-21-lecture-718 = Full Metal Mongo
+&amp; course-21-lectureids = 711
+&amp; course-20-lectureids = 718
+&amp; course-21-maxdate = 2013-04-12
+&amp; course-21-mindate = 2013-04-08
+&amp; courseids = 20
+&amp; courseids = 21
+&amp; year = 2012/2013
+</pre>
+        </td>
+        </tr>
+
+    <tr><th colspan="3">Inventory</th></tr>
+
+    <tr><td class="msg rcv">dst = inventory <br />
+                            &amp; tag = notify</td>
+        <td class="exp">Inventory notification request</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = inventory <br />
+                            &amp; tag = entry <br />
+                            &amp; amount = <em>amount</em> <br />
+                            &amp; what = <em>description</em></td>
+        <td class="exp">Add <em>amount</em> objects with the given <em>description</em> to the inventory. A new ID will be generated for the new entry.</td>
+        <td class="exm">amount = 5 <br />
+                        &amp; what = computers </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = inventory <br />
+                            &amp; tag = update <br />
+                            &amp; amount = <em>amount</em> <br />
+                            &amp; id = <em>id</em></td>
+        <td class="exp">Update the amount of objects with identifier <em>id</em> in the inventory.</td>
+        <td class="exm">amount = 5 <br />
+                        &amp; id = xxx <br />amount = 0 <br />
+                        &amp; id = xxx </br />amount = none <br />
+                        &amp; id = xxx</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = inventory <br />
+                            &amp; tag = memo </td>
+        <td class="exp">Inventory memo request</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = inventory <br />
+                            &amp; tag = memo <br />
+                            &amp; mail = <em>user</em></td>
+        <td class="exp">Inventory memo request. Mail it to <em>user</em></td>
+        <td class="exm">mail = david</td>
+        </tr>
+
+    <tr><td class="msg snt">src = inventory <br />
+                            &amp; topic = inventory <br />
+                            &amp; tag = inventory <br />
+                            &amp; tag = notification <br />
+                            &amp; ids = id1 <br />
+                            &amp; ids = id2 <br />
+                            &amp; id1-amount = xxx <br />
+                            &amp; id1-what = xxx <br />
+                            &amp; id2-amount = xxx <br />
+                            &amp; id2-what = xxx <br />
+                            </td>
+        <td class="exp">Contains the inventory information</td>
+        <td class="exm">
+<pre>
+7ca023f1e5a7-amount = 2
+&amp; 7ca023f1e5a7-what = switches ethernet 10/100
+&amp; ac472e94254e-amount = 4
+&amp; ac472e94254e-what = ordenadores
+&amp; ids = ac472e94254e 
+&amp; ids = 7ca023f1e5a7</pre>         
+        </td>
+        </tr>
+
+    <tr><td class="msg snt">src = inventory <br />
+                            &amp; topic = inventory <br />
+                            &amp; tag = generated-memo <br />
+                            &amp; tag = html <br />
+                            &amp; memo = <em>attachment</em></td>
+        <td class="exp">Contains an inventory memo. </td>
+        <td class="exm">See attachment format</td>
+        </tr>
+
+    <tr><th colspan="3">Jabber</th></tr>
+
+    <tr><td class="msg rcv">dst = jabber <br />
+                            &amp; to = <em>jid</em> <br />
+                            &amp; touser = <em>user</em> <br />
+                            &amp; msg = <em>text</em></td>
+        <td class="exp">Sends the message to user and / or jabber ids.<br />
+                        <span class="warning">This message should be improved, using only "to" and guessing 
+                                              wether it's a user or a jid, and should be multievaluated</span></td>
+        <td class="exm">to = someone@somewhere.com <br />
+                        &amp; touser = david <br />
+                        &amp; msg = party tomorrow at my place.</td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = jabber <br />
+                            &amp; tag = command-feedback<br />
+                            &amp; feedback-string = <em>feedback message</em><br />
+                            &amp; jid = <em>jid</em><br /></td>
+        <td class="exp">Sends a command feedback to <em>jid</em>. <span class="natural">See command parsing</span></td>
+        <td class="exm"> </td>
+        </tr>
+    
+    <tr><th colspan="3">Lists</th></tr>
+
+    <tr><td class="msg rcv">dst = lists <br />
+                            &amp; tag = notify</td>
+        <td class="exp">Requests mailing lists notification<br />
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = list <br />
+                            &amp; tag = set <br />
+                            &amp; inbook = <em>number</em></td>
+        <td class="exp">Sets the number of members in the book.</td>
+        <td class="exm">inbook = 60</td>
+        </tr>
+    
+    <tr><td class="msg snt">src = lists <br />
+                            &amp; topic = lists <br />
+                            &amp; tag = lists <br />
+                            &amp; tag = notification <br />
+                            &amp; book-members = <em>members</em><br />
+                            &amp; lists = <em>list1</em> <br />
+                            &amp; lists = <em>list2</em> <br />
+                            &amp; list-<em>list1</em>-members = <em>member1a</em> <br />
+                            &amp; list-<em>list1</em>-members = <em>member1b</em> <br />
+                            &amp; list-<em>list2</em>-members = <em>member2a</em> <br />
+                            &amp; list-<em>list2</em>-members = <em>member2b</em> <br />
+                            </td>
+        <td class="exp">Contains the lists notification</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><th colspan="3">Log</th></tr>
+
+    <tr><td class="msg rcv">dst = log <br />
+                            &amp; src = <em>source</em> <br />
+                            &amp; lvl = <em>level</em> <br />
+                            &amp; msg = <em>message</em></td>
+        <td class="exp">Logs <em>message</em> from <em>source</em> with the given log level</td>
+        <td class="exm">src = activities <br />
+                        &amp; lvl = info <br />
+                        &amp; msg = Memoria de actividades generada con éxito</td>
+        </tr>
+
+    <tr><th colspan="3">Mail</th></tr>
+
+    <tr><td class="msg rcv">dst = mail <br />
+                            &amp; to = <em>recipient</em> <br />
+                            &amp; subject = <em>subject</em> <br />
+                            <span class="option"> Any combination of:</span> <br />
+                            &amp; txt = <em>text</em> <br /> 
+                            &amp; txt64 = <em>attachment</em> <br />
+                            &amp; file = <em>path</em> <br />
+                            &amp; att = <em>attachment</em> <br />
+                            &amp; html = <em>attachment</em> <br />
+                            </td>
+        <td class="exp">Sends a mail to <em>recipient</em> with the given subject.<br />
+                        <ul>
+                            <li><em>txt</em> is used to send short, plain text messages. </li>
+                            <li><em>txt64</em> is used to send long messages. </li>
+                            <li><em>file</em> is used to attach a file given a path (local to the mailing agent)</li>
+                            <li><em>att</em> is used to attach any file</li>
+                            <li><em>html</em> is used to attach an HTML document </li>
+                        If in doubt, use <em>txt</em>, <em>txt64</em> and <em>att</em></ul></td>
+        <td class="exm"> </td>
+        </tr>
+    
+    <tr><th colspan="3">Natural</th></tr>
+
+    <tr><td class="msg rcv">dst = natural <br />
+                            &amp; src = <em>original source</em> <br />
+                            &amp; tag = command <br />
+                            &amp; cmd = <em>command in natural language</em> <br />
+                            &amp; <em>context-key1</em> = <em>value1</em> <br />
+                            &amp; <em>context-key2</em> = <em>value2</em> <br />
+                            </td>
+        <td class="exp">Process a natural language command. The <em>context keys and values</em> are set by the emmiting agent to avoid stateful agents. 
+                        <span class="natural">See command parsing</span></td>
+        <td class="exm"> </td>
+        </tr>
+    
+    <tr><td class="msg snt">src = natural <br />
+                            &amp; dst = <em>original source</em> <br />
+                            &amp; tag = command-feedback <br />
+                            &amp; feedback-string = <em>feedback message</em> <br />
+                            &amp; <em>context-key1</em> = <em>value1</em> <br />
+                            &amp; <em>context-key2</em> = <em>value2</em> <br />
+                            </td>
+        <td class="exp">Sends a command feedback message. The <em>context keys and values</em> are copied from the originally received message. 
+                        <span class="natural">See command parsing</span></td>
+        <td class="exm"> </td>
+        </tr>
+    
+    <tr><th colspan="3">Twitter</th></tr>
+
+    <tr><td class="msg rcv">dst = twitter <br />
+                            &amp; msg = <em>message</em></td>
+        <td class="exp">Publishes <em>message</em> in twitter</td>
+        <td class="exm"> </td>
+        </tr>
+
+    <tr><td class="msg rcv">dst = twitter <br />
+                            &amp; to = <em>user</em> <br />
+                            &amp; msg = <em>message</em></td>
+        <td class="exp">Sends <em>message</em> to <em>user</em>.</td>
+        <td class="exm">to = david</td>
+        </tr>
+
+    <tr><th colspan="3">Users</th></tr>
+
+    <tr><td class="msg rcv">dst = users <br />
+                            &amp; tag = notify</td>                            
+        <td class="exp">Requests a user notification.</td>
+        <td class="exm"></td>
+        </tr>
+    
+    <tr><td class="msg snt">src = users <br />
+                            &amp; topic = users <br />
+                            &amp; tag = users <br />
+                            &amp; tag = notification <br />
+                            &amp; subject = username1 <br />
+                            &amp; subject = username2 <br />
+                            &amp; group-<em>groupname</em>-<em>xxx</em> = <em>yyy</em> <br />
+                            &amp; <em>username</em>-<em>xxx</em> = <em>yyy</em> <br />
+                            </td>
+        <td class="exp">Contains the user and group information as configured in <em>zoe-users.conf</em>.<br />
+                        A user is defined like: <br />
+<pre>[subject name]
+key1: value1a value1b
+key2: value2a value2b</pre>
+                        The user information will appear in the message like: <br />
+<pre>name-key1 = value1a 
+&amp; name-key1 = value1b 
+&amp; name-key2 = value2a 
+&amp; name-key2 = value2b</pre>
+                        A group is defined like: <br />
+<pre>[group groupname]
+key1: value1a value1b
+key2: value2a value2b</pre>
+                        The group information will appear in the message like: <br />
+<pre>group-groupname-key1 = value1a 
+&amp; group-groupname-key1 = value1b 
+&amp; group-groupname-key2 = value2a 
+&amp; group-groupname-key2 = value2b</pre>
+                        </td>
+        <td class="exm">
+<pre>zoe-users.conf:
+
+[subject john]
+mail: john@smith.com
+twitter: johnsmith
+
+[subject doe]
+mail: doe@smith.com
+twitter: doesmith
+
+[group staff]
+head: john
+member: doe
+
+users notification message:
+
+subject = john 
+&amp; subject = doe 
+&amp; john-mail = john@smith.com 
+&amp; john-twitter = johnsmith 
+&amp; doe-mail = doe@smith.com 
+&amp; doe-twitter = doesmith
+&amp; group-staff-head = john 
+&amp; group-staff-member = doe;
+</pre>
+        </td>
+        </tr>
+
+</table>
+
+<h1>Attachment format</h1>
+<span class="msg">MIMETYPE ; FILENAME : BASE64</span>
+<p>Example:</p>
+<span class="msg">application/pdf;activities.pdf:(base64 encoded file)</span>
+
+
+<h1>Natural language command parsing</h1>
+Example:
+<ul>
+    <li>A user "john" sends via jabber (with JID john@doe.com) the command <em>Zoe, por favor, di a roberto por jabber "hola tronco"</em>, which arrives the Jabber agent. </li>
+    <li>The agent sends the following message:
+        <div class="msg rcv">dst = natural <br />
+                             &amp; src = jabber <br />
+                             &amp; tag = command <br />
+                             &amp; cmd = Zoe, por favor, di a roberto por jabber "hola tronco" <br />
+                             </div>
+        When a command is executed, it can return a feedback string, which should be sent back to the user. In order to 
+        avoid storing a session (and making stateful agents), context data can be added to the message:
+        <div class="msg rcv">&amp; sender = john <br />
+                             &amp; jid = john@doe.com
+                             </div>
+        </li>
+    <li>The natural agent analyzes the command and determinates that the script that attends this command is <em>message_by_jabber.pl</em> which is located in the
+        <em>cmdproc</em> directory. It executes the script with the following parameters:
+        <pre>
+./message_by_jabber.pl --run 
+                       --stripped 'Zoe, por favor, di a &lt;user&gt; por jabber &lt;string&gt;'
+                       --original 'Zoe, por favor, di a roberto por jabber "hola tronco"'
+                       --canonical 'di a &lt;user&gt; por jabber &lt;string&gt;'
+                       --msg-sender 'john' 
+                       --msg-jid 'john@doe.com'
+                       --string 'hola tronco'
+                       --user 'roberto'
+        </pre>
+        Note the --msg-xxx arguments, which contain the original message's context data.
+        </li>
+    <li>The script analyzes the parameters and emits a set of responses by stdout, one each line. There are two kind of responses:
+        <ul>
+            <li>Zoe messages, which are emitted like <pre>message dst=...&amp;tag=...&amp;...</pre></li>
+            <li>Feedback messages, which are emitted like <pre>feedback Here goes the feedback string</pre></li>
+        </ul></li>
+    <li>The natural agent takes this output and executes them in the same order they were emitted:
+        <ul>
+            <li>When a zoe message is read, the natural agent emits it to Zoe with no modifications.</li>
+            <li>When a feedback string is read, the natural agent takes the original message:
+                <div class="msg rcv">dst = natural <br />
+                                     &amp; src = jabber <br />
+                                     &amp; tag = command <br />
+                                     &amp; cmd = Zoe, por favor, di a roberto por jabber "hola tronco" <br />
+                                     &amp; sender = john <br />
+                                     &amp; jid = john@doe.com
+                                     </div>
+                and generates a copy, overriding the source, destination, tag, and adding the feedback string:
+                <div class="msg snt">dst = jabber <br />
+                                     &amp; src = natural <br />
+                                     &amp; tag = command-feedback <br />
+                                     &amp; cmd = Zoe, por favor, di a roberto por jabber "hola tronco" <br />
+                                     &amp; sender = john <br />
+                                     &amp; jid = john@doe.com <br />
+                                     &amp; feedback-string = <em>feedback message</em> <br />
+                </div>
+                This message is sent back to Zoe, which arrives the original emitter containing all the context information originally given.</li>
+        </ul></li>
+</ul>
+
+</body>
+</html>
