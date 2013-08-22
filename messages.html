@@ -62,11 +62,11 @@ tr:hover {
 <body>
 
 <h1>Message syntax</h1>
-A message is a set of key-value pairs that are serialized to plain text with the following syntax:
+A message is a set of key-value pairs that are serialized to plain text (<strong>using UTF-8 encoding</strong>) with the following syntax:
 <pre>
 key1=value1&amp;key2=value2
 </pre>
-There is no way of escaping the &amp; and = symbols. You should avoid using special symbols. The rule of thumb is:
+There is no way of escaping symbols, so you should avoid using them. The rule of thumb is:
 <ul>
     <li>Do not use the following symbols: &amp; = ' </li>
     <li>If you need a value with them, encode your message. Base64 is a great option.</li>
@@ -75,7 +75,7 @@ There is no way of escaping the &amp; and = symbols. You should avoid using spec
 </ul>
 A key can be multievaluated:
 <pre>
-key1=value1&amp;key1=value1b&amp;key2=value2
+<strong>key1</strong>=value1&amp;<strong>key1</strong>=value1b&amp;key2=value2
 </pre>
 In order to improve readability in this document, some extra spaces and newlines will be added:
 <pre>
@@ -84,6 +84,12 @@ key1 = value1
 &amp; key2 = value2
 </pre>
 Please take into account that these extra spaces should <em>not</em> exist in the real messages.
+
+<h1>Sending messages</h1>
+Zoe runs by default on port 30000. You can send her a message just by doing:
+<pre>
+$ echo -n "key1=value1&key2=value2" | nc localhost 30000
+</pre>
 
 <h1>Messages</h1>
 <table>
