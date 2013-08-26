@@ -29,6 +29,7 @@ import zoe
 import sleekxmpp
 import time
 import sys
+import base64
 from datetime import datetime
 
 class JabberAgent (sleekxmpp.ClientXMPP):
@@ -68,13 +69,15 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         if not sender: 
             self._listener.log("jabber", "WARNING", "received a jabber message from an unknown user")
             msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
-            return            
+            return
+        text64 = base64.standard_b64encode(text.encode('utf-8')).decode('utf-8')
         aMap = {"dst":"natural", 
                 "src":"jabber", 
                 "tag":"command", 
                 "sender":sender["id"],
+                "sender-domain":sender["domain"],
                 "jid":str(jid),
-                "cmd":text}
+                "cmd":text64}
         self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
         self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
 

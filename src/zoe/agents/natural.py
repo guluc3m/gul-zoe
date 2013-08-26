@@ -30,6 +30,7 @@ import configparser
 import zoe
 import pprint
 import subprocess
+import base64
 
 class NaturalAgent:
     def __init__(self):
@@ -69,7 +70,10 @@ class NaturalAgent:
 
     def command(self, parser):
         self.reload()
-        cmd = parser.get("cmd")
+        cmd64 = parser.get("cmd")
+        print("cmd64=", cmd64)
+        cmd = base64.standard_b64decode(cmd64.encode("utf-8")).decode("utf-8")
+        print("cmd=", cmd)
         fuzzy = zoe.Fuzzy()
         analysis = fuzzy.analyze(cmd)
         stripped = analysis["stripped"]
@@ -87,6 +91,7 @@ class NaturalAgent:
                 shellcmd.append("--msg-" + key)
                 shellcmd.append("'" + value + "'")
         shellcmd = " ".join(shellcmd)
+        print("executing: ", shellcmd)
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             line = line.decode("utf-8").strip()
