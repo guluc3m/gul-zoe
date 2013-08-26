@@ -38,6 +38,10 @@ class Fuzzy:
         self._users = zoe.Users()
         self._cmdmap = {}
 
+    def lookup(self, stripped, amap):
+        result = process.extract(stripped, amap)
+        return result[0]
+
     def analyze(self, original):
         cmd = original
         strings, cmd = self.extract_strings(cmd)

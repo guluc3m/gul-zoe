@@ -258,7 +258,7 @@ class ActivitiesAgent:
         if original.get("_cid"):
             cid = original.get("_cid")
         else:
-            cid = uuid.uuid4()
+            cid = str(uuid.uuid4())
         filename = cid + ".tex"
         here = os.getcwd()
         os.chdir("/tmp")
