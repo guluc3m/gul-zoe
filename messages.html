@@ -88,8 +88,23 @@ Please take into account that these extra spaces should <em>not</em> exist in th
 <h1>Sending messages</h1>
 Zoe runs by default on port 30000. You can send her a message just by doing:
 <pre>
-$ echo -n "key1=value1&key2=value2" | nc localhost 30000
+$ echo -n "key1=value1&amp;key2=value2" | nc localhost 30000
 </pre>
+
+<h1>Reserved keys</h1>
+The following keys have a special meaning:
+<ul>
+  <li>src: the source agent, like 'mail' or 'activities'. Should not be multievaluated.</li>
+  <li>dst: the destination agent, like 'mail' or 'activities'. Should not be multievaluated.</li>
+  <li>topic: the destination topic, like 'users' or 'broadcast'. Should not be multievaluated.</li>
+  <li>tag: identifies the kind of message, like 'notification' or 'request'. Can be multievaluated.</li>
+  <li>_cid: the correlation ID. Related messages (like query-response ones) share the same ID. Should not be multievaluated.</li>
+</ul>
+Other reserved keys that you should not use are:
+<ul>
+  <li>dd</li>
+  <li>vd</li>
+</ul>
 
 <h1>Messages</h1>
 <table>
