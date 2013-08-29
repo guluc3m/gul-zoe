@@ -66,13 +66,18 @@
     </head>
     
     <body>
-        <h1>Message syntax</h1>A message is a set of key-value pairs that are
+        <h1>Message syntax</h1>
+        
+        A message is a set of key-value pairs that are
         serialized to plain text (<strong>using UTF-8 encoding</strong>) with the
         following syntax:
+        
         <pre>
-    key1=value1&amp;key2=value2
-    </pre>There is no way of escaping symbols, so you should avoid using them. The
-    rule of thumb is:
+key1=value1&amp;key2=value2
+        </pre>
+        
+        There is no way of escaping symbols, so you should avoid using them. The
+        rule of thumb is:
     
         <ul>
             <li>Do not use the following symbols: &amp; = '</li>
@@ -84,22 +89,31 @@
     
             <li>You can safely use the symbol "</li>
         </ul>A key can be multievaluated:
+        
         <pre>
-    <strong>key1</strong>=value1&amp;<strong>key1</strong>=value1b&amp;key2=value2
-    </pre>In order to improve readability in this document, some extra spaces and
-    newlines will be added:
+<strong>key1</strong>=value1&amp;<strong>key1</strong>=value1b&amp;key2=value2
+        </pre>
+        
+        In order to improve readability in this document, some extra spaces and
+        newlines will be added:
+        
         <pre>
-    key1 = value1
-    &amp; key1 = value1b
-    &amp; key2 = value2
-    </pre>Please take into account that these extra spaces should <em>not</em>
-    exist in the real messages.
+key1 = value1
+&amp; key1 = value1b
+&amp; key2 = value2
+        </pre>
+        
+        Please take into account that these extra spaces should <em>not</em>
+        exist in the real messages.
     
-        <h1>Sending messages</h1>Zoe runs by default on port 30000. You can send
+        <h1>Sending messages</h1>
+        
+        Zoe runs by default on port 30000. You can send
         her a message just by doing:
+        
         <pre>
-    $ echo -n "key1=value1&amp;key2=value2" | nc localhost 30000
-    </pre>
+$ echo -n "key1=value1&amp;key2=value2" | nc localhost 30000
+        </pre>
     
         <h1>Reserved keys</h1>The following keys have a special meaning:
     
@@ -381,22 +395,22 @@
     
                 <td class="exm">
                     <pre>
-    course-20-lecture-685 = Traducción  de GNOME
-    &amp; course-20-lecture-686 = Introducción a jQuery
-    &amp; course-20-lectureids = 685
-    &amp; course-20-lectureids = 686
-    &amp; course-20-maxdate = 2012-11-09
-    &amp; course-20-mindate = 2012-11-05
-    &amp; course-21-lecture-711 = Detección de vulnerabilidades en Linux
-    &amp; course-21-lecture-718 = Full Metal Mongo
-    &amp; course-21-lectureids = 711
-    &amp; course-20-lectureids = 718
-    &amp; course-21-maxdate = 2013-04-12
-    &amp; course-21-mindate = 2013-04-08
-    &amp; courseids = 20
-    &amp; courseids = 21
-    &amp; year = 2012/2013
-    </pre>
+course-20-lecture-685 = Traducción  de GNOME
+&amp; course-20-lecture-686 = Introducción a jQuery
+&amp; course-20-lectureids = 685
+&amp; course-20-lectureids = 686
+&amp; course-20-maxdate = 2012-11-09
+&amp; course-20-mindate = 2012-11-05
+&amp; course-21-lecture-711 = Detección de vulnerabilidades en Linux
+&amp; course-21-lecture-718 = Full Metal Mongo
+&amp; course-21-lectureids = 711
+&amp; course-20-lectureids = 718
+&amp; course-21-maxdate = 2013-04-12
+&amp; course-21-mindate = 2013-04-08
+&amp; courseids = 20
+&amp; courseids = 21
+&amp; year = 2012/2013
+</pre>
                 </td>
             </tr>
     
@@ -478,16 +492,12 @@
     
                 <td class="exp">Contains the inventory information</td>
     
-                <td class="exm">
-                    <pre>
-    7ca023f1e5a7-amount = 2
-    &amp; 7ca023f1e5a7-what = switches ethernet 10/100
-    &amp; ac472e94254e-amount = 4
-    &amp; ac472e94254e-what = ordenadores
-    &amp; ids = ac472e94254e 
-    &amp; ids = 7ca023f1e5a7
-    </pre>
-                </td>
+                <td class="exm">7ca023f1e5a7-amount = 2<br>
+                    &amp; 7ca023f1e5a7-what = switches ethernet 10/100<br>
+                    &amp; ac472e94254e-amount = 4<br>
+                    &amp; ac472e94254e-what = ordenadores<br>
+                    &amp; ids = ac472e94254e<br>
+                    &amp; ids = 7ca023f1e5a7<br></td>
             </tr>
     
             <tr>
@@ -719,67 +729,68 @@
                     <em>zoe-users.conf</em>.<br>
                     A user is defined like:<br>
                     <pre>
-    [subject name]
-    key1: value1a value1b
-    key2: value2a value2b
-    </pre>The user information will appear in the message like:<br>
-                    <pre>
-    name-key1 = value1a 
-    &amp; name-key1 = value1b 
-    &amp; name-key2 = value2a 
-    &amp; name-key2 = value2b
-    </pre>A group is defined like:<br>
-                    <pre>
-    [group groupname]
-    key1: value1a value1b
-    key2: value2a value2b
-    </pre>The group information will appear in the message like:<br>
-                    <pre>
-    group-groupname-key1 = value1a 
-    &amp; group-groupname-key1 = value1b 
-    &amp; group-groupname-key2 = value2a 
-    &amp; group-groupname-key2 = value2b
-    </pre>
+[subject name]
+key1: value1a value1b
+key2: value2a value2b
+</pre>The user information will appear in the message like:<br>
+                <pre>
+name-key1 = value1a 
+&amp; name-key1 = value1b 
+&amp; name-key2 = value2a 
+&amp; name-key2 = value2b
+</pre>A group is defined like:<br>
+                <pre>
+[group groupname]
+key1: value1a value1b
+key2: value2a value2b
+</pre>The group information will appear in the message like:<br>
+                <pre>
+group-groupname-key1 = value1a 
+&amp; group-groupname-key1 = value1b 
+&amp; group-groupname-key2 = value2a 
+&amp; group-groupname-key2 = value2b
+</pre>
                 </td>
     
                 <td class="exm">
                     <pre>
-    zoe-users.conf:
-    
-    [subject john]
-    mail: john@smith.com
-    twitter: johnsmith
-    
-    [subject doe]
-    mail: doe@smith.com
-    twitter: doesmith
-    
-    [group staff]
-    head: john
-    member: doe
-    
-    users notification message:
-    
-    subject = john 
-    &amp; subject = doe 
-    &amp; john-mail = john@smith.com 
-    &amp; john-twitter = johnsmith 
-    &amp; doe-mail = doe@smith.com 
-    &amp; doe-twitter = doesmith
-    &amp; group-staff-head = john 
-    &amp; group-staff-member = doe;
-    </pre>
+zoe-users.conf:
+
+[subject john]
+mail: john@smith.com
+twitter: johnsmith
+
+[subject doe]
+mail: doe@smith.com
+twitter: doesmith
+
+[group staff]
+head: john
+member: doe
+
+users notification message:
+
+subject = john 
+&amp; subject = doe 
+&amp; john-mail = john@smith.com 
+&amp; john-twitter = johnsmith 
+&amp; doe-mail = doe@smith.com 
+&amp; doe-twitter = doesmith
+&amp; group-staff-head = john 
+&amp; group-staff-member = doe;
+</pre>
                 </td>
             </tr>
         </table>
     
-        <h1>Attachment format</h1><span class="msg">MIMETYPE ; FILENAME :
-        BASE64</span>
+        <h1>Attachment format</h1>
+        <span class="msg">MIMETYPE ; FILENAME : BASE64</span>
     
-        <p>Example:</p><span class="msg">application/pdf;activities.pdf:(base64
-        encoded file)</span>
+        <p>Example:</p>
+        <span class="msg">application/pdf;activities.pdf:(base64 encoded file)</span>
     
-        <h1>Natural language command parsing</h1>Example:
+        <h1>Natural language command parsing</h1>
+        Example:
     
         <ul>
             <li>A user "john" sends via jabber (with JID john@doe.com) the command
@@ -810,17 +821,17 @@
             is located in the <em>cmdproc</em> directory. It executes the script
             with the following parameters:
                 <pre>
-    ./message_by_jabber.pl --run 
-                           --stripped 'Zoe, por favor, di a &lt;user&gt; por jabber &lt;string&gt;'
-                           --original 'Zoe, por favor, di a roberto por jabber "hola tronco"'
-                           --canonical 'di a &lt;user&gt; por jabber &lt;string&gt;'
-                           --msg-sender 'john' 
-                           --msg-jid 'john@doe.com'
-                           --string 'hola tronco'
-                           --user 'roberto'
-            
-    </pre>Note the --msg-xxx arguments, which contain the original message's
-    context data.
+./message_by_jabber.pl --run 
+                       --stripped 'Zoe, por favor, di a &lt;user&gt; por jabber &lt;string&gt;'
+                       --original 'Zoe, por favor, di a roberto por jabber "hola tronco"'
+                       --canonical 'di a &lt;user&gt; por jabber &lt;string&gt;'
+                       --msg-sender 'john' 
+                       --msg-jid 'john@doe.com'
+                       --string 'hola tronco'
+                       --user 'roberto'
+</pre>
+            Note the --msg-xxx arguments, which contain the original message's
+            context data.
             </li>
     
             <li>The script analyzes the parameters and emits a set of responses by
@@ -829,14 +840,14 @@
                 <ul>
                     <li>Zoe messages, which are emitted like
                         <pre>
-    message dst=...&amp;tag=...&amp;...
-    </pre>
+message dst=...&amp;tag=...&amp;...
+                        </pre>
                     </li>
     
                     <li>Feedback messages, which are emitted like
                         <pre>
-    feedback Here goes the feedback string
-    </pre>
+feedback Here goes the feedback string
+                        </pre>
                     </li>
                 </ul>
             </li>
