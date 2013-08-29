@@ -65,17 +65,35 @@ function zoe_action(){
 
 function zoe_parse(){
 
+  CONTEXT=$_zoe_context
   zoe_cleanvars;
-  echo "${1}&" | while read -d"&" i;do #the & at the end of 'echo' is for 'read' to get the last element
-    zoe_var_${i%=*}+=(${i#*=})
+  f=$CONTEXT/tmpparse
+  >$f
+  IFSBAKAP="$IFS"
+  IFS="&"
+  for i in ${1};do
+    pre="${i%=*}"
+    pos="${i#*=}"
+    echo "zoe_var_$pre+=(\"${pos}\")" >> $f
   done
+  IFS="$IFSBAKAP"
+  source $f
+  rm -f $f &> /dev/null
 }
 
-#function zoe_map(){
-#  for i in  ${!zoe_var*};do 
-#    a="$(typeset -p $i)"
-#  done  
-#}
+function zoe_map(){
+  CONTEXT=$_zoe_context
+  local mapped=""
+  for i in  ${!zoe_var*};do 
+    j=0;
+    k="$i[$((j++))]"
+    while [ "${!k}" ];do 
+      mapped+="&${i##zoe_var_}=${!k}"
+      k="$i[$((j++))]"
+    done
+  done  
+  echo "${mapped#&}"
+}
 
 function zoe_cleanvars(){
   unset ${!zoe_var*}
