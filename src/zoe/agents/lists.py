@@ -147,6 +147,9 @@ Zoe
 
     def loop(self):
         while True:
-            time.sleep(self._interval)
-            self.update()
-            self.notify()
+                time.sleep(self._interval)
+                try:
+                    self.update()
+                    self.notify()
+                except:
+                    pass

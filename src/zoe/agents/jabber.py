@@ -75,9 +75,10 @@ class JabberAgent (sleekxmpp.ClientXMPP):
                 "src":"jabber", 
                 "tag":"command", 
                 "sender":sender["id"],
-                "sender-domain":sender["domain"],
                 "jid":str(jid),
                 "cmd":text64}
+        if "domain" in sender:
+            aMap["sender-domain"] = sender["domain"]
         self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
         self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
 
