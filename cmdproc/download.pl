@@ -59,7 +59,7 @@ sub get {
 #
 sub run {
   foreach $url (@strings) {
-    $encoded = encode_base64($url);
+    $encoded = encode_base64($url, "");
     print("message dd=$domain&dst=download&url=$encoded\n");
   }
 }
