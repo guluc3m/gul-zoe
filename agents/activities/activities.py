@@ -113,13 +113,7 @@ class ActivitiesAgent:
         self._listener.log("activities", "info", "Inventory info received", parser)
 
     def updateCourses(self, parser):
-        courseids = parser.get("courseids")
-        if not courseids:
-            self._courses = None
-            self._listener.log("activities", "ERROR", "Courses info empty!", parser)
-            return
-        if courseids.__class__ is str:
-            courseids = [courseids]
+        courseids = parser.list("courseids")
         courses = []
         for id in courseids:
             mindate = parser.get("course-" + id + "-mindate")

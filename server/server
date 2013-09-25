@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar gul-zoe-server-assembly-1.0.jar -d central -g central -c zoe.conf
+java -jar gul-zoe-server-assembly-1.0.jar -d central -g central -c $ZOE_HOME/etc/zoe.conf

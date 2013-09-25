@@ -1,6 +1,6 @@
 ZOE_BASE="$ZOE_HOME/src"
 ZOE_PIDS="$ZOE_HOME/logs/pids"
 ZOE_LOGS="$ZOE_HOME/logs"
-ENABLED_AGENTS="log users lists banking inventory courses broadcast twitter jabber mail activities"
+ENABLED_AGENTS="log users lists banking inventory courses broadcast jabber mail activities natural twitter"
 MAILMAN="root@ibor.gul.es"
 MAILPROC="$ZOE_HOME/mailproc"

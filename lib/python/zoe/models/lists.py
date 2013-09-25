@@ -41,8 +41,9 @@ class Lists:
 
     def updatelists(self):
         lists = {}
-        cwd=os.getcwd()
-        os.chdir("../tareas")
+        cwd = os.getcwd()
+        tasksdir = os.environ["ZOE_HOME"] + "/tareas"        
+        os.chdir(tasksdir)
         p = subprocess.Popen('./list_members.sh', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             line = line.decode("utf-8")

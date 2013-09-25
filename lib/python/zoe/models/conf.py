@@ -53,7 +53,7 @@ class Config:
         return self._config["agent " + agent]["port"]
 
     def conf(self, f):
-        return os.environ["ZOE_HOME"] + "/src/" + f
+        return os.environ["ZOE_HOME"] + "/etc/" + f
 
     def db(self, f):
         return os.environ["ZOE_HOME"] + "/var/" + f

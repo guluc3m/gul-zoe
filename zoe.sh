@@ -11,7 +11,6 @@ export PYTHONPATH=$ZOE_HOME/lib/python:$PYTHONPATH
 # Typical values
 export ZOE_SERVER_HOST=localhost
 export ZOE_SERVER_PORT=30000
-export PYTHON3=python3.3
 
 # Get this from twitter
 export zoe_twitter_consumer_key="..."

@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 function launch() {
     SCRIPT="$1"
@@ -18,8 +18,8 @@ echo -n "" > $ZOE_PIDS
 
 # start server
 pushd $ZOE_HOME/server >/dev/null
-#launch server server
-#sleep 10
+launch server server
+sleep 10
 popd >/dev/null
 
 # launch agents
