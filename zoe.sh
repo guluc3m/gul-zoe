@@ -6,6 +6,8 @@ export ZOE_HOME=/path/to/gul-zoe
 # If you don't, clone gul-zoe-dependencies projects and set this variable:
 #export PYTHONPATH=/path/to/gul-zoe-dependencies
 
+export PYTHONPATH=$ZOE_HOME/lib/python:$PYTHONPATH
+
 # Typical values
 export ZOE_SERVER_HOST=localhost
 export ZOE_SERVER_PORT=30000

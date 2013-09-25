@@ -1,13 +1,11 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 function launch() {
-    NAME="$1"
-    LAUNCHER="$2"
-    SCRIPT="$3"
+    SCRIPT="$1"
+    NAME="$2"
     echo "Starting $NAME"
-    LOG=$ZOE_LOGS/$NAME.log
-    ERR=$ZOE_LOGS/$NAME.error.log
-    $LAUNCHER $SCRIPT > $LOG 2>$ERR &
+    LOG=$ZOE_LOGS/$NAME
+    ./$SCRIPT > $LOG 2>&1 &
     PID=$!
     echo $PID >> $ZOE_PIDS
 }
@@ -15,22 +13,20 @@ function launch() {
 # read configuration
 . config.sh
 
-# start server
-pushd $ZOE_BASE >/dev/null
+# clean pids file
 echo -n "" > $ZOE_PIDS
-launch "server" "$PYTHON3" "server.py"
+
+# start server
+pushd $ZOE_HOME/server >/dev/null
+#launch server server
+#sleep 10
 popd >/dev/null
 
 # launch agents
-DIRS="$ZOE_HOME/src $ZOE_HOME/src_java"
-for DIR in $DIRS
+for AGENT in $ENABLED_AGENTS
 do
-    pushd $DIR > /dev/null
-    for AGENT in $ENABLED_AGENTS
-    do
-        echo "Buscando el agente $AGENT"
-        [ -f "${AGENT}_agent.py" ] && launch "$AGENT" "$PYTHON3" "${AGENT}_agent.py"
-        [ -f "${AGENT}_agent.sh" ] && launch "$AGENT"  bash      "${AGENT}_agent.sh"
-    done
+    pushd $ZOE_HOME/agents/$AGENT >/dev/null
+    launch agent $AGENT
     popd >/dev/null
 done
+
