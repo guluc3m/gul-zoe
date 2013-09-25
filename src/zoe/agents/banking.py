@@ -28,6 +28,7 @@ import uuid
 import datetime
 import base64
 import zoe
+import time
 
 class BankingAgent:
     def __init__(self, db = None):
@@ -51,6 +52,8 @@ class BankingAgent:
             self.notify(parser.get("year"), parser)
         if "memo" in tags:
             self.memo(parser)
+        if "check" in tags:
+            self.check(parser)
 
     def entry(self, parser):
         y = parser.get("year")
@@ -139,4 +142,28 @@ class BankingAgent:
         m = m + "<p>Saldo actual:" + str(balance) + "</p>"
         m = m + "</body></html>"
         return m
+
+    def check(self, parser):
+        movements = self.getmovements(parser)
+        balance = 0
+        expected = float(parser.get("balance"))
+        account = parser.get("account")
+        for movement in movements:
+            (uuid, year, date, account, amount, what) = movement
+            balance = balance + amount
+        print("El balance de la cuenta", parser.get("account"), "es", balance)
+        print("El balance esperado es", expected)
+        match = expected == balance
+        print("son iguales?", match)
+        if match:
+            self.alert(str(time.time()) + " - Te informo de que el balance de las cuentas es el esperado", parser)
+        else:
+            self.alert(str(time.time()) + " - Parece que hay un problema con las cuentas del banco", parser)
+
+    def alert(self, message, parser):
+        print(message)
+        aMap = {"src":"banking", "dst":"broadcast", "tag":"send", "msg":message}
+        msg = zoe.MessageBuilder(aMap, parser).msg()
+        self._listener.sendbus(msg)
+        self._listener.log("banking", "info", "Broadcasting message " + message, parser)
 

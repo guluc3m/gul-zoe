@@ -32,7 +32,9 @@ import threading
 class ListsAgent:
     def __init__(self, interval = 60):
         self._listener = zoe.Listener(self, name = "lists")
-        self._model = zoe.Lists()
+        conf = zoe.Config()
+        db = conf.db("zoe-members")
+        self._model = zoe.Lists(db)
         self._interval = interval
         self.update()
 
