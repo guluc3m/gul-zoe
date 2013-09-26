@@ -42,9 +42,9 @@ on demand.
 
 In the doc/ directory you will find documentation of 
 
-1- the Zoe protocol, which is really simple
-2- the messages the agents accept
-3- the process of executing administrator commands in natural language
+1. the Zoe protocol, which is really simple
+2. the messages the agents accept
+3. the process of executing administrator commands in natural language
 
 You should start reading the first section and having a look at the message
 definitions. It will take less than 5 minutes. There are some well documented 
