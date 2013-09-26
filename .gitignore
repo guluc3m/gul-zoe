@@ -24,6 +24,7 @@ __pycache__
 *.log
 logs/pids
 *.cache
+*.swp
 
 src/zoe-users.conf
 **/build
