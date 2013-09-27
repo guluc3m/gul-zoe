@@ -78,6 +78,13 @@ class NaturalAgent:
         analysis = fuzzy.analyze(cmd)
         stripped = analysis["stripped"]
         canonical, score = fuzzy.lookup(stripped, self._commands)
+        if score < 80:
+            self.feedback(parser, "No te entiendo!")
+        else:
+            self.docommand(parser, analysis, canonical)    
+
+    def docommand(self, parser, analysis, canonical):
+        stripped = analysis["stripped"]
         params = self.shellParams(analysis)
         cmdproc, cmdparams = self._commands[canonical]
         shellcmd = [cmdproc, " ".join(cmdparams),
