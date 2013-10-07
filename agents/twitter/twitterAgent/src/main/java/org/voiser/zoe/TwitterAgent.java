@@ -103,7 +103,8 @@ public class TwitterAgent {
         // Send the message to Twitter
         try {
             String finalMsg = to == null ? message : "@" + dest + " " + message;
-            twitter.updateStatus(finalMsg);
+            String ts = " (" + System.currentTimeMillis() + ")";
+            twitter.updateStatus(finalMsg + ts);
             System.out.println("twitted: " + finalMsg);
         } catch (TwitterException e) {
             e.printStackTrace();

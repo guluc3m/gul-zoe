@@ -1,4 +1,5 @@
 JAR=zoe-twitter-agent.jar
+SHELL=/bin/bash
 
 all: jar
 

@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import traceback
 import time
 import datetime
 import threading
@@ -33,12 +34,12 @@ import zoe
 class CoursesAgent:
     def __init__(self, interval = 60, url = "http://cursos.gul.es/index.php/courses/json"):
         self._listener = zoe.Listener(self, name = "courses")
-        self._model = zoe.Courses(url)
+        self._model = None
         self._interval = interval
         self._url = url
 
     def update(self):
-        self._model.update()
+        self._model = zoe.Courses(self._url)
         self._listener.log("courses", "info", "Updating course information from " + self._url)
         self.notify()
 
@@ -57,6 +58,8 @@ class CoursesAgent:
             self.notify(parser)
 
     def notify(self, original = None):
+        if not self._model:
+            return
         if original:
             year = original.get("year")
         else:
@@ -82,6 +85,9 @@ class CoursesAgent:
         
     def loop(self):
         while True:
+            try:
+                self.update()
+            except Exception as e:
+                traceback.print_exc()
             time.sleep(self._interval)
-            self.update()
 

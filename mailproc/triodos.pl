@@ -11,7 +11,7 @@ $document = <FILE>;
 close (FILE);
 
 $document = decode_qp($document);
-#$document =~ s/\n/ /g;
+$document =~ s/\n/ /g;
 
 $incoming = $document =~ /alerta de Abono Superior/i;
 exit unless $incoming;

@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import traceback
 import zoe
 import time
 import base64
@@ -34,9 +35,8 @@ class ListsAgent:
         self._listener = zoe.Listener(self, name = "lists")
         conf = zoe.Config()
         db = conf.db("zoe-members")
-        self._model = zoe.Lists(db)
+        self._model = None
         self._interval = interval
-        self.update()
 
     def start(self):
         if (self._interval > 0):
@@ -55,6 +55,8 @@ class ListsAgent:
             self.setmembers(parser)
 
     def notify(self, original = None):
+        if not self._model:
+            return
         members = self._model.members()
         aMap = {"src":"lists", "topic":"lists", "tag":["lists", "notification"], "book-members":str(members)}
         listnames = []
@@ -149,9 +151,9 @@ Zoe
 
     def loop(self):
         while True:
-                time.sleep(self._interval)
-                try:
-                    self.update()
-                    self.notify()
-                except:
-                    pass
+            try:
+                self.update()
+                self.notify()
+            except Exception as e:
+                traceback.print_exc()
+            time.sleep(self._interval)

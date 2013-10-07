@@ -156,9 +156,9 @@ class BankingAgent:
         match = expected == balance
         print("son iguales?", match)
         if match:
-            self.alert(str(time.time()) + " - Te informo de que el balance de las cuentas es el esperado", parser)
+            self.alert("Te informo de que el balance de las cuentas es el esperado", parser)
         else:
-            self.alert(str(time.time()) + " - Parece que hay un problema con las cuentas del banco", parser)
+            self.alert("Parece que hay un problema con las cuentas del banco", parser)
 
     def alert(self, message, parser):
         print(message)
