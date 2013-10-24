@@ -5,7 +5,10 @@ function launch() {
     NAME="$2"
     echo "Starting $NAME"
     LOG=$ZOE_LOGS/$NAME
-    ./$SCRIPT > $LOG 2>&1 &
+    for LAUNCHER in agent*
+    do
+        ./$LAUNCHER --agent $NAME > $LOG 2>&1 &
+    done
     PID=$!
     echo $PID >> $ZOE_PIDS
 }
@@ -18,7 +21,9 @@ echo -n "" > $ZOE_PIDS
 
 # start server
 pushd $ZOE_HOME/server >/dev/null
-launch server server
+./server > $ZOE_LOGS/server 2>&1 &
+PID=$!
+echo $PID >> $ZOE_PIDS
 sleep 10
 popd >/dev/null
 
