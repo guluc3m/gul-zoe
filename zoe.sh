@@ -1,9 +1,8 @@
-
 # The project path
 export ZOE_HOME=/path/to/gul-zoe
 
 # If you have all the required libraries installed, you will not need this.
-# If you don't, clone gul-zoe-dependencies projects and set this variable:
+# If you don't, clone guluc3m/gul-zoe-dependencies project and set this variable:
 #export PYTHONPATH=/path/to/gul-zoe-dependencies
 
 export PYTHONPATH=$ZOE_HOME/lib/python:$PYTHONPATH
