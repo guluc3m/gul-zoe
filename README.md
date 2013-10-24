@@ -2,7 +2,7 @@
 
 An assistant bot for the gul.es non-profit organization. 
 
-Zoe performs repetitive, boring and time-consuming tasks that no one want to do.
+Zoe performs repetitive, boring and time-consuming tasks that no one wants to do.
 
 
 
