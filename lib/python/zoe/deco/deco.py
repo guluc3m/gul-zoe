@@ -107,8 +107,9 @@ class DecoratedListener:
                 param = None
             params.append(param)
         ret = method(*params)
-        rep = str(ret)
-        self._listener.sendbus(rep)
+        if ret:
+            rep = str(ret)
+            self._listener.sendbus(rep)
 
 class Message:
     def __init__(self, tags):
