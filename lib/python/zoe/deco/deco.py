@@ -51,9 +51,9 @@ class DecoratedLogger:
 
 
 class DecoratedListener:
-    def __init__(self, agent):
+    def __init__(self, agent, name):
         self._agent = agent
-        self._name = agent.__zoe__agent__name__
+        self._name = name
         self._candidates = []
         for m in dir(agent):
             k = getattr(agent, m)
@@ -108,8 +108,12 @@ class DecoratedListener:
             params.append(param)
         ret = method(*params)
         if ret:
-            rep = str(ret)
-            self._listener.sendbus(rep)
+            if not hasattr(ret, "__iter__"):
+                ret = [ret]
+            for r in ret:
+                rep = str(r)
+                print(rep)
+                self._listener.sendbus(rep)
 
 class Message:
     def __init__(self, tags):
@@ -124,5 +128,5 @@ class Agent:
         self._name = name
 
     def __call__(self, i):
-        setattr(i, "__zoe__agent__name__", self._name)
-        return i
+        DecoratedListener(i(), self._name)
+
