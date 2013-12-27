@@ -46,6 +46,10 @@ class Mail:
     def subject(self, subject):
         self._msg["Subject"] = subject
         return self
+    
+    def inreplyto(self, mid):
+        self._msg["In-Reply-To"] = mid
+        return self
 
     def text(self, text):
         self._msg.attach(MIMEText(text, _charset = "utf-8"))
