@@ -67,6 +67,9 @@ class MessageParser:
 
     def addr(self):
         return self._addr
+        
+    def __str__(self):
+        return str(self._map)
 
 class MessageBuilder:
 
@@ -78,12 +81,15 @@ class MessageBuilder:
         aStr=""
         for key in aMap.keys():
             value = aMap[key]
+            if not value:
+                continue
             if value.__class__ is str:
                 aStr = aStr + key + "=" + value + "&"
             else:
                 for v in value:
                     aStr = aStr + key + "=" + v + "&"
         self._msg = aStr
+        self._map = aMap
 
     def override (original, aMap):
         mp = None
@@ -94,6 +100,12 @@ class MessageBuilder:
         newMap = dict(mp._map, **aMap)
         return MessageBuilder(newMap)
 
+    def put(self, key, value):
+        newMap = dict(self._map, **{ key : value })
+        return MessageBuilder(newMap)
+
     def msg(self):
         return self._msg
-
+        
+    def __str__(self):
+        return self._msg

@@ -24,9 +24,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.zp import * 
-from zoe.zs import * 
-from zoe.listener import * 
-from zoe.models import *
-from zoe.fuzzy import *
-from zoe.deco import *
+from zoe.deco.deco import *

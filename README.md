@@ -22,6 +22,7 @@ on demand.
     agents/                        The current Zoe agents
     cmdproc/                       Defines the administrator commands in natural language
     doc/                           General documentation
+    etc/                           Some config files
     lib/                           Libraries
         bash/                      Zoe BASH bindings
         java/
