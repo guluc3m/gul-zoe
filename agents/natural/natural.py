@@ -31,6 +31,7 @@ import zoe
 import pprint
 import subprocess
 import base64
+import tempfile
 
 class NaturalAgent:
     def __init__(self):
@@ -95,6 +96,8 @@ class NaturalAgent:
         shellcmd.append(params)
         for key in parser._map:
             for value in parser.list(key):
+                if key[0:10] == "attachment":
+                    value = self.savefile(value)
                 shellcmd.append("--msg-" + key)
                 shellcmd.append("'" + value + "'")
         shellcmd = " ".join(shellcmd)
@@ -109,7 +112,14 @@ class NaturalAgent:
             if line[:9] == "feedback ":
                 print("Sending feedback", line[9:])
                 self.feedback(parser, line[9:])
-                
+    
+    def savefile(self, value):
+        f = tempfile.NamedTemporaryFile(delete = False)
+        f.write(value.encode('utf-8'))
+        f.close()
+        print("file saved", f.name)
+        return f.name
+            
     def feedback(self, original, text):
         aMap = {"dst":original.get("src"), 
                 "src":"natural", 

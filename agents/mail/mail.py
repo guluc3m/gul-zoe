@@ -58,6 +58,8 @@ class MailAgent:
     def receive(self, parser):
         if "received" in parser.tags():
             self.rcvmail(parser)
+        elif "command-feedback" in parser.tags():
+            self.feedback(parser)
         else:
             self.sendmail(parser)
 
@@ -128,3 +130,20 @@ class MailAgent:
                 m.text(h)
         m.sendto(recipient) 
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
+
+    def feedback(self, parser):
+        print("FEEDBACK")
+        recipient = parser.get("sender")
+        sender = self.finduser(recipient)
+        if not sender:
+            self._listener.log("mail", "debug", "Received a mail from an unknown address " + recipient)
+            return
+        txt = parser.get("feedback-string")
+        mid = parser.get("inreplyto")
+        #print("send mail to", recipient, "text", txt, "in reply to", mid)
+        m = zoe.Mail(self._smtp, self._smtpport, self._user, self._password)
+        m.text(txt)
+        m.inreplyto(mid)
+        m.sendto(recipient)
+        self._listener.log("mail", "info", "email sent to " + recipient, parser)
+
