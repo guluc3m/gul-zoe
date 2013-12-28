@@ -74,10 +74,11 @@ class MessageParser:
 class MessageBuilder:
 
     def __init__(self, aMap, original = None):
-        if original and original.get("_cid"):
-            aMap["_cid"] = original.get("_cid")
-        else:
-            aMap["_cid"] = str(uuid.uuid4())
+        if not "_cid" in aMap:
+            if original and original.get("_cid"):
+                aMap["_cid"] = original.get("_cid")
+            else:
+                aMap["_cid"] = str(uuid.uuid4())
         aStr=""
         for key in aMap.keys():
             value = aMap[key]
@@ -90,6 +91,9 @@ class MessageBuilder:
                     aStr = aStr + key + "=" + v + "&"
         self._msg = aStr
         self._map = aMap
+
+    def fromparser (original):
+        return MessageBuilder(original._map, original)
 
     def override (original, aMap):
         mp = None
@@ -109,3 +113,4 @@ class MessageBuilder:
         
     def __str__(self):
         return self._msg
+

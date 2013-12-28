@@ -6,6 +6,8 @@ use Email::MIME;
 use Email::Simple;
 use Mail::Address;
 use MIME::Base64;
+use Config::IniFiles;
+use Env qw(ZOE_HOME);
 use strict; 
 
 # read the email from the file given as first argument
@@ -22,6 +24,9 @@ my $headers = Email::Simple->new($document);
 my $sender_line = $headers->header("From");
 my @addrs = Mail::Address->parse($sender_line);
 my $sender = $addrs[0]->address();
+
+# search for that sender in users.conf
+$sender = findSender($sender) or exit();
 
 # extract message ID
 my $message_id = $headers->header("Message-ID");
@@ -43,7 +48,7 @@ $cmd     = encode_base64($cmd, "");
 $longcmd = encode_base64($longcmd, "");
 
 # Don't forget the \n
-print "src=mail&dst=natural&tag=command&cmd=$cmd&cmdext=$longcmd&sender=$sender&inreplyto=$message_id\n";
+print "src=mail&dst=relay&relayto=natural&tag=command&tag=relay&cmd=$cmd&cmdext=$longcmd&sender=$sender&inreplyto=$message_id\n";
 
 
 
@@ -100,6 +105,22 @@ sub extract {
     }
   } else {
     push(@$flatref, $part)
+  }
+}
+
+#
+# Given an email address, find the corresponding Zoe user
+#
+sub findSender {
+  my $sender = shift;
+  my $cfg = Config::IniFiles->new (-file => "$ZOE_HOME/etc/zoe-users.conf");
+  foreach my $section ($cfg->Sections) {
+    my $mail = $cfg->val($section, "mail");
+    if (defined $mail and $mail eq $sender) {
+      my $sec = $section;
+      $sec =~ s/^subject //;
+      return $sec;
+    }
   }
 }
 

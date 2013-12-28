@@ -62,7 +62,7 @@ class NaturalAgent:
                         else:
                             proccommand.append(word)
                     self._commands[" ".join(proccommand)] = (proc, procparams)
-        pprint.PrettyPrinter(indent=4).pprint(self._commands)
+        #pprint.PrettyPrinter(indent=4).pprint(self._commands)
 
     def receive(self, parser):
         tags = parser.tags()
@@ -71,6 +71,7 @@ class NaturalAgent:
 
     def command(self, parser):
         self.reload()
+        print(parser._map)
         cmd64 = parser.get("cmd")
         print("cmd64=", cmd64)
         cmd = base64.standard_b64decode(cmd64.encode("utf-8")).decode("utf-8")

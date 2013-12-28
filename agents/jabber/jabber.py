@@ -71,15 +71,14 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             msg.reply("Lo siento, no me permiten hablar con desconocidos").send()
             return
         text64 = base64.standard_b64encode(text.encode('utf-8')).decode('utf-8')
-        aMap = {"dst":"natural", 
+        aMap = {"dst":"relay",
+                "relayto":"natural", 
                 "src":"jabber", 
-                "tag":"command", 
+                "tag":["command", "relay"],
                 "sender":sender["id"],
                 "jid":str(jid),
                 "cmd":text64}
-        if "domain" in sender:
-            aMap["sender-domain"] = sender["domain"]
-        self._listener.log("jabber", "DEBUG", "Sending the jabber message to the natural agent")
+        self._listener.log("jabber", "DEBUG", "Relaying the jabber message to the natural agent")
         self._listener.sendbus(zoe.MessageBuilder(aMap).msg())
 
     def finduser(self, jid):

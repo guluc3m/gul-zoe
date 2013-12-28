@@ -21,7 +21,7 @@ echo -n "" > $ZOE_PIDS
 
 # start server
 pushd $ZOE_HOME/server >/dev/null
-./server > $ZOE_LOGS/server 2>&1 &
+./server > /dev/null 2>&1 &
 PID=$!
 echo $PID >> $ZOE_PIDS
 sleep 10

@@ -94,8 +94,13 @@ class MailAgent:
             if "mail" in subjects[s] and subjects[s]["mail"] == addr:
                 return subjects[s]
 
+    def guess(self, rcpt):
+        if "@" in rcpt:
+            return rcpt	
+        return zoe.Users().subject(rcpt)["mail"]
+
     def sendmail(self, parser):
-        recipient = parser.get("to")
+        recipient = self.guess(parser.get("to"))
         s = parser.get("subject")
         txt = parser.get("txt")
         txt64 = parser.list("txt64")
@@ -132,15 +137,13 @@ class MailAgent:
         self._listener.log("mail", "info", "email sent to " + recipient, parser)
 
     def feedback(self, parser):
-        print("FEEDBACK")
-        recipient = parser.get("sender")
+        recipient = self.guess(parser.get("sender"))
         sender = self.finduser(recipient)
         if not sender:
             self._listener.log("mail", "debug", "Received a mail from an unknown address " + recipient)
             return
         txt = parser.get("feedback-string")
         mid = parser.get("inreplyto")
-        #print("send mail to", recipient, "text", txt, "in reply to", mid)
         m = zoe.Mail(self._smtp, self._smtpport, self._user, self._password)
         m.text(txt)
         m.inreplyto(mid)
