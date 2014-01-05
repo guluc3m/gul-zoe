@@ -109,18 +109,19 @@ class NaturalAgent:
         shellcmd = " ".join(shellcmd)
         print("Executing:\n", shellcmd.replace("--", "\n    --"))
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        totalfeedback = []
         for line in p.stdout.readlines():
-            line = line.decode("utf-8").strip()
+            line = line.decode("utf-8")#.strip()
             print("cmdproc: ", line)
-            self.answer(line, parser)
-    
-    def answer(self, line, parser):
-        if line[:8] == "message ":
-            print("Sending back to the server", line[8:])
-            self._listener.sendbus(line[8:])
-        if line[:9] == "feedback ":
-            print("Sending feedback", line[9:])
-            self.feedback(parser, line[9:])
+            if line[:8] == "message ":
+                print("Sending back to the server", line[8:])
+                self._listener.sendbus(line[8:])
+            if line[:9] == "feedback ":
+                print("Sending feedback", line[9:])
+                totalfeedback.append(line[9:])
+        if totalfeedback:
+            message = "".join(totalfeedback)
+            self.feedback(parser, message)
 
     def savefile(self, value):
         f = tempfile.NamedTemporaryFile(delete = False)
