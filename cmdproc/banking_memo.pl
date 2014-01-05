@@ -33,30 +33,28 @@ use Getopt::Long qw(:config pass_through);
 my $get;
 my $run;
 my $me;
-my $account;
 my $sender;
-my @strings;
+my @accounts;
 my @users;
 
 GetOptions("get" => \$get,
            "run" => \$run,
            "me" => \$me,
-           "account" => \$account, 
            "msg-sender=s" => \$sender,
-           "string=s" => \@strings,
+           "string=s" => \@accounts,
            "user=s" => \@users);
 
 if ($get) { 
   &get;  
 } elsif ($run) {
-  if (not $me and not $account) {
+  if (not $me and not @accounts) {
     &run_other_all;	
-  } elsif (not $me and $account) {
-	  &run_other_account;
-  } elsif ($me and not $account) {
-  	&run_me_all;
-  } elsif ($me and $account) {
-	&run_me_account;
+  } elsif (not $me and @accounts) {
+    &run_other_account;
+  } elsif ($me and not @accounts) {
+    &run_me_all;
+  } elsif ($me and @accounts) {
+    &run_me_account;
   }
 }
 
@@ -85,7 +83,7 @@ sub run_me_all {
   print("message dst=banking&tag=memo&mail=$sender\n");
 }
 
-sub run_other_account {
+sub run_me_account {
   foreach $account (@accounts) {
     print("message dst=banking&tag=memo&mail=$sender&account=$account\n");
   }
