@@ -151,6 +151,10 @@ class BankingAgent:
         for movement in movements:
             (uuid, year, date, account, amount, what) = movement
             balance = balance + amount
+
+        balance = "%.2f" % balance
+        expected = "%.2f" % expected
+
         print("El balance de la cuenta", parser.get("account"), "es", balance)
         print("El balance esperado es", expected)
         match = expected == balance
