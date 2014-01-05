@@ -32,8 +32,6 @@ from fuzzywuzzy import process
 
 class Fuzzy:
     
-    likelihood = 80
-    
     def __init__(self):
         self._users = zoe.Users()
         self._cmdmap = {}
@@ -49,12 +47,18 @@ class Fuzzy:
         floats, cmd = self.extract_floats(cmd)
         users, cmd = self.extract_users(cmd)
         dates, cmd = self.extract_dates(cmd)
+        mails, cmd = self.extract_mails(cmd)
+        twitters, cmd = self.extract_twitter(cmd)
         cmd = self.removeduplicates(cmd.lower())
         r = {"user":[u["id"] for u in users], 
-             "user-domain":[u["domain"] for u in users], 
-             "string":strings, "integer":integers,
-             "date":dates, "float":floats, 
-             "original":original, "stripped":cmd}
+             "string":strings, 
+             "integer":integers,
+             "date":dates, 
+             "float":floats,
+             "mail":mails,
+             "twitter":twitters,
+             "original":original, 
+             "stripped":cmd}
         return r
     
     def regen(self, cmd, start, end, substitution):
@@ -90,14 +94,20 @@ class Fuzzy:
     def extract_dates(self, cmd):
         exp = r'\s(\d\d\d\d-\d\d-\d\d)\s'
         return self.extract(cmd, exp, "<date>")
-        
+
+    def extract_mails(self, cmd):
+        exp = re.compile(r'\s([^@\s]+@[^@\s]+)\s')
+        return self.extract(cmd, exp, "<mail>")
+
+    def extract_twitter(self, cmd):
+        exp = re.compile(r'\s(@[^@\s]+)\s')
+        return self.extract(cmd, exp, "<twitter>")
+
     def removespurious(self, cmd):
         trans = str.maketrans(",.", "  ")
         return cmd.lower().translate(trans)
-
+    
     def extract_users(self, cmd):
-        mailexp = re.compile(r'([^@]+@[^@]+)')
-        twitterexp = re.compile(r'(@[^@]+)')
         users = zoe.Users().subjects()
         foundusers = []
         remaining = []
@@ -106,16 +116,10 @@ class Fuzzy:
             if cleanword in users.keys() and not word in foundusers:
                 foundusers.append(users[cleanword])
                 remaining.append("<user>")
-            elif mailexp.match(word):
-                foundusers.append({"mail":word, "preferred":"mail"})
-                remaining.append("<user>")
-            elif twitterexp.match(word):
-                foundusers.append({"twitter":word, "preferred":"twitter"})
-                remaining.append("<user>")
             else:
                 remaining.append(word)
         return (foundusers, " ".join(remaining))
-    
+
     def removeduplicates(self, cmd):
         cmd2 = []
         lastword = ""
