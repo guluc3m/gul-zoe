@@ -71,7 +71,7 @@ There is no way of escaping symbols, so you should avoid using them. The rule of
     <li>Do not use the following symbols: &amp; = ' </li>
     <li>If you need a value with them, encode your message. Base64 is a great option.</li>
     <li>The trailing '=' in base64 are OK.</li>
-    <li>You can safely use the symbol "</li>
+    <li>You can safely use quotes in values</li>
 </ul>
 A key can be multievaluated:
 <pre>
@@ -503,7 +503,17 @@ course-20-lecture-685 = Traducción  de GNOME
                         <span class="natural">See command parsing</span></td>
         <td class="exm"> </td>
         </tr>
-    
+
+    <tr><th colspan="3">Relay</th></tr>
+
+    <tr><td class="msg rcv">dst = relay <br />
+                            &amp; tag = relay <br />
+                            &amp; <em>key</em> = <em>value</em> <br />
+                            </td>
+        <td class="exp">Relays the message to <em>agent</em> filtering or adding extra information.</td>
+        <td class="exm">sender = <em>someone<em> -> adds all information about the sender</td>
+        </tr>
+
     <tr><th colspan="3">Twitter</th></tr>
 
     <tr><td class="msg rcv">dst = twitter <br />
