@@ -101,16 +101,18 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         jid = parser.get("jid")
         txt = parser.get("feedback-string")
         self.send_message(mto = jid, mbody = txt, mtype = 'chat')
+
+    def guess(self, dest):
+        if "@" in dest:
+            return dest
+        subjects = zoe.Users().subjects()
+        if dest in subjects:
+            return subjects[dest]["jabber"]
         
     def sendmsg(self, parser):
-        to = parser.get("to")
-        touser = parser.get("touser")
+        to = self.guess(parser.get("to"))
         msg = parser.get("msg")
-        if to:
-            print ("Sending " + msg + " to " + to)
-            self.send_message(mto = to, mbody = msg, mtype = 'chat')
-        if touser:
-            u = zoe.Users().subjects()[touser]
-            if u and u["jabber"]:
-                print ("Sending " + msg + " to user " + touser + " (" + u["jabber"] + ")")
-                self.send_message(mto = u["jabber"], mbody = msg, mtype = 'chat')
+        print ("Sending " + msg + " to " + to)
+        self._listener.log("jabber", "DEBUG", "Sending " + msg + " to " + to)
+        self.send_message(mto = to, mbody = msg, mtype = 'chat')
+
