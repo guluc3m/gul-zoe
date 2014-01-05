@@ -28,12 +28,15 @@ import os
 import time
 import configparser
 import zoe
-import pprint
 import subprocess
 import base64
 import tempfile
+import json
 
 class NaturalAgent:
+
+    likelihood = 80
+
     def __init__(self):
         self._listener = zoe.Listener(self, name = "natural")
 
@@ -42,6 +45,9 @@ class NaturalAgent:
 
     def stop(self):
         self._listener.stop()
+
+    def show(self, title, thing):
+        print(title, json.dumps(thing, sort_keys = True, indent = 4))
 
     def reload(self):
         fuzzy = zoe.Fuzzy()
@@ -62,7 +68,6 @@ class NaturalAgent:
                         else:
                             proccommand.append(word)
                     self._commands[" ".join(proccommand)] = (proc, procparams)
-        #pprint.PrettyPrinter(indent=4).pprint(self._commands)
 
     def receive(self, parser):
         tags = parser.tags()
@@ -71,16 +76,16 @@ class NaturalAgent:
 
     def command(self, parser):
         self.reload()
-        print(parser._map)
+        self.show("Received parser:", parser._map)
         cmd64 = parser.get("cmd")
-        print("cmd64=", cmd64)
         cmd = base64.standard_b64decode(cmd64.encode("utf-8")).decode("utf-8")
-        print("cmd=", cmd)
+        self.show("Received command:", cmd)
         fuzzy = zoe.Fuzzy()
         analysis = fuzzy.analyze(cmd)
+        self.show("Command analysis:", analysis)
         stripped = analysis["stripped"]
         canonical, score = fuzzy.lookup(stripped, self._commands)
-        if score < 80:
+        if score < NaturalAgent.likelihood:
             self.feedback(parser, "No te entiendo!")
         else:
             self.docommand(parser, analysis, canonical)    
@@ -102,18 +107,21 @@ class NaturalAgent:
                 shellcmd.append("--msg-" + key)
                 shellcmd.append("'" + value + "'")
         shellcmd = " ".join(shellcmd)
-        print("executing: ", shellcmd)
+        print("Executing:\n", shellcmd.replace("--", "\n    --"))
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         for line in p.stdout.readlines():
             line = line.decode("utf-8").strip()
-            print("cmdproc returned", line)
-            if line[:8] == "message ":
-                print("Sending back to the server", line[8:])
-                self._listener.sendbus(line[8:])
-            if line[:9] == "feedback ":
-                print("Sending feedback", line[9:])
-                self.feedback(parser, line[9:])
+            print("cmdproc: ", line)
+            self.answer(line, parser)
     
+    def answer(self, line, parser):
+        if line[:8] == "message ":
+            print("Sending back to the server", line[8:])
+            self._listener.sendbus(line[8:])
+        if line[:9] == "feedback ":
+            print("Sending feedback", line[9:])
+            self.feedback(parser, line[9:])
+
     def savefile(self, value):
         f = tempfile.NamedTemporaryFile(delete = False)
         f.write(value.encode('utf-8'))
