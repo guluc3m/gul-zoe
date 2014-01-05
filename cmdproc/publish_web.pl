@@ -51,7 +51,7 @@ if ($get) {
 # Lists the commands this script attends
 #
 sub get {
-  print("publica /esto /en /la portada/web\n");
+  print("publica /esto /en /la /portada/web\n");
 }
 
 #
