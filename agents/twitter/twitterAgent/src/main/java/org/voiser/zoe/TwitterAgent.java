@@ -85,19 +85,26 @@ public class TwitterAgent {
     @Message
     public void send(@Param("to")  String to, 
                      @Param("msg") String message) {
+
+        String dest = null;
+
+        if (to != null) {
+            // Ensure we have users notification
+            if (this.users == null) {
+                System.out.println("I don't have users information.");
+                return;
+            }
         
-        // Ensure we have users notification
-        if (this.users == null) {
-            System.out.println("I don't have users information.");
-            return;
-        }
-        
-        // Try to find a user with the given name and a twitter account.
-        // If no one is found, assume that the destination is a twitter user, not a zone one.
-        String dest = this.users.get(to, "twitter");
-        if (dest == null) {
-            System.out.println("Can't find a user called " + to + ". I'll assume it is a twitter account");
-            dest = to;
+            // Try to find a user with the given name and a twitter account.
+            // If no one is found, assume that the destination is a twitter user, not a zoe one.
+            dest = this.users.get(to, "twitter");
+            if (dest == null) {
+                System.out.println("Can't find a user called " + to + ". I'll assume it is a twitter account");
+                dest = to;
+                if (dest.startsWith("@")) {
+                    dest = dest.substring(1);
+                }
+            }
         }
         
         // Send the message to Twitter
