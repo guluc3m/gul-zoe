@@ -44,6 +44,7 @@ $text =~ s/\r\n/\n/g;
 
 # Split text into command and extended text
 my ($cmd, $longcmd) = $text =~ m/(.*?)\n\n+(.*).*/ms;
+$cmd =~ s/\n/ /g;
 $cmd     = encode_base64($cmd, "");
 $longcmd = encode_base64($longcmd, "");
 

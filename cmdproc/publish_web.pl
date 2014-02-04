@@ -64,6 +64,6 @@ sub run {
   print FILE $decoded;
   close(FILE);
   `$ZOE_HOME/tareas/publish_web.sh $filename`;
-  print "feedback hecho";
+  print "feedback hecho\n";
 }
 
