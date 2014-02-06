@@ -34,6 +34,7 @@ import es.gul.zoe.Users;
 import es.gul.zoe.annotations.Agent;
 import es.gul.zoe.annotations.Message;
 import es.gul.zoe.annotations.Param;
+import java.util.Date;
 
 /**
  * Sends messages to Twitter.
@@ -60,7 +61,8 @@ public class TwitterAgent {
             .setOAuthConsumerKey(consumerKey)
             .setOAuthConsumerSecret(consumerSecret)
             .setOAuthAccessToken(accessToken)
-            .setOAuthAccessTokenSecret(accessTokenSecret);
+            .setOAuthAccessTokenSecret(accessTokenSecret)
+            .setUseSSL(true);
         
         TwitterFactory tf = new TwitterFactory(cb.build());
         twitter = tf.getInstance();        
@@ -110,11 +112,12 @@ public class TwitterAgent {
         // Send the message to Twitter
         try {
             String finalMsg = to == null ? message : "@" + dest + " " + message;
-            String ts = " (" + System.currentTimeMillis() + ")";
+            String ts = " (" + new Date() + ")";
+            System.out.println("Sending: " + finalMsg);
             twitter.updateStatus(finalMsg + ts);
-            System.out.println("twitted: " + finalMsg);
         } catch (TwitterException e) {
             e.printStackTrace();
         }
     }
 }
+
