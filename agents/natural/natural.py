@@ -86,7 +86,7 @@ class NaturalAgent:
         stripped = analysis["stripped"]
         canonical, score = fuzzy.lookup(stripped, self._commands)
         if score < NaturalAgent.likelihood:
-            self.feedback(parser, "No te entiendo!")
+            print("I don't understand", parser)
         else:
             self.docommand(parser, analysis, canonical)    
 
