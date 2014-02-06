@@ -24,4 +24,4 @@ $balance =~ s/,/\./g;
 $what = "Abono superior";
 
 # Don't forget the \n
-print "dst=banking&tag=entry&date=$y-$m-$d&account=$account&amount=$amount&what=$what\n"
+print "message dst=banking&tag=entry&date=$y-$m-$d&account=$account&amount=$amount&what=$what\n"

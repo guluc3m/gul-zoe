@@ -25,7 +25,10 @@ export zoe_jabber_password=""
 
 # Parameters for a GMail account
 export zoe_mail_smtp="smtp.gmail.com"
-export zoe_mail_port="587"
+export zoe_mail_smtp_port="587"
+export zoe_mail_pop3="pop.gmail.com"
+export zoe_mail_pop3_port="995"
+export zoe_mail_enable_dkim="true"
 export zoe_mail_user="$zoe_jabber_user"
 export zoe_mail_password="$zoe_jabber_password"
 

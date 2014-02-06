@@ -24,4 +24,4 @@ $balance =~ s/\.//g;
 $balance =~ s/,/\./g;
 
 # Don't forget the \n
-print "dst=banking&tag=check&date=$y-$m-$d&account=$account&balance=$balance\n"
+print "message dst=banking&tag=check&date=$y-$m-$d&account=$account&balance=$balance\n"

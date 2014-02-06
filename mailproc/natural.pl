@@ -49,7 +49,7 @@ $cmd     = encode_base64($cmd, "");
 $longcmd = encode_base64($longcmd, "");
 
 # Don't forget the \n
-print "src=mail&dst=relay&relayto=natural&tag=command&tag=relay&cmd=$cmd&cmdext=$longcmd&sender=$sender&inreplyto=$message_id\n";
+print "message src=mail&dst=relay&relayto=natural&tag=command&tag=relay&cmd=$cmd&cmdext=$longcmd&sender=$sender&inreplyto=$message_id\n";
 
 
 

@@ -29,10 +29,13 @@ import mail
 import os
 
 smtp=os.environ['zoe_mail_smtp']
-port=os.environ['zoe_mail_port']
+smtpport=os.environ['zoe_mail_smtp_port']
+pop3=os.environ['zoe_mail_pop3']
+pop3port=os.environ['zoe_mail_pop3_port']
 user=os.environ['zoe_mail_user']
 password=os.environ['zoe_mail_password']
+dkim=os.environ['zoe_mail_enable_dkim']
 
-agent = mail.MailAgent(smtp, port, user, password)
+agent = mail.MailAgent(smtp, smtpport, user, password, pop3, pop3port, dkim)
 agent.start()
 
