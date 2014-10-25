@@ -29,7 +29,7 @@ import os.path
 import subprocess
 
 class Lists:
-    def __init__(self, db = "/tmp/zoe-members"):
+    def __init__(self, db = os.environ["ZOE_HOME"] + "/var/zoe-members"):
         self._db = db
         if not os.path.exists(db):
             self.setmembers(99)
