@@ -160,13 +160,12 @@ class BankingAgent:
         match = expected == balance
         print("son iguales?", match)
         if match:
-            self.alert("Te informo de que el balance de las cuentas es el esperado", parser)
+            self.alert("Banking: todo OK", "Te informo de que el balance de las cuentas es el esperado", parser)
         else:
-            self.alert("Parece que hay un problema con las cuentas del banco", parser)
+            self.alert("Banking: algo va mal", "Parece que hay un problema con las cuentas del banco", parser)
 
-    def alert(self, message, parser):
-        print(message)
-        aMap = {"src":"banking", "dst":"broadcast", "tag":"send", "msg":message}
+    def alert(self, subject, message, parser):
+        aMap = {"src":"banking", "dst":"broadcast", "tag":"send", "msg":message, "subject":subject}
         msg = zoe.MessageBuilder(aMap, parser).msg()
         self._listener.sendbus(msg)
         self._listener.log("banking", "info", "Broadcasting message " + message, parser)
