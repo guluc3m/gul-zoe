@@ -17,7 +17,7 @@ $incoming = $document =~ /alerta de Abono Superior/i;
 exit unless $incoming;
 
 my ($d, $m, $y, $account, $amount, $balance) = 
-	$document =~ m/.*Atendiendo a su petici.n, e-Triodos le informa que el d.a (\d\d)-(\d\d)-(\d\d\d\d) se ha producido un abono en su cuenta (.*?) por importe de (.*?) EUR. El saldo actual es de (.*?) EUR.*/;
+	$document =~ m/.*Atendiendo a su petici.*n, e-Triodos le informa que el d.*a (\d\d)-(\d\d)-(\d\d\d\d) se ha producido un abono en su cuenta (.*?) por importe de (.*?) EUR. El saldo actual es de (.*?) EUR.*/;
 
 $amount =~ s/,/\./g;
 $balance =~ s/,/\./g;
