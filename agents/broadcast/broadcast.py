@@ -55,20 +55,29 @@ class BroadcastAgent:
         self._listener.log("broadcast", "info", "Sending users request", original)
 
     def send(self, parser):
+        self._listener.log("broadcast", "info", "I have a message to broadcast", parser)
         if not self._parser:
             self.requestUsers(parser)
             return
         group = parser.get("group")
         if not group:
             group = "broadcast"
+        self._listener.log("broadcast", "info", "I have a message to broadcast to group " + group, parser)
         msg = parser.get("msg")
+        subject = parser.get("subject")
+        if not subject:
+            subject = "Message from Zoe"
         nicks = self._parser.list("group-" + group + "-members")
         for nick in nicks:
+            self._listener.log("broadcast", "info", "I see that " + nick + " belongs to the group", parser)
             preferred = self._parser.get(nick + "-preferred")
+            self._listener.log("broadcast", "info", "His preferred message channel is " + preferred, parser)
             if preferred == "twitter":
                 self.tweet(nick, msg, parser)
-            if preferred == "mail":
-                self.mail(nick, msg, parser)
+            elif preferred == "mail":
+                self.mail(nick, subject, msg, parser)
+            else:
+                print("Sorry, I can't broadcast to " + nick + " via " + preferred)
 
     def tweet(self, nick, msg, original = None):
         account = self._parser.get(nick + "-twitter")
@@ -76,10 +85,10 @@ class BroadcastAgent:
         self._listener.sendbus(zoe.MessageBuilder(tags, original).msg())
         self._listener.log("broadcast", "info", "Sending message '" + msg + "' to " + account, original)
 
-    def mail(self, nick, msg, original = None):
+    def mail(self, nick, subject, msg, original = None):
         account = self._parser.get(nick + "-mail")
         tags = {"dst":"mail", 
-                "subject":"Message from Zoe",
+                "subject":subject,
                 "to":account, 
                 "txt":msg}
         self._listener.sendbus(zoe.MessageBuilder(tags, original).msg())
