@@ -96,6 +96,7 @@ class ActivitiesAgent:
         incomings = sorted(incomings, key = lambda i: i[0])
         expenses = sorted(expenses, key = lambda i: i[0])
         balance = parser.get("balance")
+        balance = "{0:.2f}".format(float(balance))
         self._banking = (incomings, expenses, balance)
         self._listener.log("activities", "info", "Banking info received", parser)
     
