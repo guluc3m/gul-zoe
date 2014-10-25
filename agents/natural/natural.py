@@ -32,6 +32,7 @@ import subprocess
 import base64
 import tempfile
 import json
+import re
 
 class NaturalAgent:
 
@@ -59,20 +60,46 @@ class NaturalAgent:
             p = subprocess.Popen(proc + " --get", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             for line in p.stdout.readlines():
                 pattern = line.decode("utf-8")
-                for p in fuzzy.patterns(pattern):
-                    proccommand = []
-                    procparams = []
-                    for word in p.split():
-                        if word[0:2] == "--":
-                            procparams.append(word)
-                        else:
-                            proccommand.append(word)
-                    self._commands[" ".join(proccommand)] = (proc, procparams)
+                if pattern[0] == '/' and pattern[-1] == '/':
+                    self._commands[pattern] = (proc, [])
+                else:
+                    for p in fuzzy.patterns(pattern):
+                        proccommand = []
+                        procparams = []
+                        for word in p.split():
+                            if word[0:2] == "--":
+                                procparams.append(word)
+                            else:
+                                proccommand.append(word)
+                        self._commands[" ".join(proccommand)] = (proc, procparams)
 
     def receive(self, parser):
         tags = parser.tags()
         if "command" in tags:
             self.command(parser)
+
+    def regexp(self, cmd):
+        #print("I'll try exact match")
+        for command in self._commands:
+            #print("Trying with", command)
+            if command[0] == '/' and command[-1] == '/':
+                command2 = command[1:-1]
+                #print("This is a regex, I will use", command2)
+                try:
+                    exp = re.compile(command2)
+                    if exp and exp.match(cmd):
+                        #print("This regexp matches")
+                        return command
+                    else:
+                        #print("This regexp does not match")
+                        pass
+                except Exception as e:
+                    #print("Exception when matching", command, ":", e)
+                    pass
+            else:
+                #print("This is not a regexp")
+                pass
+        return None
 
     def command(self, parser):
         self.reload()
@@ -80,15 +107,39 @@ class NaturalAgent:
         cmd64 = parser.get("cmd")
         cmd = base64.standard_b64decode(cmd64.encode("utf-8")).decode("utf-8")
         self.show("Received command:", cmd)
-        fuzzy = zoe.Fuzzy()
-        analysis = fuzzy.analyze(cmd)
-        self.show("Command analysis:", analysis)
-        stripped = analysis["stripped"]
-        canonical, score = fuzzy.lookup(stripped, self._commands)
-        if score < NaturalAgent.likelihood:
-            print("I don't understand", parser)
+        exact = self.regexp(cmd)
+        if exact:
+            print("I should use exact matching with", exact)
+            self.doexactcommand(parser, exact, cmd)
         else:
-            self.docommand(parser, analysis, canonical)    
+            print("I should use fuzzy matching")
+            fuzzy = zoe.Fuzzy()
+            analysis = fuzzy.analyze(cmd)
+            self.show("Command analysis:", analysis)
+            stripped = analysis["stripped"]
+            canonical, score = fuzzy.lookup(stripped, self._commands)
+            if score < NaturalAgent.likelihood:
+                print("I don't understand", parser)
+            else:
+                self.docommand(parser, analysis, canonical)
+
+    def fill(self, parser, shellcmd):
+        for key in parser._map:
+            for value in parser.list(key):
+                if key[0:10] == "attachment":
+                    value = self.savefile(value)
+                shellcmd.append("--msg-" + key)
+                shellcmd.append("'" + value + "'")
+
+    def doexactcommand(self, parser, cmd, given):
+        cmdproc, cmdparams = self._commands[cmd]
+        shellcmd = [cmdproc, " ".join(cmdparams),
+                    "--run",  
+                    "--original",  "'" + given + "'", 
+                    "--canonical", "'" + cmd + "'"]
+        self.fill(parser, shellcmd)
+        shellcmd = " ".join(shellcmd)
+        self.execcommand(parser, shellcmd)
 
     def docommand(self, parser, analysis, canonical):
         stripped = analysis["stripped"]
@@ -100,13 +151,11 @@ class NaturalAgent:
                     "--original",  "'" + analysis["original"] + "'", 
                     "--canonical", "'" + canonical + "'"]
         shellcmd.append(params)
-        for key in parser._map:
-            for value in parser.list(key):
-                if key[0:10] == "attachment":
-                    value = self.savefile(value)
-                shellcmd.append("--msg-" + key)
-                shellcmd.append("'" + value + "'")
+        self.fill(parser, shellcmd)
         shellcmd = " ".join(shellcmd)
+        self.execcommand(parser, shellcmd)
+
+    def execcommand(self, parser, shellcmd):
         print("Executing:\n", shellcmd.replace("--", "\n    --"))
         p = subprocess.Popen(shellcmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         totalfeedback = []
