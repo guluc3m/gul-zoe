@@ -102,6 +102,6 @@ class Mail:
         server.starttls()
         server.ehlo()
         server.login(self._user, self._password)
-        server.sendmail(self._user, recipient, self._msg.as_string())
+        server.sendmail(self._user, recipient, self._msg.as_string().encode('UTF-8'))
         server.close()
         return self
