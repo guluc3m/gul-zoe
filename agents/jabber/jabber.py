@@ -86,9 +86,7 @@ class JabberAgent (sleekxmpp.ClientXMPP):
         model = zoe.Users()
         subjects = model.subjects()
         for s in subjects:
-            if "jabber" in subjects[s] and subjects[s]["jabber"] == user:
-                return subjects[s]
-            if "jabber-alias" in subjects[s] and subjects[s]["jabber-alias"] == user:
+            if "jabber" in subjects[s] and user in subjects[s]["jabber"].split(","):
                 return subjects[s]
 
     def receive(self, parser):
