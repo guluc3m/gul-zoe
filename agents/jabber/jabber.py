@@ -105,7 +105,10 @@ class JabberAgent (sleekxmpp.ClientXMPP):
             return dest
         subjects = zoe.Users().subjects()
         if dest in subjects:
-            return subjects[dest]["jabber"]
+            address = subjects[dest]["jabber"]
+            if "," in address:
+                address = address.split(",")[0]
+            return address
         
     def sendmsg(self, parser):
         to = self.guess(parser.get("to"))
