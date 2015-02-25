@@ -58,16 +58,25 @@ class Listener:
             self._host = host
             self._port = port
         else:
-            conf = zoe.Config()
             self._name = name
-            self._host = conf.bind_host(name)
-            self._port = int(conf.port(name))
+            self.readhostport(name, host, port)
         self._srvhost, self._srvport = serverhost, int(serverport)
         self._delegate = delegate
         self._running = False
         self._debugmode = debugmode
         self._timeout = timeout
         self._interval = keepaliveinterval
+
+    def readhostport(self, name, host, port):
+        try:
+            conf = zoe.Config()
+            self._host = conf.bind_host(name)
+            self._port = int(conf.port(name))
+            self._dyn = False
+        except Exception as e:
+            self._host = host
+            self._port = 0
+            self._dyn = True
 
     def start(self, sockethook = None):
         if (self._interval > 0):
@@ -77,7 +86,7 @@ class Listener:
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._socket.bind((self._host, self._port))
-        (self._host, self._port) = self._socket.getsockname()
+        (self._host, self._port) = self._socket.getsockname()            
         self._socket.listen(10)
         if sockethook:
             sockethook()

@@ -43,6 +43,8 @@ class Fuzzy:
     def analyze(self, original):
         cmd = original
         strings, cmd = self.extract_strings(cmd)
+        urls, cmd = self.extract_urls(cmd)
+        symbols, cmd = self.extract_symbols(cmd)
         integers, cmd = self.extract_integers(cmd)
         floats, cmd = self.extract_floats(cmd)
         users, cmd = self.extract_users(cmd)
@@ -57,6 +59,8 @@ class Fuzzy:
              "float":floats,
              "mail":mails,
              "twitter":twitters,
+             "url":urls,
+             "symbol":symbols,
              "original":original, 
              "stripped":cmd}
         return r
@@ -82,6 +86,15 @@ class Fuzzy:
     def extract_strings(self, cmd):
         exp = r'\s\"([^\"]+)\"\s'
         return self.extract(cmd, exp, "<string>")
+
+    def extract_urls(self, cmd):
+        # taken from http://stackoverflow.com/questions/6883049/regex-to-find-urls-in-string-in-python
+        exp = r'\s(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+)\s'
+        return self.extract(cmd, exp, "<url>")
+    
+    def extract_symbols(self, cmd):
+        exp = r'\s:(\w+)\s'
+        return self.extract(cmd, exp, "<symbol>")
 
     def extract_integers(self, cmd):
         exp = r'\s([0-9]+)\s'

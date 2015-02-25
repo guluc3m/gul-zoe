@@ -43,6 +43,7 @@ class Users:
             kind, name = section.split(" ")
             if kind == "subject":
                 sec = self._config[section]
+                sec["uniqueid"] = name
                 if "alias" in sec:
                     for alias in sec["alias"].split():
                         self._config["subject " + alias] = sec
@@ -75,6 +76,12 @@ class Users:
                     aMap[key] = self._config[section][key]
                 ids[name] = aMap
         return ids
+        
+    def membersof(self, grpname):
+        try:
+            return self.group(grpname)["members"].split()
+        except Exception as e:
+            return []
 
     def subject(self, name):
         return self._config["subject " + name]

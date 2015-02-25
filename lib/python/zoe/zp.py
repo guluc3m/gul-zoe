@@ -89,6 +89,8 @@ class MessageBuilder:
             else:
                 for v in value:
                     aStr = aStr + key + "=" + v + "&"
+        if aStr[-1] == "&":
+            aStr = aStr[:-1]
         self._msg = aStr
         self._map = aMap
 

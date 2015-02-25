@@ -2,7 +2,7 @@
 #
 # This file is part of Zoe Assistant - https://github.com/guluc3m/gul-zoe
 #
-# Copyright (c) 2013 David Muñoz Díaz <david@gul.es> 
+# Copyright (c) 2014 David Muñoz Díaz <david@gul.es> 
 #
 # This file is distributed under the MIT LICENSE
 # 
@@ -24,10 +24,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from zoe.zp import * 
-from zoe.zs import * 
-from zoe.listener import * 
-from zoe.models import *
-from zoe.fuzzy import *
-from zoe.deco import *
-import zoe.state
+from zoe.state.command import *
+from zoe.state.file import *
