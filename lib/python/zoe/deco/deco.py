@@ -157,6 +157,8 @@ class DecoratedListener:
         if tags == [] and expected == []:
             # default message
             return True
+        if tags != [] and expected == []:
+            return False
         try:
             for t in expected:
                 if not t in tags:
