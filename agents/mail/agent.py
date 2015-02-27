@@ -91,7 +91,8 @@ class MailAgent:
         """
         mailbytes = b'\n'.join(mailcontents) + b'\n'
         mailobj = email.message_from_bytes(mailbytes)
-        if not self.valid_sender(mailobj):
+        sender = self.valid_sender(mailobj)
+        if not sender:
             print("Invalid sender")
             return
         dkim = self.check_dkim(mailcontents)
@@ -99,7 +100,7 @@ class MailAgent:
             print("Invalid DKIM")
             return
         print("Valid mail")
-        return self.mailproc(mailbytes)
+        return self.mailproc(mailbytes, sender)
     
     def valid_sender(self, mail):
         """
@@ -139,7 +140,7 @@ class MailAgent:
     def quote(self, s):
         return "'" + s.replace("'", "\\'") + "'"
     
-    def parsemail(self, bs):
+    def parsemail(self, bs, sender):
         params = []
         message = email.message_from_bytes(bs)
         headers = ["subject",
@@ -158,6 +159,10 @@ class MailAgent:
                 params.append("--mail-" + h)
                 params.append(self.quote(message[h]))
    
+        params.append("--msg-sender=" + self.quote(sender["uniqueid"]))
+        for key in sender:
+            params.append("--msg-sender-" + key + "=" + self.quote(sender[key]))
+
         plain = b""
         for part in message.walk():
             if part.is_multipart(): continue;
@@ -180,9 +185,9 @@ class MailAgent:
             
         return params
     
-    def mailproc(self, mailbytes):
+    def mailproc(self, mailbytes, sender):
         fname = self.savefile(mailbytes)
-        params = self.parsemail(mailbytes)
+        params = self.parsemail(mailbytes, sender)
         mailprocdir = os.environ["ZOE_HOME"] + "/mailproc"
         procs = [mailprocdir + "/" + f for f in os.listdir(mailprocdir)]
         procs = [p for p in procs if os.access(p, os.X_OK)]
