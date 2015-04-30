@@ -46,8 +46,7 @@ sub get {
 }
 
 sub send_by_twitter {
-  my @destinations = (@twitters);
-  foreach my $dest (@destinations) {
+  foreach my $dest (@twitters) {
     print("message dst=twitter&msg=Me han dicho que estás pocho, ponte bueno&to=$dest\n");
   }
 }
