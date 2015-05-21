@@ -89,3 +89,21 @@ class Users:
     def group(self, name):
         return self._config["group " + name]
 
+
+
+class NetUsers:
+
+    def __init__(self, parser):
+        subjects = parser.list("subject")
+        users = {}
+        for s in subjects:
+            user = {}
+            user_keys = [k for k in parser._map if k[0:len(s) + 1] == s + "-"]
+            for uk in user_keys:
+                user[uk[len(s) + 1:]] = parser.get(uk)
+            users[s] = user
+        self._users = users
+
+    def __getitem__(self, key):
+        return self._users[key]
+

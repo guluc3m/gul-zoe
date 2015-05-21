@@ -67,7 +67,10 @@ class MessageParser:
 
     def addr(self):
         return self._addr
-        
+    
+    def __getitem__(self, k):
+        return get(k)
+
     def __str__(self):
         return str(self._map)
 
