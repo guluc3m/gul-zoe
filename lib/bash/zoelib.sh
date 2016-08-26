@@ -8,7 +8,7 @@
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,7 +25,7 @@ function _zoe_add_trap(){
   mytrap="$*"
   if trap|grep -v "''"|grep -q EXIT;then
     #Just in case we had a trap already setted...
-    mytrap="$(trap|grep "EXIT$"|sed -e "s%trap -- '\(.*\)' EXIT$%\1;$mytrap%g")"
+    mytrap="$(trap|grep "EXIT$"|sed -e "s%trap -- '\(.*\)' EXIT$%\1;${mytrap//&/\\&}%g")"
   fi
   trap "$mytrap" EXIT
 }
@@ -42,9 +42,9 @@ function zoe_serve(){
   local PORT=${3:-$_zoe_bind_port}
   [ -e $CONTEXT/fifo ] && rm -rf $CONTEXT/fifo
   mkfifo $CONTEXT/fifo
-  (zoe_action <$CONTEXT/fifo  |nc -kl $IP $PORT > $CONTEXT/fifo) &
+  (zoe_action <$CONTEXT/fifo  |nc -kl  $IP $PORT > $CONTEXT/fifo ) &
   echo $! >> $CONTEXT/pids
-  _zoe_add_trap kill $!
+  _zoe_add_trap "kill $! &>/dev/null"
 }
 
 function zoe_action(){
@@ -61,24 +61,21 @@ function zoe_action(){
 #          zoe_var_tag[0]=hola
 #          zoe_var_tag[1]=adios
 #          zoe_var_src=manolo
-#TODO:Prevent injection
 
 function zoe_parse(){
 
   CONTEXT=$_zoe_context
   zoe_cleanvars;
-  f=$CONTEXT/tmpparse
-  >$f
-  IFSBAKAP="$IFS"
-  IFS="&"
-  for i in ${1};do
-    pre="${i%=*}"
-    pos="${i#*=}"
-    echo "zoe_var_$pre+=(\"${pos}\")" >> $f
-  done
-  IFS="$IFSBAKAP"
-  source $f
-  rm -f $f &> /dev/null
+  if echo "$1" |tr -d "\r\n" |grep -q "^[a-zA-Z0-9]\+=[a-zA-Z0-9%\*\.\-\_]*\([a-zA-Z0-9]\+=[a-zA-Z0-9%\*\.\-\_]*&\|&[a-zA-Z0-9]\+=[a-zA-Z0-9%\*\.\-\_]*\)*$";then #filter the data to only permited chars as GET parameters
+    IFSBAKAP="$IFS"
+    IFS="&"
+    for i in ${1// /%20};do
+      pre="${i%=*}"
+      pos="${i#*=}"
+      eval "zoe_var_$pre+=(\"${pos}\")" 
+    done
+    IFS="$IFSBAKAP"
+  fi
 }
 
 function zoe_map(){
@@ -101,5 +98,5 @@ function zoe_cleanvars(){
 
 function zoe_stop(){
   CONTEXT=${1:-$_zoe_context}
-  kill $(< $CONTEXT/pids)
+  kill $(< $CONTEXT/pids) 
 }
